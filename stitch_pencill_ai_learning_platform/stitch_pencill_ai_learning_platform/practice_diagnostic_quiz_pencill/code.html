@@ -1,0 +1,499 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><title>Pencill - Workspace</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="Pencill Brand Wordmark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="px-space-sm space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="student-dashboard" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><rect height="7" rx="1" width="7" x="3" y="3"></rect><rect height="7" rx="1" width="7" x="14" y="3"></rect><rect height="7" rx="1" width="7" x="14" y="14"></rect><rect height="7" rx="1" width="7" x="3" y="14"></rect></svg><span class="">Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="my-courses" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="">My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="explore-pathways" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg><span class="">Explore</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all bg-surface-container-high text-primary font-semibold font-label-lg text-label-lg shadow-xs" data-path="practice-and-quizzes" href="#"><svg class="w-5 h-5 shrink-0 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="m9 11 3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span class="">Practice &amp; Quizzes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="progress-analytics" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg><span class="">Progress</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="bookmarks-and-notes" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg><span class="">Bookmarks</span></a></nav></div><div class="px-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Aanya Patel</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Class 11 · JEE Aspirant</span></div></div><div class="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" data-path="student-settings" href="#"><span class="material-symbols-outlined text-sm">settings</span><span class="">Settings</span></a><span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">Pro Path</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between"><div class="flex-1 max-w-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span><input class="w-full pl-9 pr-space-md py-2 bg-surface-container-lowest rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container" placeholder="Search topics, courses, notes..." type="text"></div></div><div class="flex items-center gap-space-md"><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="create-learning-goal" href="#"><span class="material-symbols-outlined text-base">add</span><span class="">New Goal</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"></div></header><main class="relative pt-16 bg-background min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<section class="w-full max-w-7xl mx-auto space-y-space-xl pb-space-xl">
+<!-- Top Metadata & Header Section -->
+<header class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs max-w-3xl">
+<nav class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="hover:text-primary cursor-pointer transition-colors">Practice &amp; Quizzes</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-primary cursor-pointer transition-colors">JEE Physics</span>
+<span class="text-outline-variant">/</span>
+<span class="text-secondary font-semibold">Kinematics Checkpoint</span>
+</nav>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+          Module 02 Diagnostic Quiz: Kinematics &amp; Projectile Motion
+        </h1>
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs font-label-sm text-label-sm">
+<span class="bg-surface-container px-2.5 py-1 rounded-full text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">quiz</span>
+            10 Questions
+          </span>
+<span class="bg-surface-container px-2.5 py-1 rounded-full text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">school</span>
+            Class 11 Level
+          </span>
+<span class="bg-surface-container px-2.5 py-1 rounded-full text-on-surface font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">verified</span>
+            Passing: 70%
+          </span>
+<span class="bg-secondary-container/40 text-on-secondary-container px-2.5 py-1 rounded-full font-semibold">
+            JEE Main &amp; Advanced Standard
+          </span>
+</div>
+</div>
+<!-- Real-time Timer Block -->
+<div class="flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 border-surface-container pt-3 md:pt-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Time Remaining</span>
+<div class="flex items-center gap-2 bg-surface-container-high/60 px-3.5 py-1.5 rounded-lg text-primary font-headline-sm text-headline-sm font-bold tracking-tight">
+<span class="material-symbols-outlined text-lg text-secondary">schedule</span>
+<span id="quiz-timer" class="">03:00</span>
+</div>
+</div>
+</header>
+<!-- Main Active Test Arena: 2-Column Desktop Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left 8-Cols: Interactive Question Card -->
+<article class="lg:col-span-8 bg-surface-container-lowest p-space-xl rounded-xl shadow-sm space-y-space-lg">
+<!-- Question Meta & Step Stepper -->
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="bg-primary text-on-primary font-label-md text-label-md px-2.5 py-0.5 rounded">Question 04</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">of 10 Single Choice</span>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md transition-colors" id="flag-btn" onclick="toggleFlag()">
+<span class="material-symbols-outlined text-base" id="flag-icon">flag</span>
+<span id="flag-label" class="">Flag for Review</span>
+</button>
+</div>
+<!-- Progress Stepper: 10 Nodes -->
+<div class="space-y-2">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Overall Progress</span>
+<span class="font-semibold text-primary">40% Completed</span>
+</div>
+<div class="grid grid-cols-10 gap-1.5">
+<!-- Q1 (Answered) -->
+<div class="h-2 rounded-full bg-secondary" title="Q1 - Answered"></div>
+<!-- Q2 (Answered) -->
+<div class="h-2 rounded-full bg-secondary" title="Q2 - Answered"></div>
+<!-- Q3 (Answered) -->
+<div class="h-2 rounded-full bg-secondary" title="Q3 - Answered"></div>
+<!-- Q4 (Current Active) -->
+<div class="h-2 rounded-full bg-primary-container ring-2 ring-primary/20" title="Q4 - Current Active"></div>
+<!-- Q5 to Q10 (Unanswered) -->
+<div class="h-2 rounded-full bg-surface-container" title="Q5 - Not Visited"></div>
+<div class="h-2 rounded-full bg-surface-container" title="Q6 - Not Visited"></div>
+<div class="h-2 rounded-full bg-surface-container" title="Q7 - Not Visited"></div>
+<div class="h-2 rounded-full bg-surface-container" title="Q8 - Not Visited"></div>
+<div class="h-2 rounded-full bg-surface-container" title="Q9 - Not Visited"></div>
+<div class="h-2 rounded-full bg-surface-container" title="Q10 - Not Visited"></div>
+</div>
+</div>
+</div>
+<!-- Question Stem Presentation -->
+<div class="space-y-space-sm pt-2">
+<p class="font-headline-md text-headline-md text-on-surface leading-relaxed">
+            A projectile is fired from horizontal ground with speed <span class="font-serif italic">u</span> at an angle <span class="font-serif italic">θ</span> to the horizontal. At the highest point of its trajectory, what is the radius of curvature of the path in terms of <span class="font-serif italic">u</span>, <span class="font-serif italic">θ</span>, and acceleration due to gravity <span class="font-serif italic">g</span>?
+          </p>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-base text-secondary">info</span>
+<span class="">Assume standard Cartesian coordinates with uniform gravitational field acting downwards. Neglect air resistance.</span>
+</div>
+</div>
+<!-- Multiple Choice Options -->
+<fieldset class="space-y-3 pt-2">
+<legend class="sr-only">Select your answer for Question 4</legend>
+<!-- Option A (Active/Selected) -->
+<label class="group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all bg-surface-container shadow-sm ring-1 ring-primary-container text-on-surface">
+<div class="flex items-center gap-4">
+<input checked="" class="w-4 h-4 text-primary accent-primary cursor-pointer" name="kinematics_q4" type="radio" value="A">
+<span class="font-label-lg text-label-lg font-semibold text-primary">A.</span>
+<span class="font-body-lg text-body-lg">
+<span class="inline-flex items-center gap-1 font-serif italic">
+                  (u² cos²θ) / g
+                </span>
+</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold bg-surface-container-lowest px-2.5 py-0.5 rounded-full shadow-xs">Selected</span>
+</label>
+<!-- Option B -->
+<label class="group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all bg-surface-container-lowest hover:bg-surface-container-low text-on-surface shadow-xs">
+<div class="flex items-center gap-4">
+<input class="w-4 h-4 text-primary accent-primary cursor-pointer" name="kinematics_q4" type="radio" value="B">
+<span class="font-label-lg text-label-lg font-semibold text-on-surface-variant">B.</span>
+<span class="font-body-lg text-body-lg">
+<span class="inline-flex items-center gap-1 font-serif italic">
+                  (u² sin²θ) / g
+                </span>
+</span>
+</div>
+</label>
+<!-- Option C -->
+<label class="group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all bg-surface-container-lowest hover:bg-surface-container-low text-on-surface shadow-xs">
+<div class="flex items-center gap-4">
+<input class="w-4 h-4 text-primary accent-primary cursor-pointer" name="kinematics_q4" type="radio" value="C">
+<span class="font-label-lg text-label-lg font-semibold text-on-surface-variant">C.</span>
+<span class="font-body-lg text-body-lg">
+<span class="inline-flex items-center gap-1 font-serif italic">
+                  u² / (g cosθ)
+                </span>
+</span>
+</div>
+</label>
+<!-- Option D -->
+<label class="group flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all bg-surface-container-lowest hover:bg-surface-container-low text-on-surface shadow-xs">
+<div class="flex items-center gap-4">
+<input class="w-4 h-4 text-primary accent-primary cursor-pointer" name="kinematics_q4" type="radio" value="D">
+<span class="font-label-lg text-label-lg font-semibold text-on-surface-variant">D.</span>
+<span class="font-body-lg text-body-lg">
+<span class="inline-flex items-center gap-1 font-serif italic">
+                  (2u² cosθ) / g
+                </span>
+</span>
+</div>
+</label>
+</fieldset>
+<!-- Question Actions Controls -->
+<footer class="pt-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-lg text-label-lg flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+<span class="">Previous Question</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors font-label-md text-label-md" type="button">
+              Clear Response
+            </button>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary hover:bg-primary font-label-lg text-label-lg transition-all shadow-sm flex items-center gap-2" type="button">
+<span class="">Save &amp; Next Question</span>
+<span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+<button class="px-space-md py-2.5 rounded-lg bg-secondary-container text-on-secondary-fixed font-label-lg text-label-lg hover:bg-secondary-fixed transition-colors" type="button">
+              Submit Quiz
+            </button>
+</div>
+</footer>
+</article>
+<!-- Right 4-Cols: Question Palette & Reference Sidepanel -->
+<aside class="lg:col-span-4 space-y-space-md">
+<!-- Question Palette Navigator -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Question Palette</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">JEE Physics 2025</span>
+</div>
+<div class="grid grid-cols-5 gap-2 pt-1">
+<button class="h-9 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high" type="button">01</button>
+<button class="h-9 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high" type="button">02</button>
+<button class="h-9 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high" type="button">03</button>
+<button class="h-9 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold shadow-xs" type="button">04</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">05</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">06</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">07</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">08</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">09</button>
+<button class="h-9 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md hover:bg-surface-container" type="button">10</button>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="">Answered (3)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="">Current (1)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-surface-container-high"></span>
+<span class="">Unvisited (6)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-full bg-secondary-fixed"></span>
+<span class="">Marked Review (0)</span>
+</div>
+</div>
+</div>
+<!-- Formula Cue & Visual Diagram Reference -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-primary">Trajectory Geometry</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">architecture</span>
+</div>
+<!-- Mathematical Vector Diagram SVG -->
+<div class="bg-surface-container-lowest p-2 rounded-lg flex items-center justify-center">
+<svg class="w-full h-auto text-primary" viewBox="0 0 280 130">
+<!-- Grid Backdrop lines -->
+<line stroke="currentColor" stroke-opacity="0.25" stroke-width="1.5" x1="20" x2="260" y1="110" y2="110"></line>
+<line stroke="currentColor" stroke-opacity="0.25" stroke-width="1.5" x1="20" x2="20" y1="20" y2="110"></line>
+<!-- Parabola Path -->
+<path class="text-secondary" d="M 20 110 Q 140 10 260 110" fill="none" stroke="currentColor" stroke-dasharray="3 3" stroke-width="2.5"></path>
+<!-- Velocity vector at Apex -->
+<circle class="text-primary" cx="140" cy="60" fill="currentColor" r="4"></circle>
+<line class="text-primary" marker-end="url(#arrowhead)" stroke="currentColor" stroke-width="2" x1="140" x2="195" y1="60" y2="60"></line>
+<text class="font-sans font-semibold text-[11px] fill-current" x="145" y="52">v = u cosθ</text>
+<!-- Centripetal Accel g downward -->
+<line class="text-error" stroke="currentColor" stroke-width="2" x1="140" x2="140" y1="60" y2="95"></line>
+<text class="font-sans font-semibold text-[11px] fill-current text-error" x="146" y="88">a⊥ = g</text>
+<!-- Coordinate Labels -->
+<text class="font-sans text-[10px] fill-current text-on-surface-variant" x="250" y="125">X</text>
+<text class="font-sans text-[10px] fill-current text-on-surface-variant" x="10" y="25">Y</text>
+<text class="font-sans text-[10px] fill-current text-secondary font-medium" x="135" y="24">Apex (Highest Point)</text>
+</svg>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Recall that at the apex, vertical velocity <span class="italic">v<sub>y</sub> = 0</span>. Thus, the instantaneous normal acceleration is directly provided by gravity.
+          </p>
+</div>
+</aside>
+</div>
+<!-- Diagnostic Results Section: Recent Performance & Weak Topic Remediation -->
+<section class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-semibold">Diagnostic Intelligence</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Recent Diagnostic &amp; Performance Profile</h2>
+</div>
+<span class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">
+          Updated 3 hours ago
+        </span>
+</div>
+<!-- Result Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Completed Assessment</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Module 01 Checkpoint: Units &amp; Measurements</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">10 Concept-weighted items · Taken on Oct 14 · JEE Class 11 Core</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-md">
+<!-- Score Gauge -->
+<div class="flex items-center gap-3 bg-surface-container-lowest px-4 py-2.5 rounded-lg shadow-xs">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-12 h-12 -rotate-90" viewBox="0 0 36 36">
+<path class="text-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="90, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute font-label-md text-label-md font-bold text-on-surface">90%</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-bold text-on-surface">9 / 10 Correct</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">High Proficiency</span>
+</div>
+</div>
+<button class="px-space-md py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md" type="button">
+              View Detailed Solution Sheet
+            </button>
+</div>
+</div>
+<!-- Diagnostic Topic Breakdown & Remediation Action -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Topic 1 -->
+<div class="bg-surface-container-low/60 p-space-md rounded-xl space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Dimensional Analysis</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-primary font-medium">Mastered</span>
+</div>
+<div class="flex items-baseline justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Accuracy Score</span>
+<span class="font-semibold text-on-surface">100% (4/4)</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container">
+<div class="h-full rounded-full bg-primary" style="width: 100%"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant pt-1">Principle of homogeneity applied flawlessly across complex multi-variable terms.</p>
+</div>
+<!-- Topic 2 -->
+<div class="bg-surface-container-low/60 p-space-md rounded-xl space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Significant Figures</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-primary font-medium">Mastered</span>
+</div>
+<div class="flex items-baseline justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Accuracy Score</span>
+<span class="font-semibold text-on-surface">100% (3/3)</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container">
+<div class="h-full rounded-full bg-primary" style="width: 100%"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant pt-1">Solid grasp of rounding rules in multiplication and addition operations.</p>
+</div>
+<!-- Topic 3: Needs Review Alert -->
+<div class="bg-surface-container-low/60 p-space-md rounded-xl space-y-3 ring-1 ring-secondary/30">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Error Propagation</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold">Needs Review</span>
+</div>
+<div class="flex items-baseline justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">Accuracy Score</span>
+<span class="font-semibold text-secondary">66% (2/3)</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container">
+<div class="h-full rounded-full bg-secondary" style="width: 66%"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant pt-1">Minor slip in percentage fractional error calculation for powers of exponents.</p>
+</div>
+</div>
+<!-- AI Targeted Remediation Box -->
+<div class="bg-surface-container p-space-md rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-3">
+<div class="p-2.5 rounded-lg bg-surface-container-lowest text-secondary shadow-xs">
+<span class="material-symbols-outlined text-xl">auto_fix_high</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Targeted Intervention</span>
+<span class="font-label-sm text-label-sm bg-surface-container-lowest px-2 py-0.5 rounded text-on-surface-variant">8m micro-lecture</span>
+</div>
+<h4 class="font-label-lg text-label-lg font-semibold text-on-surface">
+                Systematic vs Random Errors in Vernier Caliper Measurements
+              </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Synthesized clip focusing on fractional error addition when calculating volume of cylindrical objects.
+              </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary hover:bg-primary font-label-md text-label-md transition-all flex items-center gap-1.5 shadow-xs" type="button">
+<span class="material-symbols-outlined text-base">play_circle</span>
+<span class="">Review Weak Topic (8m)</span>
+</button>
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-high font-label-md text-label-md transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-base">refresh</span>
+<span class="">Retake Quiz</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Practice Library Hub -->
+<section class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant font-semibold">Self-Paced Drills</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Recommended Practice Modules</h2>
+</div>
+<a class="font-label-lg text-label-lg text-secondary hover:underline flex items-center gap-1" href="#">
+<span class="">Explore All 42 Sets</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Practice Card 1 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-md group cursor-pointer">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container px-2.5 py-1 rounded text-on-surface font-label-sm text-label-sm font-medium">Daily Streak</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary">bolt</span>
+                5 Mins
+              </span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Daily JEE Physics Practice
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                5 fast conceptual problems designed to keep formula retrieval sharp before evening study.
+              </p>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="">5 Adaptive Questions</span>
+<span class="text-primary font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
+              Start Drill →
+            </span>
+</div>
+</div>
+<!-- Practice Card 2 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-md group cursor-pointer">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="bg-secondary-container/40 text-on-secondary-container px-2.5 py-1 rounded font-label-sm text-label-sm font-semibold">Timed Mock</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">timer</span>
+                60 Mins
+              </span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Full Mock Test 1: Class 11 Mechanics
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Comprehensive paper covering Units, Kinematics, Dynamics, and Work-Energy-Power with negative marking.
+              </p>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="">30 Questions · NTA Format</span>
+<span class="text-primary font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
+              Begin Test →
+            </span>
+</div>
+</div>
+<!-- Practice Card 3 -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-md group cursor-pointer">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="bg-surface-container px-2.5 py-1 rounded text-on-surface font-label-sm text-label-sm font-medium">Spaced Flashcards</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">style</span>
+                18 Cards
+              </span>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Formula Flashcards: Vectors &amp; Kinematics
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Active recall cards for dot/cross product identities, relative velocity formulas, and trajectory limits.
+              </p>
+</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="">92% Recall Confidence</span>
+<span class="text-primary font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
+              Review Deck →
+            </span>
+</div>
+</div>
+</div>
+</section>
+</section>
+<!-- Interactive Question Micro-State Script -->
+<script>
+    // Flag toggle state
+    let isFlagged = false;
+    function toggleFlag() {
+      isFlagged = !isFlagged;
+      const icon = document.getElementById('flag-icon');
+      const label = document.getElementById('flag-label');
+      const btn = document.getElementById('flag-btn');
+      
+      if (isFlagged) {
+        icon.classList.add('text-secondary');
+        icon.style.fontVariationSettings = "'FILL' 1";
+        label.textContent = "Flagged";
+        btn.classList.add('bg-secondary-container/40', 'text-on-secondary-fixed-variant');
+      } else {
+        icon.classList.remove('text-secondary');
+        icon.style.fontVariationSettings = "'FILL' 0";
+        label.textContent = "Flag for Review";
+        btn.classList.remove('bg-secondary-container/40', 'text-on-secondary-fixed-variant');
+      }
+    }
+
+    // Dynamic timer countdown
+    (function initTimer() {
+      let secondsRemaining = 14 * 60 + 20;
+      const timerElement = document.getElementById('quiz-timer');
+      if (!timerElement) return;
+
+      const interval = setInterval(() => {
+        if (secondsRemaining <= 0) {
+          clearInterval(interval);
+          timerElement.textContent = "00:00";
+          return;
+        }
+        secondsRemaining--;
+        const mins = Math.floor(secondsRemaining / 60);
+        const secs = secondsRemaining % 60;
+        timerElement.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }, 1000);
+    })();
+  </script>
+</div></main></div>
+
+</body></html>

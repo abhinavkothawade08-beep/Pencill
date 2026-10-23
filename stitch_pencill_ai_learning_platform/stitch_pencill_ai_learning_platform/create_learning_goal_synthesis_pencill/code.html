@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>Pencill - Workspace</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="Pencill Brand Wordmark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"/><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="px-space-sm space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="student-dashboard" href="#"><span class="material-symbols-outlined text-lg">grid_view</span><span>Dashboard</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="my-courses" href="#"><span class="material-symbols-outlined text-lg">menu_book</span><span>My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="explore-pathways" href="#"><span class="material-symbols-outlined text-lg">explore</span><span>Explore</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="practice-and-quizzes" href="#"><span class="material-symbols-outlined text-lg">check_circle</span><span>Practice &amp; Quizzes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="progress-analytics" href="#"><span class="material-symbols-outlined text-lg">bar_chart</span><span>Progress</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="bookmarks-and-notes" href="#"><span class="material-symbols-outlined text-lg">bookmark</span><span>Bookmarks</span></a></nav></div><div class="px-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"/><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Aanya Patel</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Class 11 · JEE Aspirant</span></div></div><div class="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" data-path="student-settings" href="#"><span class="material-symbols-outlined text-sm">settings</span><span>Settings</span></a><span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">Pro Path</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between"><div class="flex-1 max-w-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span><input class="w-full pl-9 pr-space-md py-2 bg-surface-container-lowest rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container" placeholder="Search topics, courses, notes..." type="text"/></div></div><div class="flex items-center gap-space-md"><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="create-learning-goal" href="#"><span class="material-symbols-outlined text-base">add</span><span>New Goal</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"/></div></header><main class="relative pt-16 bg-background min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<div class="max-w-7xl mx-auto w-full pb-space-xl">
+<!-- Top Editorial Header & Breadcrumb -->
+<header class="mb-space-xl">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md mb-space-sm uppercase tracking-wider">
+<a class="hover:text-primary transition-colors" data-path="student-dashboard" href="#">Dashboard</a>
+<span>/</span>
+<span class="text-secondary font-semibold">New Learning Path</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="max-w-3xl">
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight mb-space-xs">
+            What do you want to learn?
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+            Tell Pencill your academic target, exam, or concept. We will curate and sequence the highest-rated free resources across the internet.
+          </p>
+</div>
+<div class="hidden lg:flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-full">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Curating from 4,200+ Verified Academic Repositories</span>
+</div>
+</div>
+</header>
+<!-- 2-Column Split Workspace -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT COLUMN: The Configuration Builder (7 Cols) -->
+<section class="lg:col-span-7 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<form class="flex flex-col gap-space-xl" id="path-builder-form" onsubmit="event.preventDefault(); triggerSynthesis();">
+<!-- Step 1: Learning Goal Input -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs" for="learning-goal-input">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">1</span>
+                  Specify Subject, Topic, or Standardized Exam
+                </label>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Step 1 of 5</span>
+</div>
+<div class="relative mt-space-xs">
+<input class="w-full bg-surface-container-low px-space-md py-3.5 rounded-lg text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] transition-all" id="learning-goal-input" placeholder="e.g. Classical Electrodynamics, Organic Chemistry Class 12, Microeconomics" type="text" value="JEE Physics"/>
+<button class="absolute right-3 top-3 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-lg">tune</span>
+</button>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Suggested subtopics:</span>
+<button class="bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary px-space-sm py-0.5 rounded-md font-label-sm text-label-sm transition-colors" onclick="appendTag('Class 11 Mechanics')" type="button">
+                  + Class 11 Mechanics
+                </button>
+<button class="bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary px-space-sm py-0.5 rounded-md font-label-sm text-label-sm transition-colors" onclick="appendTag('Thermodynamics &amp; Waves')" type="button">
+                  + Thermodynamics &amp; Waves
+                </button>
+<button class="bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary px-space-sm py-0.5 rounded-md font-label-sm text-label-sm transition-colors" onclick="appendTag('Rotational Dynamics')" type="button">
+                  + Rotational Dynamics
+                </button>
+</div>
+</div>
+<!-- Step 2: Target Academic Level -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">2</span>
+                Target Depth &amp; Difficulty
+              </label>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-space-xs mt-space-xs">
+<button class="level-pill flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group" data-level="foundation" type="button">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-primary">Foundation</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Grade 9–10 fundamentals</span>
+</button>
+<button class="level-pill flex flex-col items-start p-space-sm rounded-lg bg-primary-container text-on-primary shadow-sm text-left transition-all active-pill" data-level="class-11" type="button">
+<span class="font-label-lg text-label-lg font-semibold flex items-center justify-between w-full">
+                    Class 11
+                    <span class="material-symbols-outlined text-sm text-secondary-fixed">check_circle</span>
+</span>
+<span class="font-label-sm text-label-sm text-primary-fixed-dim">High School Standard</span>
+</button>
+<button class="level-pill flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group" data-level="class-12" type="button">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-primary">Class 12</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Senior Board Scope</span>
+</button>
+<button class="level-pill flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group" data-level="competitive" type="button">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-primary">Competitive Focus</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">JEE Adv / NEET Mastery</span>
+</button>
+<button class="level-pill flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-left transition-all group sm:col-span-2" data-level="undergraduate" type="button">
+<span class="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-primary">Undergraduate Intro</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">First-year engineering rigorous syllabus</span>
+</button>
+</div>
+</div>
+<!-- Step 3: Preferred Language -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">3</span>
+                Instruction Language
+              </label>
+<div class="flex flex-wrap gap-space-xs mt-space-xs">
+<button class="lang-pill px-space-md py-space-xs rounded-full bg-primary text-on-primary font-label-md text-label-md font-semibold transition-all" type="button">English</button>
+<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">Hindi</button>
+<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">Hinglish (Bilingual)</button>
+<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">Tamil</button>
+<button class="lang-pill px-space-md py-space-xs rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">Marathi</button>
+</div>
+</div>
+<!-- Step 4: Primary Learning Modality / Focus -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">4</span>
+                Primary Pedagogical Modalities
+              </label>
+<p class="font-body-sm text-body-sm text-on-surface-variant -mt-1">Pencill selects verified materials matching your cognitive study routine.</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-xs mt-space-xs">
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 rounded text-primary accent-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Curated Video Lectures</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">NPTEL, IIT Faculty, &amp; YouTube stars</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 rounded text-primary accent-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Deep Reading / Theory Notes</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">NCERT extracts &amp; classic textbook notes</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 rounded text-primary accent-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Graded Practice Problems</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Past 10 years JEE Main/Adv questions</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 rounded text-primary accent-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Diagnostic Quizzes</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Instant feedback checkpoint tests</span>
+</div>
+</label>
+<label class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors sm:col-span-2">
+<input class="w-4 h-4 rounded text-primary accent-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Spaced Formula Flashcards</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Equations, dimensional formulas &amp; memory hooks</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Step 5: Weekly Time Commitment -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs" for="time-range">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">5</span>
+                  Weekly Commitment
+                </label>
+<span class="font-label-lg text-label-lg text-secondary font-semibold bg-secondary-fixed/30 px-space-sm py-0.5 rounded" id="commitment-badge">
+                  6 hours / week
+                </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Pacing strategy: <span class="text-on-surface font-medium" id="pace-description">Steady Pace · ~4 Weeks Total Duration</span>
+</p>
+<div class="pt-space-sm pb-space-xs">
+<input class="w-full accent-primary h-2 bg-surface-container rounded-lg cursor-pointer" id="time-range" max="20" min="2" oninput="updateCommitment(this.value)" step="1" type="range" value="6"/>
+<div class="flex justify-between text-on-surface-variant font-label-sm text-label-sm mt-1">
+<span>Casual (2 hrs)</span>
+<span class="font-semibold text-primary">Balanced (6 hrs)</span>
+<span>Sprint (12 hrs)</span>
+<span>Intensive (20 hrs)</span>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<div class="pt-space-sm">
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary py-space-md px-space-lg rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-space-sm transition-all shadow-md active:scale-[0.99] group" type="submit">
+<span class="material-symbols-outlined text-xl group-hover:rotate-12 transition-transform text-secondary-fixed">auto_awesome</span>
+<span>Build My Learning Path</span>
+<span class="material-symbols-outlined text-lg ml-auto opacity-70 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant mt-space-xs">
+                Free academic syllabus builder. No subscription needed for public modules.
+              </p>
+</div>
+</form>
+</div>
+</section>
+<!-- RIGHT COLUMN: Live AI Synthesis Engine Simulator (5 Cols) -->
+<aside class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Live Synthesis Status Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<!-- Card Header & Status Pulse -->
+<div class="flex items-center justify-between pb-space-sm border-b border-surface-container-high">
+<div class="flex items-center gap-space-xs">
+<div class="relative flex items-center justify-center w-7 h-7 rounded-full bg-surface-container-low">
+<span class="material-symbols-outlined text-primary text-base">neurology</span>
+<span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">Curator Engine</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary-container/40 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Live Indexing
+            </span>
+</div>
+<!-- Dynamic Header -->
+<div class="my-space-md">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-lg text-label-lg text-primary font-semibold">Synthesis in Progress</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">STEP 3 OF 5</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Sequencing highest-yield resources tailored to <strong class="text-on-surface">JEE Physics Class 11</strong>.
+            </p>
+</div>
+<!-- Sequential Stage Checklist -->
+<div class="flex flex-col gap-space-md relative pl-2">
+<!-- Stage 1: Done -->
+<div class="flex items-start gap-space-sm">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-lg text-on-secondary-container bg-secondary-fixed/40 rounded-full p-0.5">check</span>
+<div class="w-0.5 h-7 bg-surface-container-highest mt-1"></div>
+</div>
+<div class="flex flex-col min-w-0 pt-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-medium">Domain Deconstruction</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Classified 8 fundamental subtopics from NCERT &amp; JEE syllabus core.</p>
+</div>
+</div>
+<!-- Stage 2: Done -->
+<div class="flex items-start gap-space-sm">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-lg text-on-secondary-container bg-secondary-fixed/40 rounded-full p-0.5">check</span>
+<div class="w-0.5 h-7 bg-surface-container-highest mt-1"></div>
+</div>
+<div class="flex flex-col min-w-0 pt-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-medium">Prerequisite Sequencing</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mapped mathematical tools &amp; vectors ahead of Newtonian mechanics.</p>
+</div>
+</div>
+<!-- Stage 3: Current -->
+<div class="flex items-start gap-space-sm">
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center animate-spin">
+<span class="material-symbols-outlined text-sm text-on-primary-fixed">sync</span>
+</div>
+<div class="w-0.5 h-7 bg-surface-container-high mt-1"></div>
+</div>
+<div class="flex flex-col min-w-0 pt-0.5">
+<span class="font-label-lg text-label-lg text-primary font-bold flex items-center gap-1.5">
+                  Harvesting High-Yield Content
+                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+</span>
+<p class="font-body-sm text-body-sm text-on-surface">Evaluating top verified playlists: NPTEL, Khan Academy, and Indian open repositories.</p>
+</div>
+</div>
+<!-- Stage 4: Upcoming -->
+<div class="flex items-start gap-space-sm opacity-60">
+<div class="flex flex-col items-center">
+<div class="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+</div>
+<div class="w-0.5 h-7 bg-surface-container mt-1"></div>
+</div>
+<div class="flex flex-col min-w-0 pt-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-medium">Quality &amp; Clarity Audit</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Checking resolution, audio crispness, and exam-question alignment.</p>
+</div>
+</div>
+<!-- Stage 5: Queued -->
+<div class="flex items-start gap-space-sm opacity-40">
+<div class="flex flex-col items-center">
+<div class="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+</div>
+</div>
+<div class="flex flex-col min-w-0 pt-0.5">
+<span class="font-label-lg text-label-lg text-on-surface font-medium">Formulating Modular Syllabi &amp; Quizzes</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Generating instant flashcard decks and end-of-unit tests.</p>
+</div>
+</div>
+</div>
+<!-- Academic Source Telemetry Widget -->
+<div class="mt-space-md p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-base">verified</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Sources Indexed</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface bg-surface-container px-2 py-0.5 rounded font-mono">NPTEL</span>
+<span class="font-label-sm text-label-sm text-on-surface bg-surface-container px-2 py-0.5 rounded font-mono">NCERT</span>
+<span class="font-label-sm text-label-sm text-on-surface bg-surface-container px-2 py-0.5 rounded font-mono">MIT OCW</span>
+</div>
+</div>
+</div>
+<!-- Real-Time Course Skeleton Preview -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Curriculum Blueprint</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">Live Preview</span>
+</div>
+<div class="flex flex-col gap-space-xs" id="modules-container">
+<!-- Module 1: Ready -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between group hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-md bg-surface-container-highest text-primary flex items-center justify-center font-label-sm text-label-sm font-bold flex-shrink-0">01</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Units, Dimensions &amp; Errors</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">4 lectures · 1 practice sheet · 45 mins</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-fixed/50 px-2 py-0.5 rounded font-medium flex-shrink-0">
+                Ready
+              </span>
+</div>
+<!-- Module 2: Indexing -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between group hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-md bg-surface-container-highest text-primary flex items-center justify-center font-label-sm text-label-sm font-bold flex-shrink-0">02</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Motion in a Straight Line &amp; Vectors</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Indexing 3 video lectures...
+                  </span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary-fixed px-2 py-0.5 rounded font-medium flex-shrink-0">
+                Synthesizing
+              </span>
+</div>
+<!-- Module 3: Queued -->
+<div class="p-space-sm rounded-lg bg-surface-container-low/60 flex items-center justify-between group">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-6 h-6 rounded-md bg-surface-container text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm font-bold flex-shrink-0">03</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-on-surface-variant truncate font-semibold">Laws of Motion &amp; Friction</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Queued for pedagogy mapping</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded font-medium flex-shrink-0">
+                Queued
+              </span>
+</div>
+</div>
+<!-- Subtle Scholarly Footer Quote -->
+<div class="mt-space-md pt-space-sm border-t border-surface-container-high flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-base text-secondary">menu_book</span>
+<span class="font-label-sm text-label-sm italic">Organized according to JEE Main 2025 revision directives.</span>
+</div>
+</div>
+</aside>
+</div>
+<!-- Editorial Feature Strip / Confidence Signals -->
+<div class="mt-space-xl grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex items-start gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-xl">auto_stories</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-0.5">Zero Cognitive Fluff</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Pencill skips clickbait, sponsor breaks, and filler tutorials. You only get distilled academic mastery.
+          </p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex items-start gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-xl">conversion_path</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-0.5">Continuous Diagnostic</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Quizzes after every module track your knowledge retention and auto-adjust subsequent lesson difficulty.
+          </p>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-md flex items-start gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-xl">offline_pin</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-0.5">100% Free Resources</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            All sequenced materials point to publicly accessible lectures, open-source textbooks, and past national papers.
+          </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function appendTag(tagName) {
+    const input = document.getElementById('learning-goal-input');
+    if (input) {
+      if (!input.value.includes(tagName)) {
+        input.value = input.value + ' · ' + tagName;
+      }
+      input.focus();
+    }
+  }
+
+  function updateCommitment(hours) {
+    const badge = document.getElementById('commitment-badge');
+    const desc = document.getElementById('pace-description');
+    if (badge) {
+      badge.textContent = hours + ' hours / week';
+    }
+    if (desc) {
+      let duration = Math.max(2, Math.round(24 / hours));
+      let paceName = 'Steady Pace';
+      if (hours <= 3) paceName = 'Self-Paced Explorer';
+      else if (hours <= 7) paceName = 'Steady Cadence';
+      else if (hours <= 14) paceName = 'Intensive Exam Preparation';
+      else paceName = 'Full Immersion Bootcamp';
+      desc.textContent = paceName + ' · ~' + duration + ' Weeks Total';
+    }
+  }
+
+  // Interactive Level Pills
+  document.querySelectorAll('.level-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.level-pill').forEach(p => {
+        p.classList.remove('bg-primary-container', 'text-on-primary', 'shadow-sm', 'active-pill');
+        p.classList.add('bg-surface-container-low', 'hover:bg-surface-container');
+        const icon = p.querySelector('.material-symbols-outlined');
+        if (icon) icon.remove();
+        const subtitle = p.querySelector('span:last-child');
+        if (subtitle) {
+          subtitle.classList.remove('text-primary-fixed-dim');
+          subtitle.classList.add('text-on-surface-variant');
+        }
+      });
+
+      pill.classList.remove('bg-surface-container-low', 'hover:bg-surface-container');
+      pill.classList.add('bg-primary-container', 'text-on-primary', 'shadow-sm', 'active-pill');
+      
+      const titleSpan = pill.querySelector('span:first-child');
+      if (titleSpan && !titleSpan.querySelector('.material-symbols-outlined')) {
+        const checkIcon = document.createElement('span');
+        checkIcon.className = 'material-symbols-outlined text-sm text-secondary-fixed';
+        checkIcon.textContent = 'check_circle';
+        titleSpan.appendChild(checkIcon);
+      }
+      
+      const sub = pill.querySelector('span:last-child');
+      if (sub) {
+        sub.classList.remove('text-on-surface-variant');
+        sub.classList.add('text-primary-fixed-dim');
+      }
+    });
+  });
+
+  // Language Pills Selector
+  document.querySelectorAll('.lang-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-pill').forEach(b => {
+        b.classList.remove('bg-primary', 'text-on-primary', 'font-semibold');
+        b.classList.add('bg-surface-container-low', 'text-on-surface-variant', 'hover:bg-surface-container');
+      });
+      btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant', 'hover:bg-surface-container');
+      btn.classList.add('bg-primary', 'text-on-primary', 'font-semibold');
+    });
+  });
+
+  function triggerSynthesis() {
+    const input = document.getElementById('learning-goal-input');
+    const val = input ? input.value : 'JEE Physics';
+    alert('Generating personalized syllabus for "' + val + '". Initial modules populated.');
+  }
+</script></main></div></body></html>

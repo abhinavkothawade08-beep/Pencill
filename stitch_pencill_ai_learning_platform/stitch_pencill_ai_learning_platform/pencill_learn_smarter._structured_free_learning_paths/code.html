@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Pencill - AI-Powered Learning Pathways</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-margin flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="Pencill Brand Wordmark" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"/><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="hidden md:flex items-center gap-space-lg" data-active-classes="text-primary font-label-lg font-semibold"><a aria-current="page" class="transition-colors text-primary font-label-lg font-semibold" data-path="landing-page" href="#">How It Works</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="explore-curricula" href="#">Explore</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="platform-features" href="#">Features</a><a class="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors" data-path="pedagogy-philosophy" href="#">Philosophy</a></nav><div class="flex items-center gap-space-md"><a class="font-label-lg text-label-lg text-primary hover:text-on-surface px-space-md py-space-sm rounded-lg transition-colors" data-path="login" href="#">Log in</a><a class="font-label-lg text-label-lg bg-primary-container text-on-primary hover:bg-primary px-space-md py-space-sm rounded-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="student-dashboard" href="#">Start Learning</a></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-7xl mx-auto px-margin"><div class="flex flex-col w-full">
+<!-- Top Background Ambient Atmosphere -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[980px] h-[480px] bg-gradient-to-b from-primary-fixed/30 via-secondary-fixed/20 to-transparent blur-3xl pointer-events-none rounded-full"></div>
+<!-- 1. Hero Section -->
+<section class="relative pt-12 pb-24 px-2 md:px-0">
+<div class="flex flex-col items-center text-center max-w-4xl mx-auto space-y-space-md">
+<!-- Category Pill -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-secondary-container/30 text-on-secondary-container border border-secondary/20 shadow-sm transition-all hover:bg-secondary-container/40">
+<span class="material-symbols-outlined text-[16px] text-secondary">auto_stories</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold text-secondary">AI-Guided Academic Syllabus Architecture</span>
+</div>
+<!-- Headline -->
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight max-w-3xl pt-2">
+          Learn smarter. Find everything you need in one place.
+        </h1>
+<!-- Subtitle -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+          Pencill turns your learning goal into a structured path using relevant free learning resources from across the open web.
+        </p>
+<!-- CTA Action Group -->
+<div class="flex flex-col sm:flex-row items-center gap-space-md pt-4">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-6 py-3.5 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container transition-all active:scale-[0.98]" data-path="student-dashboard" href="#">
+<span>Start Learning</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-6 py-3.5 rounded-lg bg-surface-container-lowest text-primary font-label-lg text-label-lg shadow-sm hover:bg-surface-container-low transition-all" data-path="explore-curricula" href="#">
+<span class="material-symbols-outlined text-[18px] text-primary">explore</span>
+<span>Explore Curricula</span>
+</a>
+</div>
+<!-- Trust Indicators & Repository Badges -->
+<div class="pt-8 flex flex-col items-center space-y-space-sm">
+<div class="flex items-center gap-space-xs text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-semibold tracking-wide">Free forever for students worldwide</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+            Curated from YouTube • MIT OpenCourseWare • NPTEL • Khan Academy • arXiv • Stanford Online
+          </p>
+</div>
+</div>
+<!-- Rich Interactive Transformation Canvas / Hero Mockup Card -->
+<div class="mt-16 w-full max-w-5xl mx-auto rounded-xl bg-surface-container-lowest shadow-xl p-4 sm:p-8 relative">
+<div class="flex items-center justify-between pb-6 mb-6 bg-surface-container-low/40 -mx-4 -mt-4 sm:-mx-8 sm:-mt-8 px-6 py-4 rounded-t-xl">
+<div class="flex items-center gap-3">
+<div class="flex gap-1.5">
+<span class="w-3 h-3 rounded-full bg-surface-variant"></span>
+<span class="w-3 h-3 rounded-full bg-surface-variant"></span>
+<span class="w-3 h-3 rounded-full bg-surface-variant"></span>
+</div>
+<div class="flex items-center gap-2 pl-4">
+<img alt="Pencill Brand Wordmark" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"/>
+<span class="text-xs text-outline font-label-sm uppercase tracking-widest">Syllabus Engine v2.4</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1.5 text-xs font-label-sm text-secondary bg-secondary-fixed/40 px-2.5 py-1 rounded">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+            Live Academic Graph
+          </span>
+</div>
+<!-- 3-Column Pipeline Architecture -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+<!-- Left: Student Intent Input -->
+<div class="lg:col-span-4 bg-surface-container-low p-5 rounded-lg flex flex-col justify-between h-full space-y-4">
+<div>
+<div class="flex items-center justify-between text-outline text-xs font-label-sm uppercase tracking-wider mb-2">
+<span>01 • Query Input</span>
+<span class="material-symbols-outlined text-[16px] text-primary">edit_note</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Target Syllabus</p>
+<div class="mt-4 bg-surface-container-lowest rounded-md p-3.5 shadow-sm">
+<div class="flex items-center gap-2 text-xs font-label-md text-secondary">
+<span class="material-symbols-outlined text-[15px]">school</span>
+<span>Competitive Exam Prep</span>
+</div>
+<div class="font-headline-sm text-[16px] text-primary mt-1 font-semibold">
+                  JEE Physics • Class 11
+                </div>
+<div class="flex items-center gap-2 mt-3 pt-2 text-xs font-label-sm text-outline">
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface">English Medium</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-on-surface">Calculus-based</span>
+</div>
+</div>
+</div>
+<div class="text-xs text-on-surface-variant flex items-center gap-2 pt-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">tune</span>
+<span>180+ Open Source syllabi matched</span>
+</div>
+</div>
+<!-- Center: AI Synthesis Flow Diagram -->
+<div class="lg:col-span-3 flex flex-col items-center justify-center p-3 text-center space-y-4">
+<div class="w-full flex flex-col items-center space-y-3">
+<!-- Stage 1 -->
+<div class="w-full bg-surface-container-high/60 rounded-md py-2 px-3 text-left shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-medium">1. Deconstruct Topics</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">account_tree</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline">arrow_downward</span>
+<!-- Stage 2 -->
+<div class="w-full bg-surface-container-high/60 rounded-md py-2 px-3 text-left shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-medium">2. Filter Verified Pedagogy</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline">arrow_downward</span>
+<!-- Stage 3 -->
+<div class="w-full bg-primary-container text-on-primary rounded-md py-2 px-3 text-left shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-primary font-medium">3. Linear Roadmap Output</span>
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">route</span>
+</div>
+</div>
+</div>
+<!-- Right: Interactive Path Preview -->
+<div class="lg:col-span-5 bg-surface-container-lowest p-5 rounded-lg shadow-md space-y-4">
+<div class="flex items-center justify-between">
+<div>
+<span class="text-xs font-label-sm uppercase tracking-wider text-secondary font-semibold">Active Module 01</span>
+<h4 class="font-headline-sm text-headline-sm text-primary">Units, Dimensions &amp; Errors</h4>
+</div>
+<span class="bg-surface-container text-primary font-label-sm text-xs px-2.5 py-1 rounded-full font-medium">18 hrs</span>
+</div>
+<!-- Resource Breakdown Pills -->
+<div class="grid grid-cols-3 gap-2 text-center">
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-headline-sm text-sm text-primary font-semibold block">12</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Videos</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-headline-sm text-sm text-primary font-semibold block">4</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Texts</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded">
+<span class="font-headline-sm text-sm text-primary font-semibold block">2</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Checkpoints</span>
+</div>
+</div>
+<!-- Sequence Node Preview -->
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-3 p-2.5 rounded bg-surface-container-low/70 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px] text-secondary">play_circle</span>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">Dimensional Analysis in Classical Mechanics</p>
+<span class="font-body-sm text-[11px] text-outline">NPTEL • Prof. H.C. Verma • 44m</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-secondary">task_alt</span>
+</div>
+<div class="flex items-center gap-3 p-2.5 rounded bg-surface-container-low/70 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px] text-secondary">menu_book</span>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-on-surface truncate">Significant Figures &amp; Propagation of Errors</p>
+<span class="font-body-sm text-[11px] text-outline">MIT OpenCourseWare • 12 pages</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline">radio_button_unchecked</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs font-label-sm text-secondary pt-2">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+                Pre-requisite graph verified
+              </span>
+<a class="underline hover:text-primary font-semibold" href="#">Inspect Full Syllabus →</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- 2. Problem vs. Solution Section -->
+<section class="py-20 px-2 md:px-0">
+<div class="max-w-5xl mx-auto">
+<div class="text-center max-w-2xl mx-auto mb-16 space-y-space-xs">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest font-semibold">The Disconnect in Open Education</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">The internet is full of lessons, but empty of paths.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Self-directed learning fails not from a lack of high quality material, but from the exhausting mental tax of searching, organizing, and pacing yourself.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+<!-- The Problem Card -->
+<div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+<div class="space-y-6">
+<div class="flex items-center gap-3">
+<span class="p-2 rounded-lg bg-surface-variant text-on-surface-variant">
+<span class="material-symbols-outlined text-[22px]">close</span>
+</span>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">The Current Nightmare</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Unstructured DIY Learning</h3>
+</div>
+</div>
+<ul class="space-y-4 pt-2">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline text-[20px] mt-0.5">noise_aware</span>
+<div>
+<strong class="font-label-lg text-label-lg text-on-surface block">Scattered Playlists</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">High quality videos mixed with algorithmic recommendations, sponsored detours, and incomplete courses.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline text-[20px] mt-0.5">explore_off</span>
+<div>
+<strong class="font-label-lg text-label-lg text-on-surface block">Endless Searching &amp; Dead Ends</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Spending 40 minutes finding what to read for every 20 minutes spent actually understanding it.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline text-[20px] mt-0.5">hide_source</span>
+<div>
+<strong class="font-label-lg text-label-lg text-on-surface block">No Clear Milestones</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Never knowing if you've mastered the prerequisite or if you're jumping ahead into mathematical confusion.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-outline text-[20px] mt-0.5">help_center</span>
+<div>
+<strong class="font-label-lg text-label-lg text-on-surface block">What Next Paralysis</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Finishing one lecture series and having zero clue which textbook chapter or exercise sets should follow.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="mt-8 pt-4 bg-surface-container px-4 py-3 rounded-lg text-xs font-body-sm text-outline">
+            Result: 88% of motivated learners abandon self-paced study tracks within 3 weeks.
+          </div>
+</div>
+<!-- The Pencill Solution Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-md flex flex-col justify-between relative overflow-hidden">
+<div class="space-y-6">
+<div class="flex items-center gap-3">
+<span class="p-2 rounded-lg bg-secondary-fixed/40 text-secondary">
+<span class="material-symbols-outlined text-[22px]">check_circle</span>
+</span>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">The Pencill Standard</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Syllabus-as-a-Service</h3>
+</div>
+</div>
+<ul class="space-y-4 pt-2">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">format_list_bulleted_add</span>
+<div>
+<strong class="font-label-lg text-label-lg text-primary block">Single Linear Master Path</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">One coherent syllabus from day one to exam day, tailored to your exact academic standard and pacing.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">fact_check</span>
+<div>
+<strong class="font-label-lg text-label-lg text-primary block">Vetted, High-Yield Resources</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Only academic-grade material: top professor lectures, indexed open-source chapters, and verified simulations.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">rule</span>
+<div>
+<strong class="font-label-lg text-label-lg text-primary block">Integrated Checkpoints &amp; Quizzes</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Active recall gates ensure retention before advancing to subsequent higher-order theoretical concepts.</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">schedule</span>
+<div>
+<strong class="font-label-lg text-label-lg text-primary block">Effortless Cognitive Flow</strong>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Open Pencill, click resume, and immerse directly in the next required concept. Zero search friction.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="mt-8 pt-4 bg-secondary-fixed/20 text-on-secondary-fixed-variant px-4 py-3 rounded-lg text-xs font-label-md flex items-center justify-between">
+<span>Guaranteed zero paid paywalls in curated tracks.</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">lock_open</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. How It Works (Four-Step Flow) -->
+<section class="py-20 px-2 md:px-0 bg-surface-container-low/50 -mx-margin px-margin">
+<div class="max-w-5xl mx-auto">
+<div class="text-center max-w-2xl mx-auto mb-16 space-y-space-xs">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest font-semibold">Rigorous Pedagogical Pipeline</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">From nebulous ambition to linear mastery.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">We combine machine intelligence with academic curriculum design to build your personal roadmap in under 30 seconds.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Step 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow">
+<div>
+<div class="flex items-center justify-between text-secondary mb-3">
+<span class="font-headline-md text-headline-md text-secondary/40 font-bold">01</span>
+<span class="material-symbols-outlined text-[24px]">stylus</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-2">State Your Goal</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Tell Pencill what subject or test you are tackling—whether it's JEE Physics, MIT-level Linear Algebra, or Macroeconomics.
+            </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded font-label-sm text-[12px] text-outline">
+            Example: "Calculus III &amp; Differential Equations"
+          </div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow">
+<div>
+<div class="flex items-center justify-between text-secondary mb-3">
+<span class="font-headline-md text-headline-md text-secondary/40 font-bold">02</span>
+<span class="material-symbols-outlined text-[24px]">tune</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-2">Define Constraints</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Choose your current level (High School, Undergrad, Research), preferred language (English, Hindi, etc.), and media format weight.
+            </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded font-label-sm text-[12px] text-outline">
+            Preference: 60% Video lectures • 40% Papers
+          </div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow">
+<div>
+<div class="flex items-center justify-between text-secondary mb-3">
+<span class="font-headline-md text-headline-md text-secondary/40 font-bold">03</span>
+<span class="material-symbols-outlined text-[24px]">hub</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-2">Synthesize Course</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Pencill scans academic repositories, retrieves top-rated pedagogical explanations, and arranges them in dependency-sorted modules.
+            </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded font-label-sm text-[12px] text-outline">
+            Output: 6 Modules • 48 verified learning units
+          </div>
+</div>
+<!-- Step 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow">
+<div>
+<div class="flex items-center justify-between text-secondary mb-3">
+<span class="font-headline-md text-headline-md text-secondary/40 font-bold">04</span>
+<span class="material-symbols-outlined text-[24px]">insights</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-2">Master &amp; Retain</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Advance through each node with synced notes, take targeted active-recall quizzes, and rely on automatic spaced revision scheduling.
+            </p>
+</div>
+<div class="bg-surface-container-low p-3 rounded font-label-sm text-[12px] text-outline">
+            Feature: Automated spaced retention alerts
+          </div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Curated Resource Ecosystem -->
+<section class="py-24 px-2 md:px-0">
+<div class="max-w-5xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+<div class="space-y-space-xs max-w-xl">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest font-semibold">Diverse Academic Modalities</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">The 6 Core Media Dimensions in Every Syllabus</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">True mastery requires shifting between passive consumption, rigorous textual parsing, and deliberate problem solving.</p>
+</div>
+<div class="flex items-center gap-2 text-xs font-label-md text-outline">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span>Open Academic Web Index</span>
+</div>
+</div>
+<!-- 6 Media Types Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- 1. Video Lectures -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">smart_display</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Video Lectures</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Timestamped, high-clarity conceptual walkthroughs from leading university professors and subject-matter educators.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Sources: NPTEL, Stanford, YT Ed</span>
+<span class="text-secondary font-semibold">Timestamped</span>
+</div>
+</div>
+<!-- 2. Academic Reading -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">menu_book</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Academic Reading</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Curated chapters from OpenStax, peer-reviewed arXiv preprints, lecture notes, and faculty-published textbooks.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Sources: OpenStax, MIT OCW</span>
+<span class="text-secondary font-semibold">Open Access</span>
+</div>
+</div>
+<!-- 3. Practice Sets -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">calculate</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Practice Sets</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Carefully graded numerical problem sets with full step-by-step mathematical reasoning and edge-case proofs.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Difficulty: Graded 1 – 5</span>
+<span class="text-secondary font-semibold">Step Proofs</span>
+</div>
+</div>
+<!-- 4. Interactive Quizzes -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">quiz</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Interactive Quizzes</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Instant feedback active-recall checkpoints after each major subtopic to prevent the illusion of conceptual competence.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Format: Formative Gates</span>
+<span class="text-secondary font-semibold">Immediate Review</span>
+</div>
+</div>
+<!-- 5. Mock Tests -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">timer</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Mock Assessments</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Full-length timed examinations that replicate the official testing parameters of major competitive entrance boards.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Timed Environment</span>
+<span class="text-secondary font-semibold">Benchmark Stats</span>
+</div>
+</div>
+<!-- 6. Structured Revision Notes -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[22px]">summarize</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Structured Revision</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">
+              Synthesized mind maps, mathematical formula cheat-sheets, and spaced repetition card decks ready for quick export.
+            </p>
+</div>
+<div class="pt-6 flex items-center justify-between text-xs font-label-sm text-outline">
+<span>Anki / Notion Ready</span>
+<span class="text-secondary font-semibold">Markdown Export</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Testimonial / Pedagogy Callout -->
+<section class="py-12 px-2 md:px-0">
+<div class="max-w-4xl mx-auto bg-surface-container-low p-8 sm:p-12 rounded-xl text-center space-y-4">
+<span class="material-symbols-outlined text-secondary text-[36px]">format_quote</span>
+<blockquote class="font-display-lg text-[22px] sm:text-[26px] text-primary italic max-w-2xl mx-auto leading-relaxed">
+        “The democratization of higher education didn't fail due to content shortages. It stalled because students were left alone in an infinite library without a librarian.”
+      </blockquote>
+<div class="pt-2">
+<p class="font-label-lg text-label-lg text-on-surface font-semibold">Dr. Evelyn Vance</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Director of Research, Open Pedagogy Initiative</p>
+</div>
+</div>
+</section>
+<!-- 5. Final Call to Action Section -->
+<section class="py-20 px-2 md:px-0">
+<div class="max-w-5xl mx-auto">
+<div class="bg-primary text-on-primary rounded-xl p-8 sm:p-14 shadow-2xl relative overflow-hidden">
+<!-- Subtle Academic Geometric Watermark in Background -->
+<div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
+<svg class="w-full h-full" fill="none" stroke="currentColor" viewbox="0 0 200 200">
+<circle cx="100" cy="100" r="80" stroke-dasharray="4 4" stroke-width="1.5"></circle>
+<polygon points="100,20 170,140 30,140" stroke-width="1.5"></polygon>
+<circle cx="100" cy="100" r="30" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="relative z-10 max-w-2xl space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-secondary-fixed/20 text-secondary-fixed text-xs font-label-sm font-semibold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[15px]">electric_bolt</span>
+<span>Immediate Onboarding</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-primary leading-tight">
+            Your next topic shouldn't take hours to find.
+          </h2>
+<p class="font-body-lg text-body-lg text-primary-fixed-dim leading-relaxed">
+            Join thousands of independent learners, university students, and self-taught researchers organizing the open web into coherent mastery paths today.
+          </p>
+<!-- Interactive Fast Start Input Bar -->
+<div class="pt-2">
+<form class="flex flex-col sm:flex-row gap-3 max-w-lg" onsubmit="event.preventDefault(); window.location.href='#student-dashboard';">
+<input class="flex-1 px-4 py-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary-fixed-dim" placeholder="What do you want to learn? (e.g. Organic Chemistry)" required="" type="text"/>
+<button class="px-6 py-3.5 rounded-lg bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed font-label-lg text-label-lg font-semibold transition-all shadow-md flex items-center justify-center gap-2" type="submit">
+<span>Start Learning Free</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+</div>
+<div class="flex items-center gap-6 pt-4 text-xs font-body-sm text-primary-fixed-dim">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">check_circle</span>
+              No credit card required
+            </span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">lock_open</span>
+              Free student repository
+            </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Simple interactive handling for syllabus search demonstration
+  document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('input[type="text"]');
+    inputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        input.parentElement.classList.add('shadow-lg');
+      });
+      input.addEventListener('blur', () => {
+        input.parentElement.classList.remove('shadow-lg');
+      });
+    });
+  });
+</script></div></main><footer class="w-full bg-surface-container-lowest mt-space-xl border-t border-surface-variant/40 py-space-xl"><div class="max-w-7xl mx-auto px-margin flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><img alt="Pencill Brand Wordmark" class="h-6 w-auto object-contain opacity-70" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"/><span class="font-body-sm text-body-sm text-on-surface-variant">© 2025 Pencill Pedagogy Lab. Open, structured, curated knowledge.</span></div><div class="flex items-center gap-space-lg font-body-sm text-body-sm text-on-surface-variant"><a class="hover:text-on-surface transition-colors" href="#">Academic Standards</a><a class="hover:text-on-surface transition-colors" href="#">Curated Repositories</a><a class="hover:text-on-surface transition-colors" href="#">Privacy &amp; Research Ethics</a></div></div></footer></body></html>

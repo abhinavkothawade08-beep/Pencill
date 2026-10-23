@@ -1,0 +1,116 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+
+const navItems = [
+  { label: "Dashboard", href: "/dashboard", icon: "grid_view" },
+  { label: "My Courses", href: "/courses", icon: "menu_book" },
+  { label: "Explore", href: "/explore", icon: "explore" },
+  { label: "Practice & Quizzes", href: "/practice", icon: "check_circle" },
+  { label: "Progress", href: "/progress", icon: "bar_chart" },
+  { label: "Bookmarks", href: "/bookmarks", icon: "bookmark" },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const { user, profile, signOut } = useAuth();
+
+  const avatarUrl = profile?.avatarUrl || "/avatars/default-avatar.svg";
+  const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest Scholar";
+  const userGrade = profile?.grade || (user ? "Scholar" : "Session Mode");
+  const userTier = profile?.tier || (user ? "Pro Path" : "Guest");
+
+  return (
+    <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md border-r border-surface-container-high/40">
+      <div className="flex flex-col">
+        {/* Brand Header */}
+        <Link href="/" className="px-space-lg mb-space-xl flex items-center gap-space-sm group">
+          <Image
+            src="/brand/wordmark.svg"
+            alt="Pencill Logo"
+            width={130}
+            height={36}
+            className="h-7 w-auto object-contain transition-transform group-hover:scale-105"
+            priority
+          />
+        </Link>
+
+        {/* Navigation Items */}
+        <nav className="px-space-sm space-y-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all font-label-lg text-label-lg ${
+                  isActive
+                    ? "bg-surface-container-high text-primary font-semibold shadow-sm"
+                    : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                }`}
+              >
+                <span
+                  className={`material-symbols-outlined text-lg ${
+                    isActive ? "text-primary font-bold" : "text-on-surface-variant"
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* User Profile Card */}
+      <div className="px-space-sm">
+        <div className="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs border border-surface-container-high/60">
+          <div className="flex items-center gap-space-sm">
+            <Image
+              src={avatarUrl}
+              alt={displayName}
+              width={36}
+              height={36}
+              className="w-8 h-8 rounded-full object-cover ring-1 ring-secondary/30"
+            />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="font-label-lg text-label-lg text-on-surface truncate font-semibold">
+                {displayName}
+              </span>
+              <span className="font-label-sm text-label-sm text-on-surface-variant truncate">
+                {userGrade}
+              </span>
+            </div>
+          </div>
+          <div className="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between">
+            {user ? (
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="font-label-sm text-label-sm text-on-surface-variant hover:text-error flex items-center gap-1 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">logout</span>
+                <span>Sign Out</span>
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="font-label-sm text-label-sm text-primary font-semibold hover:underline flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-sm">login</span>
+                <span>Sign In</span>
+              </Link>
+            )}
+            <span className="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">
+              {userTier}
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}

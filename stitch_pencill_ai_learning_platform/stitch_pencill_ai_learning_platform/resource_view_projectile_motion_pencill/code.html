@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><title>Pencill - Workspace</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="Pencill Brand Wordmark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"/><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="px-space-sm space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="student-dashboard" href="#"><span class="material-symbols-outlined text-lg">grid_view</span><span>Dashboard</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all bg-surface-container-high text-primary font-semibold" data-path="my-courses" href="#"><span class="material-symbols-outlined text-lg">menu_book</span><span>My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="explore-pathways" href="#"><span class="material-symbols-outlined text-lg">explore</span><span>Explore</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="practice-and-quizzes" href="#"><span class="material-symbols-outlined text-lg">check_circle</span><span>Practice &amp; Quizzes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="progress-analytics" href="#"><span class="material-symbols-outlined text-lg">bar_chart</span><span>Progress</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="bookmarks-and-notes" href="#"><span class="material-symbols-outlined text-lg">bookmark</span><span>Bookmarks</span></a></nav></div><div class="px-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"/><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Aanya Patel</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Class 11 · JEE Aspirant</span></div></div><div class="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" data-path="student-settings" href="#"><span class="material-symbols-outlined text-sm">settings</span><span>Settings</span></a><span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">Pro Path</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between"><div class="flex-1 max-w-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span><input class="w-full pl-9 pr-space-md py-2 bg-surface-container-lowest rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container" placeholder="Search topics, courses, notes..." type="text"/></div></div><div class="flex items-center gap-space-md"><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="create-learning-goal" href="#"><span class="material-symbols-outlined text-base">add</span><span>New Goal</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"/></div></header><main class="relative pt-16 bg-background min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<div class="w-full max-w-[1560px] mx-auto pb-space-xl">
+<!-- Top Breadcrumb & Quick Status Banner -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors bg-surface-container-lowest px-space-sm py-1.5 rounded-lg shadow-sm" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<span>Back to Course Outline</span>
+</a>
+<span class="text-outline-variant font-label-sm">/</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Module 2</span>
+<span class="text-outline-variant font-label-sm">/</span>
+<span class="font-label-md text-label-md text-primary font-semibold truncate max-w-xs">2.4 Projectile Motion</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2.5 py-1 rounded-full">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">bolt</span>
+          High Yield Topic · Target Exam: JEE 2026
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm">
+          Study Session: 42m logged
+        </span>
+</div>
+</div>
+<!-- 3-PANE ACADEMIC STUDY ENVIRONMENT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
+<!-- PANE 1: Left Course Syllabus Drawer (lg:col-span-3) -->
+<aside class="lg:col-span-3 flex flex-col gap-space-md">
+<!-- Course Header Card -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Course Syllabus</span>
+<h2 class="font-headline-sm text-headline-sm text-primary mt-0.5">JEE Physics — Class 11</h2>
+</div>
+<span class="p-1.5 bg-surface-container-low rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-base">school</span>
+</span>
+</div>
+<!-- Overall Progress Indicator -->
+<div class="pt-space-xs mt-space-xs flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Overall Progress</span>
+<span class="font-semibold text-primary">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full transition-all duration-500" style="width: 42%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">14 of 33 Modules Completed</span>
+</div>
+</div>
+<!-- Module Accordion & Resource List -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl shadow-sm flex flex-col gap-1">
+<div class="p-space-sm flex items-center justify-between text-on-surface">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Current Unit</span>
+<span class="font-label-lg text-label-lg font-semibold text-primary">Module 2: Kinematics</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary-container bg-primary px-2 py-0.5 rounded-md font-medium">4 / 6 Done</span>
+</div>
+<div class="mt-1 space-y-1">
+<!-- Resource 2.1 -->
+<a class="group flex items-center justify-between p-space-sm rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-all" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-5 h-5 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary truncate">2.1 Position-Time Graphs</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">18m</span>
+</a>
+<!-- Resource 2.2 -->
+<a class="group flex items-center justify-between p-space-sm rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-all" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-5 h-5 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary truncate">2.2 Integration in Kinematics</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">26m</span>
+</a>
+<!-- Resource 2.3 -->
+<a class="group flex items-center justify-between p-space-sm rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-all" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-5 h-5 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary truncate">2.3 Relative Motion in 2D</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">32m</span>
+</a>
+<!-- Resource 2.4 (ACTIVE) -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-high/60 shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-center gap-space-sm min-w-0 pl-1">
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-xs">play_arrow</span>
+</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm font-semibold text-primary truncate">2.4 Projectile Motion</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">In Progress · 34m</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold bg-surface-container-lowest px-1.5 py-0.5 rounded shadow-sm">Active</span>
+</div>
+<!-- Resource 2.5 -->
+<a class="group flex items-center justify-between p-space-sm rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-all" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-5 h-5 rounded-full bg-surface-container-low flex items-center justify-center text-outline-variant shrink-0">
+<span class="material-symbols-outlined text-xs">lock</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary truncate">2.5 Practice Problems (20 Qs)</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">45m</span>
+</a>
+<!-- Resource 2.6 -->
+<a class="group flex items-center justify-between p-space-sm rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-all" href="#">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="w-5 h-5 rounded-full bg-surface-container-low flex items-center justify-center text-outline-variant shrink-0">
+<span class="material-symbols-outlined text-xs">lock</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary truncate">2.6 Module 2 Checkpoint Quiz</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant shrink-0">Quiz</span>
+</a>
+</div>
+<!-- Quick Study Companion Stats -->
+<div class="mt-space-md p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg">local_fire_department</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Streak: 6 Days</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">+120 XP today</span>
+</div>
+</div>
+<a class="font-label-sm text-label-sm text-primary font-semibold hover:underline" href="#">Syllabus PDF</a>
+</div>
+</div>
+</aside>
+<!-- PANE 2: Center Primary Resource Canvas (lg:col-span-6) -->
+<main class="lg:col-span-6 flex flex-col gap-space-md">
+<!-- Header metadata area -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-xs">
+<div class="flex flex-wrap items-center gap-2 mb-1">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium bg-secondary-fixed/50 text-on-secondary-fixed px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-xs">videocam</span>
+              Video Lecture
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">Topic 4 of 8</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded">Duration: 34 mins</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+            Projectile Motion on Horizontal &amp; Inclined Planes
+          </h1>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm pt-1">
+<span class="flex items-center gap-1 text-primary font-medium">
+<span class="material-symbols-outlined text-sm">verified</span>
+              Curated Masterclass
+            </span>
+<span>·</span>
+<span>Source: Physics Galaxy / MIT OpenCourseWare Archive</span>
+</div>
+</div>
+<!-- Video Player Mock Workspace -->
+<div class="bg-primary text-on-primary rounded-xl overflow-hidden shadow-md flex flex-col">
+<!-- Main Player Screen Area -->
+<div class="relative w-full aspect-video bg-inverse-surface group cursor-pointer flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity" data-alt="Photorealistic academic lecture screen capture of physics chalk blackboard showing projectile parabolic curve equations, trajectory vectors, time of flight formulas in clean educational aesthetic with soft university hall lighting in navy and deep blue tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtsopuV96b-8vfCsHU_I5IICD1FMfR8nW7yvn07-PHJUUYqhwHDeogVK-84LrVpz-unA-WdzrYxPYrF87kNquIka8k-jTbpOPL2IUipUH9sPtjpbQmZYWJX-8H4xbv_kYer8HZWp2vHPqfl64KxMEjrFSvR2X5FtnYy0phBPIPS8EeVlBVLfWLFrfZ1iaT0r2wYAOqsn1vmQiTZTs-Cyl5dwLNZFV76FNz1SWQN-SWyTPmN1km40qIrg"/>
+<!-- Gradient Overlay for Contrast -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/30 to-transparent"></div>
+<!-- Center Giant Play Icon -->
+<button class="absolute z-10 w-16 h-16 rounded-full bg-surface-container-lowest/90 text-primary flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl ml-1" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<!-- Video Top Bar Pill -->
+<div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+<span class="bg-primary/80 backdrop-blur-md text-on-primary px-2.5 py-1 rounded text-label-sm font-label-sm flex items-center gap-1 shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                JEE Core Derivations
+              </span>
+</div>
+<!-- Video Bottom Controls (Embedded) -->
+<div class="absolute bottom-0 left-0 right-0 p-space-md flex flex-col gap-2 z-10">
+<!-- Scrub Bar -->
+<div class="w-full group/scrub cursor-pointer py-1">
+<div class="w-full h-1.5 bg-surface-container-highest/40 rounded-full relative overflow-hidden group-hover/scrub:h-2 transition-all">
+<div class="absolute left-0 top-0 bottom-0 bg-secondary rounded-full" style="width: 42%;"></div>
+<div class="absolute left-0 top-0 bottom-0 bg-surface-variant/40" style="width: 68%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between text-on-primary font-label-md text-label-md">
+<div class="flex items-center gap-space-sm">
+<button class="hover:text-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button class="hover:text-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg">replay_10</span>
+</button>
+<button class="hover:text-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg">forward_10</span>
+</button>
+<div class="flex items-center gap-1.5 ml-2 font-body-sm text-body-sm">
+<span class="font-semibold text-surface-bright">14:22</span>
+<span class="text-surface-variant">/</span>
+<span class="text-surface-variant">34:10</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<!-- Speed Selector -->
+<div class="flex items-center bg-surface-container-highest/30 rounded px-2 py-0.5 gap-1">
+<span class="text-label-sm font-label-sm text-surface-bright font-semibold">1.25x</span>
+</div>
+<!-- Resolution -->
+<span class="text-label-sm font-label-sm bg-surface-container-highest/30 px-1.5 py-0.5 rounded text-surface-bright">1080p</span>
+<!-- Fullscreen -->
+<button class="hover:text-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg">fullscreen</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Chapter Trackers -->
+<div class="p-space-md bg-primary-container text-on-primary flex flex-col gap-2">
+<span class="font-label-sm text-label-sm text-primary-fixed-dim uppercase tracking-wider font-semibold">Interactive Video Chapters</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+<button class="text-left p-2 rounded-lg bg-primary/40 hover:bg-primary/80 transition-all flex items-start gap-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed font-mono font-semibold shrink-0">00:00</span>
+<span class="font-body-sm text-body-sm text-surface-container truncate">Introduction to 2D trajectory</span>
+</button>
+<button class="text-left p-2 rounded-lg bg-primary hover:bg-primary/80 transition-all flex items-start gap-2 ring-1 ring-secondary/40">
+<span class="font-label-sm text-label-sm text-secondary-fixed font-mono font-semibold shrink-0">08:30</span>
+<span class="font-body-sm text-body-sm text-on-primary font-medium truncate">Derivation of Time of Flight &amp; Max Height</span>
+</button>
+<button class="text-left p-2 rounded-lg bg-primary/40 hover:bg-primary/80 transition-all flex items-start gap-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed font-mono font-semibold shrink-0">18:45</span>
+<span class="font-body-sm text-body-sm text-surface-container truncate">Motion along an Inclined Plane</span>
+</button>
+<button class="text-left p-2 rounded-lg bg-primary/40 hover:bg-primary/80 transition-all flex items-start gap-2">
+<span class="font-label-sm text-label-sm text-secondary-fixed font-mono font-semibold shrink-0">28:10</span>
+<span class="font-body-sm text-body-sm text-surface-container truncate">Solved JEE Advanced Example</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Learning Control Bar -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<a class="inline-flex items-center gap-1.5 px-space-md py-2.5 rounded-lg bg-surface-container-low text-primary font-label-lg text-label-lg hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+<span>Previous Resource: 2.3</span>
+</a>
+<button class="p-2.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-secondary transition-colors" title="Bookmark Resource">
+<span class="material-symbols-outlined text-lg">bookmark_add</span>
+</button>
+<button class="p-2.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-error transition-colors" title="Report Outdated Link">
+<span class="material-symbols-outlined text-lg">flag</span>
+</button>
+</div>
+<a class="inline-flex items-center gap-2 bg-primary-container hover:bg-primary text-on-primary px-space-lg py-2.5 rounded-lg font-label-lg text-label-lg shadow-sm transition-all transform active:scale-95" href="#">
+<span>Mark as Complete &amp; Next</span>
+<span class="material-symbols-outlined text-base">arrow_forward</span>
+</a>
+</div>
+<!-- Academic Context Card (Pedagogy & Prerequisites) -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-primary">Prerequisites &amp; Concept Mapping</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">ID: PH-11-KIN-04</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            Ensure thorough grasp of quadratic resolving vectors along perpendicular axes prior to tackling inclined planes. If gravitational components on non-orthogonal planes feel unclear, revisit <em>Vector Decomposition</em> before advancing to Section 2.5.
+          </p>
+</div>
+</main>
+<!-- PANE 3: Right Academic Resource Intelligence & Notes (lg:col-span-3) -->
+<aside class="lg:col-span-3 flex flex-col gap-space-md">
+<!-- Tab Navigation Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<!-- Pane Tabs -->
+<div class="flex border-b-0 bg-surface-container-low p-1 gap-1">
+<button class="flex-1 py-2 px-1 text-center font-label-sm text-label-sm font-semibold rounded-lg bg-surface-container-lowest text-primary shadow-sm transition-all">
+              Summary
+            </button>
+<button class="flex-1 py-2 px-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-primary rounded-lg transition-all">
+              My Notes (3)
+            </button>
+<button class="flex-1 py-2 px-1 text-center font-label-sm text-label-sm text-on-surface-variant hover:text-primary rounded-lg transition-all">
+              Formulae
+            </button>
+</div>
+<!-- Active Content: Summary & Concepts -->
+<div class="p-space-md flex flex-col gap-space-md">
+<!-- Core Takeaway Card -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-sm text-secondary">lightbulb</span>
+<span>Core Postulate</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                The horizontal and vertical components of projectile motion are <span class="font-semibold text-primary">completely independent</span> under uniform gravitational acceleration <span class="font-mono font-semibold">g</span>.
+              </p>
+</div>
+<!-- Key Equations Archive Box -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Key Standard Equations</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Uniform Gravity</span>
+</div>
+<!-- Equation 1: Time of Flight -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Time of Flight</span>
+<span class="font-headline-sm text-headline-sm text-primary font-mono tracking-tight pt-0.5">T = (2u · sin θ) / g</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary p-1" title="Copy LaTeX">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+<!-- Equation 2: Maximum Height -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Maximum Height</span>
+<span class="font-headline-sm text-headline-sm text-primary font-mono tracking-tight pt-0.5">H = (u² · sin²θ) / 2g</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary p-1" title="Copy LaTeX">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+<!-- Equation 3: Horizontal Range -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Horizontal Range</span>
+<span class="font-headline-sm text-headline-sm text-primary font-mono tracking-tight pt-0.5">R = (u² · sin 2θ) / g</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary p-1" title="Copy LaTeX">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Common Traps & JEE Pitfalls Box -->
+<div class="p-space-sm rounded-lg bg-secondary-container/25 flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-base">warning</span>
+<span>Common JEE Pitfall</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+                On an inclined plane with inclination <span class="font-mono font-semibold text-primary">α</span>, effective acceleration changes:
+                <br/>
+<span class="font-mono text-primary font-semibold">a_x = g sin α</span> and <span class="font-mono text-primary font-semibold">a_y = -g cos α</span>. Do not take horizontal acceleration as zero!
+              </p>
+</div>
+<!-- Inline Mini Graph SVG Visualization -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-semibold text-on-surface">Trajectory Vector Graph</span>
+<span class="text-on-surface-variant">θ = 45°</span>
+</div>
+<div class="w-full h-24 bg-surface-container-lowest rounded flex items-end justify-center p-2">
+<!-- SVG Parabolic curve -->
+<svg class="w-full h-full text-secondary" viewbox="0 0 160 60">
+<!-- Axes -->
+<line stroke="#74777d" stroke-dasharray="2 2" stroke-width="1.5" x1="10" x2="150" y1="50" y2="50"></line>
+<line stroke="#74777d" stroke-dasharray="2 2" stroke-width="1.5" x1="10" x2="10" y1="50" y2="10"></line>
+<!-- Parabola Path -->
+<path d="M 10 50 Q 80 5 150 50" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<!-- Trajectory tangent dots -->
+<circle cx="10" cy="50" fill="#162839" r="3"></circle>
+<circle cx="80" cy="27" fill="#7c572d" r="3"></circle>
+<circle cx="150" cy="50" fill="#162839" r="3"></circle>
+<!-- Labels -->
+<text fill="#161b29" font-family="Inter" font-size="8" font-weight="600" x="75" y="20">v_y = 0</text>
+<text fill="#74777d" font-family="Inter" font-size="8" x="135" y="46">Range</text>
+</svg>
+</div>
+</div>
+<!-- Recommended Next Reading -->
+<div class="pt-space-xs flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Recommended Reading</span>
+<a class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm hover:bg-surface-container-low transition-all flex items-center justify-between" href="#">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-secondary text-base shrink-0">menu_book</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary truncate">NCERT Vol 1, Ch 4, §4.10</span>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant shrink-0">arrow_forward</span>
+</a>
+</div>
+<!-- Add Fast Scratchpad Note -->
+<div class="pt-space-xs flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Quick Study Note</span>
+<div class="relative">
+<textarea class="w-full p-2 text-body-sm font-body-sm bg-surface-container-lowest rounded-lg placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-none" placeholder="Type an instant timestamped note..." rows="2"></textarea>
+<button class="absolute right-2 bottom-2 px-2 py-1 bg-primary text-on-primary rounded text-label-sm font-label-sm hover:bg-primary-container transition-colors">
+                  Save
+                </button>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</div></main></div></body></html>

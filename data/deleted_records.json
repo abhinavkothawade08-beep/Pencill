@@ -1,0 +1,50 @@
+[
+  {
+    "id": "test-path-mechanics-101",
+    "type": "learning_path",
+    "deletedAt": "2026-10-15T10:04:58.264Z",
+    "deletedBy": "author-user-1"
+  },
+  {
+    "id": "test-path-to-delete",
+    "type": "learning_path",
+    "deletedAt": "2026-10-15T10:04:58.270Z",
+    "deletedBy": null
+  },
+  {
+    "id": "mit-8-012-physics-i-classical-mechanics",
+    "type": "learning_path",
+    "deletedAt": "2026-10-15T10:04:58.273Z",
+    "deletedBy": null
+  },
+  {
+    "id": "quiz-rotational-dynamics-checkpoint",
+    "type": "quiz",
+    "deletedAt": "2026-10-15T10:04:58.277Z",
+    "deletedBy": "author-user-2"
+  },
+  {
+    "id": "quiz-kinematics-checkpoint",
+    "type": "quiz",
+    "deletedAt": "2026-10-15T10:04:58.280Z",
+    "deletedBy": null
+  },
+  {
+    "id": "kinematics-checkpoint",
+    "type": "quiz",
+    "deletedAt": "2026-10-15T10:04:58.283Z",
+    "deletedBy": null
+  },
+  {
+    "id": "path-with-child-quizzes",
+    "type": "learning_path",
+    "deletedAt": "2026-10-15T10:04:58.286Z",
+    "deletedBy": null
+  },
+  {
+    "id": "idempotent-quiz-test",
+    "type": "quiz",
+    "deletedAt": "2026-10-15T10:04:58.292Z",
+    "deletedBy": null
+  }
+]

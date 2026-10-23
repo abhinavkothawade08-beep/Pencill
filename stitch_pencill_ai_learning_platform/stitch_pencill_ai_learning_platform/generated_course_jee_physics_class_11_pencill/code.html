@@ -1,0 +1,546 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><title>Pencill - Workspace</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="Pencill Brand Wordmark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="px-space-sm space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="student-dashboard" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><rect height="7" width="7" x="3" y="3" rx="1"></rect><rect height="7" width="7" x="14" y="3" rx="1"></rect><rect height="7" width="7" x="14" y="14" rx="1"></rect><rect height="7" width="7" x="3" y="14" rx="1"></rect></svg><span class="">Dashboard</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all bg-surface-container-high text-primary font-semibold" data-path="my-courses" href="#"><svg class="w-5 h-5 shrink-0 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><path d="M8 6h8"></path><path d="M8 10h5"></path></svg><span class="">My Courses</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="explore-pathways" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg><span class="">Explore</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="practice-and-quizzes" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span class="">Practice &amp; Quizzes</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="progress-analytics" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg><span class="">Progress</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg" data-path="bookmarks-and-notes" href="#"><svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span class="">Bookmarks</span></a></nav></div><div class="px-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Aanya Patel</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Class 11 · JEE Aspirant</span></div></div><div class="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" data-path="student-settings" href="#"><span class="material-symbols-outlined text-sm">settings</span><span class="">Settings</span></a><span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">Pro Path</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between"><div class="flex-1 max-w-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span><input class="w-full pl-9 pr-space-md py-2 bg-surface-container-lowest rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container" placeholder="Search topics, courses, notes..." type="text"></div></div><div class="flex items-center gap-space-md"><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="create-learning-goal" href="#"><span class="material-symbols-outlined text-base">add</span><span class="">New Goal</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"></div></header><main class="relative pt-16 bg-background min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<div class="flex flex-col lg:flex-row items-start gap-space-xl max-w-[1360px] mx-auto w-full">
+<!-- Left & Center Primary Learning Canvas (8-Col Equivalent) -->
+<div class="flex-1 min-w-0 w-full space-y-space-xl">
+<!-- Academic Header & Hero Summary (No duplicate H1, scholarly paper elevation) -->
+<section class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm relative overflow-hidden">
+<div class="flex flex-wrap items-center gap-space-xs text-on-surface-variant font-label-md text-label-md mb-space-sm">
+<a class="hover:text-primary transition-colors" href="#">My Courses</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-semibold">JEE Physics (Class 11)</span>
+<span class="mx-space-xs text-outline-variant">•</span>
+<span class="bg-secondary-container/50 text-on-secondary-fixed-variant px-2 py-0.5 rounded font-label-sm text-label-sm">Curated Pathway</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-baseline justify-between gap-space-sm">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary tracking-tight">JEE Physics: Complete Mechanics &amp; Foundations</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Class 11 · English Medium · Rigorous Concept Mastery for JEE Advanced &amp; CBSE</p>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold self-start md:self-auto shrink-0">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+            Advanced Syllabus
+          </span>
+</div>
+<!-- Academic Metadata Array -->
+<div class="flex flex-wrap items-center gap-space-sm mt-space-md pt-space-md border-t border-surface-container-low">
+<div class="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-base text-on-surface-variant">auto_stories</span>
+<span class="">32 Resources</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-base text-on-surface-variant">category</span>
+<span class="">4 Core Modules</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-base text-on-surface-variant">schedule</span>
+<span class="">18 Hours Total</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-secondary-fixed-variant font-label-md text-label-md bg-secondary-fixed/40 px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-base">psychology</span>
+<span class="">Prerequisites: Vectors &amp; Trig</span>
+</div>
+</div>
+<!-- Course Progress Ribbon -->
+<div class="mt-space-lg bg-surface-container-low p-space-md rounded-lg">
+<div class="flex items-center justify-between font-label-md text-label-md mb-2">
+<span class="text-on-surface font-semibold">Curriculum Progression</span>
+<span class="text-primary font-bold">42% Complete <span class="font-normal text-on-surface-variant">(14 of 32 items)</span></span>
+</div>
+<div class="w-full h-2.5 bg-surface-variant rounded-full overflow-hidden flex">
+<div class="bg-primary h-full transition-all duration-500" style="width: 42%;"></div>
+</div>
+</div>
+<!-- Quick Launch Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md mt-space-lg pt-space-sm">
+<div class="flex items-center gap-3">
+<button class="bg-primary text-on-primary hover:bg-primary-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-all shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">play_circle</span>
+<span class="">Resume Next: Lecture 2.4 (Inclined Planes)</span>
+</button>
+<button class="bg-surface-container-lowest text-primary hover:bg-surface-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+<span class="">Syllabus (PDF)</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Bookmark Course">
+<span class="material-symbols-outlined text-xl">bookmark_border</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Course Settings">
+<span class="material-symbols-outlined text-xl">tune</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Pedagogical Statement & Visual Spark -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-space-md items-stretch">
+<div class="md:col-span-2 bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm tracking-wider uppercase mb-1">
+<span class="material-symbols-outlined text-sm text-secondary">verified_user</span>
+<span class="">Curator's Syllabus Note</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              A structured mastery pathway spanning analytical vectors, differential kinematics, and Newtonian mechanics. Designed for deep conceptual intuition required by JEE Advanced, moving deliberately from intuitive physical models to calculus-based derivations.
+            </p>
+</div>
+<div class="flex items-center gap-space-md pt-space-sm mt-space-sm border-t border-surface-container-low text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 24 Theoretical Derivations</span>
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> 110 Ranked Problems</span>
+</div>
+</div>
+<div class="bg-primary text-on-primary rounded-xl p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="absolute -right-6 -bottom-6 opacity-10 text-on-primary">
+<span class="material-symbols-outlined text-9xl">functions</span>
+</div>
+<div class="relative z-10">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-fixed font-semibold">Weekly Target</span>
+<h3 class="font-headline-md text-headline-md mt-1">Module 02 Checkpoint</h3>
+<p class="font-body-sm text-body-sm text-primary-fixed-dim mt-1">Projected mastery test this Friday.</p>
+</div>
+<div class="relative z-10 pt-space-md">
+<div class="flex justify-between items-end mb-1 text-on-primary font-label-sm text-label-sm">
+<span class="">Sprint Completion</span>
+<span class="font-bold">75%</span>
+</div>
+<div class="w-full h-1.5 bg-primary-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed" style="width: 75%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Structured Curriculum Tree / Modules -->
+<section class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<h3 class="font-headline-md text-headline-md text-primary">Syllabus Breakdown</h3>
+<span class="text-on-surface-variant font-label-md text-label-md">4 Modules</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label-md text-label-md font-semibold flex items-center gap-1" id="toggle-all-btn">
+<span class="material-symbols-outlined text-base">unfold_more</span>
+<span class="">Expand All Modules</span>
+</button>
+</div>
+<!-- MODULE 01: Physical World & Dimensions (COMPLETED STATE) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm transition-all">
+<div class="p-space-md flex items-center justify-between cursor-pointer hover:bg-surface-container-low transition-colors" onclick="toggleAccordion('mod-1-content', 'mod-1-icon')">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Module 01</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm text-primary font-medium">Completed</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary truncate">Physical World, Units &amp; Error Analysis</h4>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="hidden sm:inline font-label-md text-label-md text-on-surface-variant">4/4 Resources · 100%</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform" id="mod-1-icon">expand_more</span>
+</div>
+</div>
+<!-- Collapsible Content -->
+<div class="hidden px-space-md pb-space-md pt-space-xs space-y-2" id="mod-1-content">
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-base">play_lesson</span>
+<div>
+<p class="font-label-lg text-label-lg text-primary">Dimensions of Physical Quantities</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Archive: Prof. H.C. Verma · 22 mins</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-base">check</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-base">menu_book</span>
+<div>
+<p class="font-label-lg text-label-lg text-primary">Significant Figures &amp; Error Propagation Guide</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Interactive Monograph · 15 mins</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-base">check</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-base">edit_note</span>
+<div>
+<p class="font-label-lg text-label-lg text-primary">15 NCERT &amp; Foundation Practice Problems</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Calculated Solutions Included</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-base">check</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-base">quiz</span>
+<div>
+<p class="font-label-lg text-label-lg text-primary">Diagnostic Quiz: Dimensional Consistency</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Passed with 90% (9/10 Correct)</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-lowest text-primary px-2 py-0.5 rounded font-bold">90%</span>
+</div>
+</div>
+</div>
+<!-- MODULE 02: Kinematics (ACTIVE / EXPANDED IN-PROGRESS) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md overflow-hidden ring-1 ring-primary/10">
+<div class="p-space-md flex items-center justify-between bg-surface-container-low cursor-pointer" onclick="toggleAccordion('mod-2-content', 'mod-2-icon')">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">play_arrow</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-secondary-fixed-variant bg-secondary-fixed px-2 py-0.5 rounded font-semibold">Active Module</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Module 02</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary truncate">Kinematics: Rectilinear &amp; Projectile Motion in 1D &amp; 2D</h4>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="font-label-md text-label-md font-semibold text-primary">6 / 8 Completed</span>
+<span class="material-symbols-outlined text-on-surface-variant rotate-180 transition-transform" id="mod-2-icon">expand_more</span>
+</div>
+</div>
+<div class="p-space-md space-y-3" id="mod-2-content">
+<!-- 2.1 Video Completed -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.1 · Video Lecture</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">38 mins</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-surface">Position-Time Graphs &amp; Calculus in Kinematics</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Source: MIT OpenCourseWare / Prof. Walter Lewin Classic</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary font-label-md text-label-md flex items-center gap-1 self-start sm:self-auto">
+<span class="">Review</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<!-- 2.2 Reading Completed -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.2 · Reading Monograph</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">20 mins</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-surface">Derivation of Equations of Motion via Definite Integration</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Source: Pencill Archival Synthesis</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary font-label-md text-label-md flex items-center gap-1 self-start sm:self-auto">
+<span class="">Notes</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<!-- 2.3 Video Completed -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container-low transition-colors gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.3 · Concept Masterclass</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">45 mins</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-surface">Relative Motion in 2D &amp; River-Boat Crossing Equations</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Source: Physics Galaxy (Ashish Arora)</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary font-label-md text-label-md flex items-center gap-1 self-start sm:self-auto">
+<span class="">Rewatch</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<!-- 2.4 Video ACTIVE NEXT -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-surface-container-high shadow-sm gap-3">
+<div class="flex items-center gap-3.5">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base">play_arrow</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="bg-primary text-on-primary font-label-sm text-label-sm px-2 py-0.5 rounded font-medium">Active Item</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">2.4 · Core Lecture</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">34 mins</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-primary mt-0.5">Projectile Motion on Horizontal and Inclined Planes</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trajectory equations, maximum range criteria, and coordinate tilting strategies.</p>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg px-space-md py-2 rounded-lg transition-colors flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+<span class="">Start Now</span>
+<span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+</div>
+<!-- 2.5 Practice Set (Pending) -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-surface-container-lowest opacity-75 hover:opacity-100 transition-opacity gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">radio_button_unchecked</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.5 · Drill Problem Set</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">20 Questions</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-surface">20 Selected JEE Main &amp; Advanced Kinematics Problems</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Curated from Past 15 Years JEE Papers with Step Hints</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant self-start sm:self-auto">Next in Queue</span>
+</div>
+<!-- 2.6 Checkpoint Quiz (Pending) -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-surface-container-lowest opacity-75 hover:opacity-100 transition-opacity gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">lock</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.6 · Module Evaluation</span>
+<span class="text-xs text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">45 mins</span>
+</div>
+<p class="font-label-lg text-label-lg text-on-surface">Module 2 Checkpoint Quiz: Vectors &amp; 2D Kinematics</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Unlocks after completing Drill Set 2.5</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded self-start sm:self-auto">Locked</span>
+</div>
+</div>
+</div>
+<!-- MODULE 03: Newton's Laws of Motion & Friction (LOCKED) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm opacity-85 hover:opacity-100 transition-opacity">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleAccordion('mod-3-content', 'mod-3-icon')">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">lock</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Module 03</span>
+<span class="font-label-sm text-label-sm text-outline-variant">• 10 Items</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Newton's Laws of Motion &amp; Friction</h4>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="hidden sm:inline font-label-md text-label-md text-on-surface-variant">Est. 5.5 Hours</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform" id="mod-3-icon">expand_more</span>
+</div>
+</div>
+<div class="hidden px-space-md pb-space-md pt-space-xs text-on-surface-variant font-body-sm text-body-sm space-y-2 border-t border-surface-container-low" id="mod-3-content">
+<p class="">Topics: Free Body Diagrams, Pulley Constraint Equations, Normal Reaction, Pseudo Forces, Static vs Kinetic Friction, Angle of Repose.</p>
+<div class="flex gap-2">
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">4 Videos</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">2 Readings</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">3 Practice Sets</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">1 Mastery Quiz</span>
+</div>
+</div>
+</div>
+<!-- MODULE 04: Work, Energy & Power (LOCKED) -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm opacity-85 hover:opacity-100 transition-opacity">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleAccordion('mod-4-content', 'mod-4-icon')">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-xl">lock</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Module 04</span>
+<span class="font-label-sm text-label-sm text-outline-variant">• 10 Items</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Work, Energy, Power &amp; Collisions</h4>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<span class="hidden sm:inline font-label-md text-label-md text-on-surface-variant">Est. 6.0 Hours</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform" id="mod-4-icon">expand_more</span>
+</div>
+</div>
+<div class="hidden px-space-md pb-space-md pt-space-xs text-on-surface-variant font-body-sm text-body-sm space-y-2 border-t border-surface-container-low" id="mod-4-content">
+<p class="">Topics: Work-Energy Theorem for variable forces, Conservative vs Non-conservative forces, Potential energy curves, Elastic and Inelastic collisions in 1D and 2D.</p>
+<div class="flex gap-2">
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">4 Videos</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">2 Readings</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">3 Practice Drills</span>
+<span class="bg-surface-container px-2 py-0.5 rounded font-label-sm text-label-sm">1 Final Comprehensive Exam</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Editorial Pedagogical Note / Textbook Callout -->
+<section class="bg-secondary-container/20 rounded-xl p-space-lg flex items-start gap-space-md">
+<div class="p-2 rounded-lg bg-secondary-container text-on-secondary-fixed-variant shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-2xl">menu_book</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-primary">Recommended Parallel Reference Texts</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+            For maximum retention alongside this algorithmic syllabus, solve Chapters 3 through 6 from <em>Concepts of Physics Vol 1 by Dr. H.C. Verma</em> and reference <em>Halliday, Resnick &amp; Walker</em> for dimensional derivations.
+          </p>
+</div>
+</section>
+</div>
+<!-- Right Column Sidebar: Content Types Filter, Attributions & Bookmarks (4-Col Equivalent) -->
+<div class="w-full lg:w-80 shrink-0 space-y-space-md">
+<!-- Resource Breakdown / Quick Filter -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-container-low">
+<h4 class="font-headline-sm text-headline-sm text-primary">Content Inventory</h4>
+<span class="font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded font-bold text-primary">32 Total</span>
+</div>
+<div class="space-y-1">
+<a class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low text-primary font-label-md text-label-md" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base">apps</span>
+<span class="">All Types</span>
+</div>
+<span class="font-semibold">32</span>
+</a>
+<a class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-secondary">play_circle</span>
+<span class="">Video Lectures</span>
+</div>
+<span class="">16</span>
+</a>
+<a class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-primary">menu_book</span>
+<span class="">Readings &amp; Proofs</span>
+</div>
+<span class="">6</span>
+</a>
+<a class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-on-secondary-fixed-variant">assignment</span>
+<span class="">Practice Problem Sets</span>
+</div>
+<span class="">6</span>
+</a>
+<a class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-primary-container">quiz</span>
+<span class="">Checkpoint Quizzes</span>
+</div>
+<span class="">4</span>
+</a>
+</div>
+</div>
+<!-- Verified Academic Sources / Attribution -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<h4 class="font-headline-sm text-headline-sm text-primary mb-1">Source Provenance</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">Curated from vetted academic repositories &amp; master educators.</p>
+<div class="space-y-space-sm">
+<div class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary font-bold text-xs shadow-xs">
+              MIT
+            </div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-primary font-semibold truncate">MIT OpenCourseWare</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Physics I: Classical Mechanics</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-secondary font-bold text-xs shadow-xs">
+              PG
+            </div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-primary font-semibold truncate">Physics Galaxy</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ashish Arora Advanced Series</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-on-secondary-fixed-variant font-bold text-xs shadow-xs">
+              HCV
+            </div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-primary font-semibold truncate">Prof. H.C. Verma Archive</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Experimental Physics Demonstrations</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm p-2 rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary-container font-bold text-xs shadow-xs">
+              NC
+            </div>
+<div class="min-w-0">
+<p class="font-label-md text-label-md text-primary font-semibold truncate">NCERT Digital Repository</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Class 11 Exemplar &amp; Theory</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Notebook & Formula Sheet Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<h4 class="font-headline-sm text-headline-sm text-primary">Your Study Notes</h4>
+<span class="material-symbols-outlined text-on-surface-variant text-lg">edit_square</span>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg space-y-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant font-semibold">LAST ANNOTATED (MODULE 2.3)</p>
+<p class="font-body-sm text-body-sm text-on-surface italic">
+            "For minimum time to cross river, swim perpendicular to flow; for shortest drift, result of velocity components must cancel along x-axis."
+          </p>
+<div class="pt-1 flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span class="">2 notes in Kinematics</span>
+<a class="text-primary hover:underline font-semibold" href="#">Open Notebook →</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleAccordion(contentId, iconId) {
+    const content = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+    if (!content) return;
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      if (icon) icon.classList.add('rotate-180');
+    } else {
+      content.classList.add('hidden');
+      if (icon) icon.classList.remove('rotate-180');
+    }
+  }
+
+  const toggleAllBtn = document.getElementById('toggle-all-btn');
+  let allExpanded = false;
+
+  if (toggleAllBtn) {
+    toggleAllBtn.addEventListener('click', () => {
+      allExpanded = !allExpanded;
+      const modules = ['mod-1', 'mod-2', 'mod-3', 'mod-4'];
+      modules.forEach(mod => {
+        const content = document.getElementById(`${mod}-content`);
+        const icon = document.getElementById(`${mod}-icon`);
+        if (content) {
+          if (allExpanded) {
+            content.classList.remove('hidden');
+            if (icon) icon.classList.add('rotate-180');
+          } else {
+            content.classList.add('hidden');
+            if (icon) icon.classList.remove('rotate-180');
+          }
+        }
+      });
+      toggleAllBtn.querySelector('span:last-child').textContent = allExpanded ? 'Collapse All Modules' : 'Expand All Modules';
+    });
+  }
+</script></main></div>
+
+</body></html>

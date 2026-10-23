@@ -1,0 +1,585 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><title>Pencill - Workspace</title><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#faf8ff", "on-background": "#161b29", "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#614018", "surface-variant": "#dee2f5", "surface-bright": "#faf8ff", "secondary-fixed": "#ffdcbc", "tertiary-fixed-dim": "#a4c9ff", "primary-fixed-dim": "#b5c8df", "surface-container-lowest": "#ffffff", "surface-container": "#eaedff", "primary-container": "#2c3e50", "surface-container-high": "#e3e7fb", "inverse-surface": "#2b303f", "primary-fixed": "#d1e4fb", "tertiary": "#00274c", "on-primary-fixed": "#091d2e", "on-surface-variant": "#43474c", "error-container": "#ffdad6", "surface-tint": "#4e6073", "error": "#ba1a1a", "inverse-on-surface": "#eef0ff", "primary": "#162839", "tertiary-container": "#003d71", "on-secondary-fixed": "#2c1700", "tertiary-fixed": "#d4e3ff", "outline-variant": "#c4c6cd", "outline": "#74777d", "on-tertiary-fixed": "#001c39", "on-primary-fixed-variant": "#36485b", "inverse-primary": "#b5c8df", "surface-container-highest": "#dee2f5", "on-primary": "#ffffff", "on-secondary-container": "#79542a", "on-tertiary": "#ffffff", "surface-dim": "#d5d9ed", "on-tertiary-container": "#66a9fd", "on-surface": "#161b29", "secondary-fixed-dim": "#efbd8a", "on-error-container": "#93000a", "on-primary-container": "#96a9be", "on-secondary": "#ffffff", "secondary-container": "#fecb97", "on-error": "#ffffff", "secondary": "#7c572d", "surface": "#faf8ff", "on-tertiary-fixed-variant": "#004883" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "2rem", "space-md": "1rem", "gutter": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem" }, "fontFamily": { "display-lg-mobile": [ "\"Source Serif 4\"" ], "label-sm": [ "Inter" ], "label-md": [ "Inter" ], "headline-lg": [ "\"Source Serif 4\"" ], "headline-md": [ "\"Source Serif 4\"" ], "label-lg": [ "Inter" ], "display-lg": [ "\"Source Serif 4\"" ], "body-sm": [ "Inter" ], "body-md": [ "Inter" ], "body-lg": [ "Inter" ], "headline-sm": [ "Inter" ] }, "fontSize": { "display-lg-mobile": [ "30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "label-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "label-lg": [ "14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "13px", { "lineHeight": "20px", "fontWeight": "400" } ], "body-md": [ "15px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-lg": [ "18px", { "lineHeight": "28px", "fontWeight": "400" } ], "headline-sm": [ "18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" } ] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md"><div class="flex flex-col"><div class="px-space-lg mb-space-xl flex items-center gap-space-sm"><img alt="Pencill Brand Wordmark" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X1w-vuN5Ke4fpMxiVhzg8oO3DkeJzk0DJcWWcmF2am7iDiZmTChaZqE0QXuXNCAVPG7_f52VAaPvFtG7YCGX2m_5FKwJgc4fil8Ao1psMKiQH4Y-vDa8NIObvKf97rTT9tMXi4a91ge8TgNo8FMTxtdCE4yrQ5rCXNAmy-SfkqnBsofM7WMYHoDmy3TM0g00GmJWA-JYAzsY8wKHt25yYcIedd0pIhY_fD4Jje8akBcXChGZZoKQpFOkTA"><span class="font-headline-md text-headline-md tracking-tight text-primary">Pencill</span></div><nav class="px-space-sm space-y-1" data-active-classes="bg-surface-container-high text-primary font-semibold"><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg group" data-path="dashboard" href="#"><svg class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg><span class="">Dashboard</span></a><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg group" data-path="my-courses" href="#"><svg class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg><span class="">My Courses</span></a><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg group" data-path="explore" href="#"><svg class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg><span class="">Explore</span></a><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg group" data-path="practice-and-quizzes" href="#"><svg class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span class="">Practice &amp; Quizzes</span></a><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg group" data-path="progress" href="#"><svg class="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg><span class="">Progress</span></a><a class="flex items-center gap-2.5 px-space-md py-space-sm rounded-lg bg-surface-container-high text-primary font-semibold transition-all font-label-lg text-label-lg" data-path="bookmarks" href="#"><svg class="w-5 h-5 text-primary" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg><span class="">Bookmarks</span></a></nav></div><div class="px-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"><div class="flex flex-col min-w-0 flex-1"><span class="font-label-lg text-label-lg text-on-surface truncate font-semibold">Aanya Patel</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Class 11 · JEE Aspirant</span></div></div><div class="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary flex items-center gap-1 transition-colors" data-path="settings" href="#"><span class="">Settings</span></a><span class="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">Pro Path</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between"><div class="flex-1 max-w-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span><input class="w-full pl-9 pr-space-md py-2 bg-surface-container-lowest rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container" placeholder="Search topics, courses, notes..." type="text"></div></div><div class="flex items-center gap-space-md"><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)]" data-path="create-learning-goal" href="#"><span class="material-symbols-outlined text-base">add</span><span class="">New Goal</span></a><img alt="Profile" class="w-8 h-8 rounded-full object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEpZ_Z_-bT1TffE9ARxfy5ns5uMRCL49l7rpayDF7QoGozqAgtReeWWsjw7WnyVm9uBl0kbN-6x0YjLwKSgnhAhViJHK8YBKTXZu5X3mFC1HBHdO0SVhG1QW-u6GWVMabLzPh3nRf4NHIVfYsMWhnOgc07ygqGQwGVn9urxvJ2KUmI_OozIF2gyhTKz73dkQhBiFhprtXPK3IyBcWuf6PW5YjbwXxqbdGnjAAyvjhaOq6_LHS2SJiirA"></div></header><main class="relative pt-16 bg-background min-h-screen px-gutter py-space-lg"><div class="flex flex-col w-full">
+<!-- Interactive Script for Filtering, Bookmark Toggling, and Undo Toast -->
+<script>
+    function switchMainTab(tab) {
+      const allBtn = document.getElementById('tab-all');
+      const pathsBtn = document.getElementById('tab-paths');
+      const resourcesBtn = document.getElementById('tab-resources');
+      const subfilterContainer = document.getElementById('subfilter-container');
+      const secPaths = document.getElementById('sec-saved-paths');
+      const secResources = document.getElementById('sec-saved-resources');
+      const emptyShelf = document.getElementById('empty-shelf-view');
+
+      const tabs = [allBtn, pathsBtn, resourcesBtn];
+      tabs.forEach(t => {
+        t.className = 'px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container';
+      });
+
+      emptyShelf.classList.add('hidden');
+
+      if (tab === 'all') {
+        allBtn.className = 'px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all bg-surface-container-high text-primary font-semibold shadow-sm';
+        subfilterContainer.classList.remove('hidden');
+        secPaths.classList.remove('hidden');
+        secResources.classList.remove('hidden');
+      } else if (tab === 'paths') {
+        pathsBtn.className = 'px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all bg-surface-container-high text-primary font-semibold shadow-sm';
+        subfilterContainer.classList.add('hidden');
+        secPaths.classList.remove('hidden');
+        secResources.classList.add('hidden');
+      } else if (tab === 'resources') {
+        resourcesBtn.className = 'px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all bg-surface-container-high text-primary font-semibold shadow-sm';
+        subfilterContainer.classList.remove('hidden');
+        secPaths.classList.add('hidden');
+        secResources.classList.remove('hidden');
+      }
+    }
+
+    function filterResourceType(type, btn) {
+      const pills = document.querySelectorAll('.subfilter-pill');
+      pills.forEach(p => {
+        p.className = 'subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-all';
+      });
+      btn.className = 'subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm bg-primary text-on-primary font-semibold transition-all shadow-sm';
+
+      const items = document.querySelectorAll('.resource-item');
+      let visibleCount = 0;
+      items.forEach(it => {
+        if (type === 'all' || it.dataset.type === type) {
+          it.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          it.classList.add('hidden');
+        }
+      });
+
+      const emptyShelf = document.getElementById('empty-shelf-view');
+      const secResources = document.getElementById('sec-saved-resources');
+      if (visibleCount === 0) {
+        emptyShelf.classList.remove('hidden');
+        secResources.classList.add('hidden');
+      } else {
+        emptyShelf.classList.add('hidden');
+        secResources.classList.remove('hidden');
+      }
+    }
+
+    let lastRemovedCard = null;
+    let toastTimeout = null;
+
+    function toggleBookmark(id) {
+      const card = document.getElementById(id);
+      if (!card) return;
+      lastRemovedCard = { element: card, nextSibling: card.nextSibling, parent: card.parentNode };
+      card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.97)';
+      
+      setTimeout(() => {
+        card.classList.add('hidden');
+        showToast('Removed from bookmarks', true);
+        updateCounters(-1);
+      }, 250);
+    }
+
+    function undoBookmarkRemoval() {
+      if (!lastRemovedCard) return;
+      const { element, nextSibling, parent } = lastRemovedCard;
+      element.classList.remove('hidden');
+      if (nextSibling) {
+        parent.insertBefore(element, nextSibling);
+      } else {
+        parent.appendChild(element);
+      }
+      setTimeout(() => {
+        element.style.opacity = '1';
+        element.style.transform = 'scale(1)';
+      }, 20);
+      hideToast();
+      updateCounters(1);
+      lastRemovedCard = null;
+    }
+
+    function showToast(msg, canUndo) {
+      const toast = document.getElementById('pencill-toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastUndo = document.getElementById('toast-undo');
+      toastMsg.innerText = msg;
+      if (canUndo) toastUndo.classList.remove('hidden');
+      else toastUndo.classList.add('hidden');
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        hideToast();
+      }, 5500);
+    }
+
+    function hideToast() {
+      const toast = document.getElementById('pencill-toast');
+      toast.classList.add('translate-y-20', 'opacity-0');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+    }
+
+    let currentItemCount = 6;
+    function updateCounters(delta) {
+      currentItemCount = Math.max(0, currentItemCount + delta);
+      const statEl = document.getElementById('quick-stats-badge');
+      if (statEl) {
+        statEl.innerText = `${currentItemCount} items saved · 2 paths in progress`;
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const input = document.getElementById('bookmark-search-input');
+        if (input) input.focus();
+      }
+    });
+  </script>
+<!-- Global Sidebar Active Sync -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navLinks = document.querySelectorAll('aside nav a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('data-path') === 'bookmarks') {
+          link.className = 'flex items-center px-space-md py-space-sm rounded-lg bg-surface-container-high text-primary font-semibold transition-all font-label-lg text-label-lg';
+        } else {
+          link.className = 'flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all font-label-lg text-label-lg';
+        }
+      });
+    });
+  </script>
+<!-- Main Container -->
+<div class="max-w-[1280px] w-full mx-auto space-y-space-xl pb-16">
+<!-- Section: Header Architecture -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
+<div class="space-y-space-xs max-w-2xl">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/50 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+            Personal Memory Layer
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-2.5 py-1 rounded-full" id="quick-stats-badge">
+            6 items saved · 2 paths in progress
+          </span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">
+          Saved for later.
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Keep useful paths and resources close when you're ready to return to them.
+        </p>
+</div>
+<!-- Quick Action / Search Area -->
+<div class="w-full md:w-80 flex flex-col gap-space-xs">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none">search</span>
+<input class="w-full pl-9 pr-14 py-2.5 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container" id="bookmark-search-input" placeholder="Search your saved items..." type="text">
+<div class="absolute right-2.5 flex items-center pointer-events-none">
+<kbd class="px-1.5 py-0.5 text-[10px] font-label-sm bg-surface-container text-on-surface-variant rounded shadow-none font-medium">⌘K</kbd>
+</div>
+</div>
+</div>
+</header>
+<!-- Navigation Tabs & Subfilters -->
+<section class="flex flex-col gap-space-md border-b-0">
+<div class="flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low p-1.5 rounded-xl">
+<!-- Main Tabs -->
+<div class="flex items-center gap-1">
+<button class="px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all bg-surface-container-high text-primary font-semibold shadow-sm" id="tab-all" onclick="switchMainTab('all')">
+            All <span class="ml-1 text-on-surface-variant font-normal">(6)</span>
+</button>
+<button class="px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container" id="tab-paths" onclick="switchMainTab('paths')">
+            Learning Paths <span class="ml-1 text-on-surface-variant font-normal">(2)</span>
+</button>
+<button class="px-space-md py-2 rounded-lg font-label-lg text-label-lg transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container" id="tab-resources" onclick="switchMainTab('resources')">
+            Resources <span class="ml-1 text-on-surface-variant font-normal">(4)</span>
+</button>
+</div>
+<!-- Sub-filter Pills -->
+<div class="flex items-center gap-1.5 px-2" id="subfilter-container">
+<span class="font-label-sm text-label-sm text-on-surface-variant mr-1">Filter:</span>
+<button class="subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm bg-primary text-on-primary font-semibold transition-all shadow-sm" onclick="filterResourceType('all', this)">
+            All Types
+          </button>
+<button class="subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-all" onclick="filterResourceType('video', this)">
+            Videos (2)
+          </button>
+<button class="subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-all" onclick="filterResourceType('article', this)">
+            Articles &amp; Texts (1)
+          </button>
+<button class="subfilter-pill px-3 py-1 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-all" onclick="filterResourceType('drill', this)">
+            Practice &amp; Quizzes (1)
+          </button>
+</div>
+</div>
+</section>
+<!-- SECTION 1: Saved Learning Paths -->
+<section class="space-y-space-md" id="sec-saved-paths">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-xl">route</span>
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">
+            Saved Learning Paths
+          </h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 Paths</span>
+</div>
+<!-- Path Cards Grid (Desktop 2-col) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+<!-- Path Card 1 -->
+<article class="group relative bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" id="path-card-1">
+<div class="space-y-space-md">
+<!-- Card Header Meta & Bookmark Action -->
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-secondary-container/40 text-on-secondary-container font-semibold">
+                  Competitive Exam
+                </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Class 11</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">4 modules</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">~18 hours</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded-lg hover:bg-surface-container" onclick="toggleBookmark('path-card-1')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<!-- Path Title & Synopsis -->
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                JEE Physics: Mechanics &amp; Kinematics
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Systematic progression through dimensional analysis, vectors, 1D/2D kinematics, and Newton's laws.
+              </p>
+</div>
+<!-- Visual Progress Metric -->
+<div class="space-y-2 pt-1 bg-surface-container-low/60 p-3 rounded-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium">Progress: 3 of 6 modules completed</span>
+<span class="text-secondary font-semibold">42%</span>
+</div>
+<div class="w-full bg-surface-variant/70 h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="flex items-center justify-between pt-space-lg mt-space-md border-t border-surface-variant/30">
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:bg-primary shadow-sm active:scale-95 transition-all" href="#">
+<span class="">Continue Path</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+<a class="inline-flex items-center gap-1 px-space-md py-2 rounded-lg bg-surface-container-low text-primary font-label-lg text-label-lg hover:bg-surface-container transition-all" href="#">
+<span class="">View Outline</span>
+</a>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">timer</span>
+              Last active 2d ago
+            </span>
+</div>
+</article>
+<!-- Path Card 2 -->
+<article class="group relative bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" id="path-card-2">
+<div class="space-y-space-md">
+<!-- Card Header Meta & Bookmark Action -->
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-semibold">
+                  Programming
+                </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Beginner</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">6 modules</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">~18 hours</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded-lg hover:bg-surface-container" onclick="toggleBookmark('path-card-2')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<!-- Path Title & Synopsis -->
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+                Python Foundations
+              </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                A structured path covering Python fundamentals, syntax, control flow, functions, and standard data structures.
+              </p>
+</div>
+<!-- Visual Progress Metric (Not Started State) -->
+<div class="space-y-2 pt-1 bg-surface-container-low/60 p-3 rounded-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+                  Not started
+                </span>
+<span class="text-on-surface-variant">0 of 6 completed</span>
+</div>
+<div class="w-full bg-surface-variant/70 h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="flex items-center justify-between pt-space-lg mt-space-md border-t border-surface-variant/30">
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:bg-primary shadow-sm active:scale-95 transition-all" href="#">
+<span class="">Start Path</span>
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+</a>
+<a class="inline-flex items-center gap-1 px-space-md py-2 rounded-lg bg-surface-container-low text-primary font-label-lg text-label-lg hover:bg-surface-container transition-all" href="#">
+<span class="">View Outline</span>
+</a>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">
+              Ready to begin
+            </span>
+</div>
+</article>
+</div>
+</section>
+<!-- SECTION 2: Saved Resources -->
+<section class="space-y-space-md" id="sec-saved-resources">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">library_books</span>
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">
+            Saved Resources
+          </h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">4 Resources</span>
+</div>
+<!-- Resources 2x2 Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- Resource Item 1: Video -->
+<article class="resource-item bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-type="video" id="resource-1">
+<div class="space-y-space-sm">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">play_circle</span>
+                  Video · 34 min
+                </span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Kinematics &amp; 2D Motion</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded hover:bg-surface-container" onclick="toggleBookmark('resource-1')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">
+                Projectile Motion on Horizontal &amp; Inclined Planes
+              </h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                Source: Physics Galaxy / MIT Archive
+              </p>
+</div>
+<!-- Context / Timestamp Note Card -->
+<div class="p-space-sm bg-secondary-container/20 rounded-lg flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-base mt-0.5" style="font-variation-settings: 'FILL' 1;">timer</span>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-secondary font-semibold block">Timestamped bookmark at 14:22</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                  Derivation of Time of Flight on inclined planes and angle of projection.
+                </p>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-surface-variant/30 flex items-center justify-between">
+<a class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary shadow-sm transition-all" href="#">
+<span class="material-symbols-outlined text-base">play_arrow</span>
+<span class="">Resume Video (14:22)</span>
+</a>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Saved 3 days ago</span>
+</div>
+</article>
+<!-- Resource Item 2: Article / Text -->
+<article class="resource-item bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-type="article" id="resource-2">
+<div class="space-y-space-sm">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">article</span>
+                  Article / Text · 14 pages
+                </span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Vectors &amp; Circular Motion</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded hover:bg-surface-container" onclick="toggleBookmark('resource-2')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">
+                NCERT Vol 1, Ch 4: Motion in a Plane — Section 4.10 Derivations
+              </h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                Source: NCERT Digital Repository
+              </p>
+</div>
+<!-- Highlight Note -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-start gap-2.5">
+<span class="material-symbols-outlined text-primary text-base mt-0.5">format_ink_highlighter</span>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-primary font-semibold block">Highlighted excerpt</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+                  "Highlighted tangential acceleration equations and centripetal acceleration vector balance."
+                </p>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-surface-variant/30 flex items-center justify-between">
+<a class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined text-base">menu_book</span>
+<span class="">Read Text</span>
+</a>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Saved 5 days ago</span>
+</div>
+</article>
+<!-- Resource Item 3: Practice Drill -->
+<article class="resource-item bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-type="drill" id="resource-3">
+<div class="space-y-space-sm">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">assignment_turned_in</span>
+                  Practice Drill · 20 Questions
+                </span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Relative Motion &amp; Pulley Systems</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded hover:bg-surface-container" onclick="toggleBookmark('resource-3')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">
+                20 Selected JEE Main &amp; Advanced Kinematics Problems
+              </h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                Source: Benchmark Archive
+              </p>
+</div>
+<!-- Drill Progress Bar -->
+<div class="space-y-2 bg-surface-container-low/60 p-3 rounded-lg">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-medium">Drill Progress</span>
+<span class="text-secondary font-semibold">12 of 20 solved (60%)</span>
+</div>
+<div class="w-full bg-surface-variant/70 h-1.5 rounded-full overflow-hidden flex">
+<div class="bg-primary-container h-full rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-surface-variant/30 flex items-center justify-between">
+<a class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md hover:bg-primary shadow-sm transition-all" href="#">
+<span class="material-symbols-outlined text-base">play_circle</span>
+<span class="">Continue Drill</span>
+</a>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Score: 85% Acc.</span>
+</div>
+</article>
+<!-- Resource Item 4: Documentation & Video -->
+<article class="resource-item bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-type="video" id="resource-4">
+<div class="space-y-space-sm">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">integration_instructions</span>
+                  Documentation &amp; Video · 28 min
+                </span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Python Fundamentals</span>
+</div>
+<button class="text-secondary hover:text-on-secondary-container transition-colors p-1 rounded hover:bg-surface-container" onclick="toggleBookmark('resource-4')" title="Saved for later">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">
+                Python Functions &amp; Scope Deep Dive
+              </h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                Source: Official Docs &amp; Video Walkthrough
+              </p>
+</div>
+<!-- Description -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-start gap-2.5">
+<span class="material-symbols-outlined text-on-surface-variant text-base mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Covers positional vs keyword args, LEGB scope resolution rules, and closures.
+              </p>
+</div>
+</div>
+<div class="pt-space-md mt-space-md border-t border-surface-variant/30 flex items-center justify-between">
+<a class="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-high text-primary font-label-md text-label-md hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined text-base">open_in_new</span>
+<span class="">Open Resource</span>
+</a>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Saved 1 week ago</span>
+</div>
+</article>
+</div>
+</section>
+<!-- SECTION 3: Empty State Representation (Subtle Shelf) -->
+<div class="hidden bg-surface-container-lowest rounded-2xl p-space-xl text-center flex flex-col items-center justify-center gap-space-md shadow-sm" id="empty-shelf-view">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<!-- Pencill Minimal Pencil-Line Icon -->
+<svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+<path d="m15 5 4 4"></path>
+<path d="M4 22h16"></path>
+</svg>
+</div>
+<div class="space-y-1 max-w-md">
+<h3 class="font-headline-md text-headline-md text-primary">
+          Your learning shelf is empty.
+        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Save a path or resource while exploring. We'll keep it here until you're ready to learn.
+        </p>
+</div>
+<a class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary hover:bg-primary px-space-lg py-2.5 rounded-lg font-label-lg text-label-lg transition-all shadow-sm" data-path="explore" href="#">
+<span class="material-symbols-outlined text-base">explore</span>
+<span class="">Explore Learning Paths</span>
+</a>
+</div>
+<!-- Bottom Memory Shelf Architectural Touch -->
+<footer class="pt-space-md border-t border-surface-variant/30 flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="">Pencill Personal Archive: Synced and stored for deep focus.</span>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="hover:text-primary transition-colors" href="#">Export Shelf Data</a>
+<span class="">•</span>
+<a class="hover:text-primary transition-colors" href="#">Archived Paths</a>
+</div>
+</footer>
+</div>
+<!-- Pencill Feedback Toast (Bookmark Removal / Undo) -->
+<aside aria-live="polite" class="fixed bottom-6 right-8 bg-inverse-surface text-inverse-on-surface px-space-md py-3 rounded-xl shadow-xl flex items-center gap-space-md z-50 transform translate-y-20 opacity-0 transition-all duration-300" id="pencill-toast" role="status">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-sm text-body-sm" id="toast-message">Removed from bookmarks</span>
+</div>
+<div class="flex items-center gap-2 border-l border-outline-variant/30 pl-space-md">
+<button class="font-label-lg text-label-lg text-secondary-fixed hover:text-secondary-fixed-dim transition-colors font-semibold" id="toast-undo" onclick="undoBookmarkRemoval()">
+        Undo
+      </button>
+<button class="text-inverse-on-surface/70 hover:text-inverse-on-surface p-0.5 rounded transition-colors" onclick="hideToast()">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+</aside>
+</div></main></div>
+
+</body></html>

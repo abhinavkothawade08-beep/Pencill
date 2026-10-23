@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" fill="none">
+  <g transform="translate(4, 6)">
+    <!-- Stylized minimalist drafting pencil & open book / path glyph -->
+    <path d="M4 26L18 4L26 9L12 31L4 32L4 26Z" fill="#2C3E50"/>
+    <path d="M18 4L22 1.5C23.5 0.5 25.5 1 26.5 2.5L27.5 4C28.5 5.5 28 7.5 26.5 8.5L24 10.5L18 4Z" fill="#D4A574"/>
+    <path d="M4 26L12 31L7 32L4 26Z" fill="#1D2230"/>
+    <circle cx="21" cy="6.5" r="1" fill="#FFFFFF"/>
+    <!-- Subtle trajectory learning dot path -->
+    <path d="M26 26C28 22 30 20 33 21C36 22 35 27 38 27C41 27 42 24 43 23" stroke="#4A90E2" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 3"/>
+  </g>
+  <text x="46" y="29" font-family="'Lora', serif" font-size="24" font-weight="600" fill="#2C3E50" letter-spacing="-0.02em">Pencill</text>
+  <circle cx="120" cy="27" r="2.5" fill="#4A90E2"/>
+</svg>
