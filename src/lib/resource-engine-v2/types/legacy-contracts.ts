@@ -314,12 +314,20 @@ export interface SearchOptions {
 }
 
 export interface DiscoveryResult {
+  topic?: string;
+  parsedQuery?: ParsedQuery;
   rankedResources: Array<{ resource: EngineResource; finalScore: number; rank: number; reason?: string }>;
   totalFound: number;
+  totalValid?: number;
+  jobId?: string;
+  groupedByType?: Record<string, EngineResource[]>;
+  searchPlan?: any;
   executionMetrics: {
     durationMs: number;
     providerLatencies: Record<string, number>;
     countsByProvider?: Record<string, number>;
+    countsByType?: Record<string, number>;
+    evaluatedCount?: number;
   };
   sequencedPlaylist?: any;
   filterStats?: any;
@@ -352,5 +360,166 @@ export interface DiversityConfig {
   slots: DiversitySlotTarget[];
   maxPerDomainOrChannel: number;
 }
+
+export type ContentType =
+  | 'educational'
+  | 'current_news'
+  | 'documentary'
+  | 'entertainment'
+  | 'academic';
+
+export interface QualityWeights {
+  topicRelevance: number;
+  contentDepth: number;
+  publisherCredibility: number;
+  educationalValue: number;
+  audioVisualQuality: number;
+  recency: number;
+}
+
+export interface QualityEvidence {
+  hasCaptionsOrTranscript: boolean;
+  hasHighDefinition: boolean;
+  hasDetailedDescription: boolean;
+  isEmbeddable: boolean;
+  hasTimestampsOrChapters: boolean;
+  durationMinutes: number;
+  evidenceConfidence: 'high' | 'medium' | 'low';
+  uncertaintyReasons: string[];
+}
+
+export interface DetailedQualityScore {
+  overall: number;
+  topicRelevance: number;
+  contentDepth: number;
+  publisherCredibility: number;
+  educationalValue: number;
+  audioVisualQuality: number;
+  recency: number;
+  weightsUsed: QualityWeights;
+  evidence: QualityEvidence;
+  explanation: string;
+  contentType: ContentType;
+  durationSuitability?: number;
+  practicalDepth?: number;
+  practicalSignals?: PracticalLearningSignals;
+}
+
+export interface QualityScoringConfig {
+  defaultWeights: QualityWeights;
+  contentTypeWeights: Record<ContentType, QualityWeights>;
+  minQualityThreshold: number;
+  durationPreferences?: DurationPreferenceMap;
+}
+
+export interface EvaluationRequest {
+  resource: EngineResource;
+  queryContext: {
+    topic: string;
+    targetLevel?: string;
+    examContext?: string;
+    intent?: string;
+  };
+}
+
+export interface EvaluationResult {
+  resourceId: string;
+  score: ResourceQualityBreakdown;
+  strengths: string[];
+  weaknesses: string[];
+  recommendedUse: string;
+  evaluator: 'gemini' | 'heuristic' | 'hybrid';
+  evaluatedAt: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  resourceId: string;
+  errors: string[];
+  warnings: string[];
+}
+
+export type SequenceType =
+  | 'learning_path'
+  | 'step_by_step_tutorial'
+  | 'chronological_research'
+  | 'storytelling'
+  | 'news_coverage'
+  | 'general_interest_playlist';
+
+export type SequenceRole =
+  | 'foundation'
+  | 'core_concept'
+  | 'deep_dive'
+  | 'practical_demonstration'
+  | 'advanced_synthesis'
+  | 'chronological_milestone'
+  | 'tutorial_step';
+
+export interface SequencedResourceItem {
+  sequenceNumber: number;
+  resource: EngineResource;
+  conceptsCovered: string[];
+  prerequisitesNeeded: string[];
+  roleInSequence: SequenceRole;
+  positionReason: string;
+  selectionReason: string;
+  qualityScore: DetailedQualityScore;
+  qualityEvidence?: any;
+  eventDate?: string;
+  verifiedPublicationDate?: string;
+}
+
+export interface SequenceValidationSummary {
+  isValid: boolean;
+  duplicateCountRemoved: number;
+  prerequisitesRespected: boolean;
+  averageQuality: number;
+  warnings: string[];
+}
+
+export interface SequencedPlaylistResult {
+  topic: string;
+  sequenceType: SequenceType;
+  contentType: ContentType;
+  items: SequencedResourceItem[];
+  coveredConcepts: string[];
+  coverageGaps: string[];
+  validationSummary: SequenceValidationSummary;
+}
+
+export interface ParsedQuery {
+  rawQuery: string;
+  topic: string;
+  subject?: string;
+  domain?: string;
+  targetLevel?: ResourceDifficulty;
+  examContext?: string;
+  targetResourceTypes?: EngineResourceType[];
+  language?: string;
+  intent?: 'concept_learning' | 'revision' | 'exam_prep' | 'problem_solving' | 'quick_summary';
+  keywords?: string[];
+  isAcademic?: boolean;
+  needsVisual?: boolean;
+  needsMonograph?: boolean;
+  needsPractice?: boolean;
+  needsStructuredCourse?: boolean;
+}
+
+export interface SearchPlanItem {
+  provider: 'google' | 'youtube' | 'web' | 'practice' | 'quiz' | 'notes' | 'academic_notes' | 'arxiv' | 'openalex' | 'wikimedia';
+  query: string;
+  targetTypes: EngineResourceType[];
+  maxResults: number;
+  filters?: Record<string, unknown>;
+}
+
+export interface SearchPlan {
+  originalQuery: string;
+  parsedQuery: ParsedQuery;
+  queries: SearchPlanItem[];
+  createdAt: string;
+}
+
 
 

@@ -8,7 +8,7 @@ import {
   canonicalizeUrl,
   extractCanonicalVideoKey,
   EngineResource,
-} from '../.backup_engine_v1';
+} from '../src/lib/resource-engine-v2';
 
 describe('Video Pipeline: Quality Scoring, Relevance, Deduplication & Sequencing', () => {
   const qualityEngine = new QualityScoringEngine();

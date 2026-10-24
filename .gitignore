@@ -12,20 +12,31 @@
 
 # production
 /build
+/dist
 
-# misc
-.DS_Store
+# environment and secret files
+.env*
+!.env.example
 *.pem
+*.key
+*.cert
+*.crt
+id_rsa*
+id_ed25519*
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+*service_role*
+*service-role*
 
-# debug
+# misc & OS
+.DS_Store
+Thumbs.db
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# local env files
-.env*.local
-.env
-!.env.example
 
 # vercel
 .vercel
@@ -33,3 +44,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+

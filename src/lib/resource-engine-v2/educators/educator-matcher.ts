@@ -5,8 +5,10 @@ import {
   MasterEducatorRecord,
 } from './types';
 import { EducatorRegistry, educatorRegistry } from './educator-registry';
-import { tokenize } from '../utils/text-utils';
+import { tokenize, stemWord } from '../utils/text-utils';
 import { clampScore } from '../utils/scoring-utils';
+import { canonicalizeUrl } from '../utils/url-utils';
+import { EngineResource, ResourceDifficulty } from '../types/legacy-contracts';
 
 export interface MatcherWeights {
   subjectRelevance: number; // default 0.25
@@ -549,3 +551,188 @@ export class EducatorMatcher {
 
 // Global Singleton Matcher instance
 export const educatorMatcher = new EducatorMatcher();
+
+const RAW_GENERIC_FORMAT_WORDS = [
+  'complete', 'course', 'courses', 'playlist', 'playlists', 'tutorial', 'tutorials',
+  'lecture', 'lectures', 'introduction', 'intro', 'basics', 'basic', 'learn', 'full',
+  'series', 'class', 'classes', 'chapter', 'chapters', 'part', 'parts', 'guide',
+  'masterclass', 'crash', 'bootcamp', 'one', 'shot', 'oneshot', 'solved', 'questions',
+  'problems', 'sheet', 'video', 'videos', 'free', 'best', 'online', 'overview',
+  'revision', 'summary', 'all', '101', 'training', 'mastery', 'programming', 'program',
+  'code', 'coding', 'development', 'developer'
+];
+
+const GENERIC_FORMAT_WORDS = new Set(
+  RAW_GENERIC_FORMAT_WORDS.flatMap((w) => [w.toLowerCase(), stemWord(w.toLowerCase())])
+);
+
+/**
+ * Searches the curated master directory for verified flagship learning resources
+ * (RES-001 through RES-012) matching the query or target educator.
+ */
+export function findVerifiedDirectoryResources(
+  query: string,
+  options?: {
+    limit?: number;
+    difficulty?: string;
+    examContext?: string;
+    educatorId?: string;
+    targetEducator?: MasterEducatorRecord;
+    excludeUrls?: Set<string>;
+    excludeVideoIds?: Set<string>;
+  }
+): EngineResource[] {
+  const normQ = query.toLowerCase().trim();
+  const queryTokens = tokenize(normQ);
+  const matched: EngineResource[] = [];
+  const verifiedList = educatorRegistry.getVerifiedLearningResources();
+
+  // Extract non-descriptor content tokens from query
+  const contentQueryTokens = new Set(
+    Array.from(queryTokens).filter((t) => !GENERIC_FORMAT_WORDS.has(t) && t.length > 2)
+  );
+
+  for (const vr of verifiedList) {
+    const normTitle = vr.Resource_Title.toLowerCase();
+    const normSub = vr.Subject.toLowerCase();
+    const titleTokens = tokenize(normTitle);
+    const subTokens = tokenize(normSub);
+
+    // Filter non-descriptor content tokens from candidate
+    const contentTitleTokens = new Set(
+      Array.from(titleTokens).filter((t) => !GENERIC_FORMAT_WORDS.has(t) && t.length > 2)
+    );
+    const contentSubTokens = new Set(
+      Array.from(subTokens).filter((t) => !GENERIC_FORMAT_WORDS.has(t) && t.length > 2)
+    );
+
+    let contentTitleOverlap = 0;
+    for (const t of contentQueryTokens) {
+      if (contentTitleTokens.has(t)) contentTitleOverlap++;
+    }
+
+    const ambiguousStems = new Set(
+      ['network', 'control', 'data', 'system', 'method', 'model', 'structur', 'structure', 'flow', 'manag', 'manage', 'program', 'programming', 'code', 'coding', 'develop', 'development']
+        .flatMap((w) => [w.toLowerCase(), stemWord(w.toLowerCase())])
+    );
+    const unambiguousSubOverlap = Array.from(contentQueryTokens).filter((t) => contentSubTokens.has(t) && !ambiguousStems.has(t)).length;
+    let contentSubOverlap = 0;
+    for (const t of contentQueryTokens) {
+      if (contentSubTokens.has(t)) contentSubOverlap++;
+    }
+
+    const topicMatch = vr.Covered_Topics.toLowerCase()
+      .split(',')
+      .some((t) => {
+        const cleanT = t.trim().toLowerCase();
+        if (cleanT.length < 3) return false;
+        const cTokens = tokenize(cleanT);
+        const unamMatch = Array.from(cTokens).some((ct) => contentQueryTokens.has(ct) && !ambiguousStems.has(ct));
+        return normQ.includes(cleanT) || unamMatch;
+      });
+
+    const isTargetEducator =
+      Boolean(options?.educatorId && options.educatorId === vr.Educator_ID) ||
+      Boolean(options?.targetEducator && options.targetEducator.Educator_ID === vr.Educator_ID);
+
+    // Topical relevance requires actual content overlap if query has specific content keywords
+    const titleMatch = contentQueryTokens.size === 0
+      ? (normTitle.includes(normQ) || normQ.includes(normTitle))
+      : (contentTitleOverlap >= 1 || (normTitle.includes(normQ) && contentTitleOverlap >= 1));
+
+    const subjectMatch = contentQueryTokens.size === 0
+      ? (normQ.includes(normSub) || normSub.includes(normQ))
+      : (unambiguousSubOverlap >= 1 || (contentSubOverlap >= 1 && !ambiguousStems.has(Array.from(contentQueryTokens)[0])));
+
+    // Strict topical alignment: a resource must match the query's actual topic/subject
+    const isTopicallyRelevant = titleMatch || topicMatch || subjectMatch;
+    const isTargetEducatorRelevant = isTargetEducator && (contentTitleOverlap >= 1 || unambiguousSubOverlap >= 1 || topicMatch);
+
+    if (isTopicallyRelevant || isTargetEducatorRelevant) {
+      const isPlaylist = vr.Resource_Type.toLowerCase().includes('playlist');
+      const isFullCourse =
+        vr.Resource_Type.toLowerCase().includes('course') ||
+        vr.Complete_Course_Status.toLowerCase().includes('complete');
+
+      const vid = vr.YouTube_Video_ID_or_Playlist_ID;
+      let targetUrl = vr.Resource_URL;
+      if (vid) {
+        if (vid.startsWith('PL') || isPlaylist) {
+          targetUrl = `https://www.youtube.com/playlist?list=${vid}`;
+        } else if (/^[a-zA-Z0-9_-]{11}$/.test(vid)) {
+          targetUrl = `https://www.youtube.com/watch?v=${vid}`;
+        }
+      }
+      const rawUrl = targetUrl;
+      const canonical = canonicalizeUrl(rawUrl);
+
+      // Filter out excluded video IDs or URLs
+      if (options?.excludeUrls && (options.excludeUrls.has(rawUrl) || options.excludeUrls.has(canonical))) {
+        continue;
+      }
+      if (options?.excludeVideoIds && vid && options.excludeVideoIds.has(vid)) {
+        continue;
+      }
+
+      const edu = educatorRegistry.getById(vr.Educator_ID);
+
+      const res: EngineResource = {
+        id: `dir_${vr.Resource_ID}`,
+        title: vr.Resource_Title,
+        description: `${vr.Syllabus_Coverage}. Key Topics: ${vr.Covered_Topics}`,
+        type: isPlaylist ? 'youtube_playlist' : isFullCourse ? 'full_course' : 'video_lecture',
+        canonicalUrl: canonical,
+        sourceUrl: canonical,
+        sourceName: edu ? `${edu.YouTube_Channel_Name} (Curated Directory)` : 'Curated Directory',
+        provider: 'youtube',
+        externalId: vr.YouTube_Video_ID_or_Playlist_ID,
+        authorOrChannel: edu ? edu.YouTube_Channel_Name : 'Curated Educator',
+        durationMinutes: isPlaylist ? 180 : 90,
+        difficulty: (options?.difficulty as ResourceDifficulty) || 'intermediate',
+        language: vr.Language || 'English',
+        score: {
+          overall: 96,
+          relevance: 95,
+          educationalValue: 95,
+          structureCompleteness: isPlaylist || isFullCourse ? 98 : 90,
+          freshness: 90,
+          explanation: `Flagship complete resource from curated directory educator: ${edu?.Educator_Name || 'Verified Educator'}`,
+        },
+        tags: Array.from(new Set(['curated_directory', 'verified_resource', vr.Subject.toLowerCase(), edu?.YouTube_Channel_Name.toLowerCase() || ''])),
+        examCategory: options?.examContext,
+        educatorId: vr.Educator_ID,
+        educatorName: edu?.Educator_Name,
+        channelId: vr.YouTube_Channel_ID,
+        discoverySource: 'curated_directory',
+        verificationStatus: 'VERIFIED',
+        isCompleteCourse: isFullCourse,
+        isStructuredPlaylist: isPlaylist,
+        selectionExplanation: `Flagship ${isFullCourse ? 'complete course' : isPlaylist ? 'structured playlist' : 'resource'} from curated educator directory (${edu?.Educator_Name})`,
+        metadata: {
+          videoId: (isPlaylist || vid?.startsWith('PL')) ? undefined : vid,
+          playlistId: (isPlaylist || vid?.startsWith('PL')) ? vid : undefined,
+          channelId: vr.YouTube_Channel_ID,
+          educatorId: vr.Educator_ID,
+          educatorName: edu?.Educator_Name,
+          discoverySource: 'curated_directory',
+          verificationStatus: 'VERIFIED',
+          isPlaylist,
+          isFullCourse,
+          isComprehensive: true,
+          publishedAt: vr.Publication_Date,
+          identityConfidence: 'verified_channel_id',
+        },
+        discoveredAt: new Date().toISOString(),
+        url: canonical,
+        author: edu?.YouTube_Channel_Name,
+        duration: isPlaylist ? '180 min' : '90 min',
+        publishedAt: vr.Publication_Date,
+      };
+
+      matched.push(res);
+    }
+  }
+
+  return matched;
+}
+

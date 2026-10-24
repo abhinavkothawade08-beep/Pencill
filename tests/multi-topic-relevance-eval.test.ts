@@ -1,12 +1,14 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { QueryAnalyzer } from '../.backup_engine_v1/core/query-analyzer';
-import { SearchPlanner } from '../.backup_engine_v1/core/search-planner';
-import { QualityScoringEngine } from '../.backup_engine_v1/core/quality-scoring';
-import { NormalizationEngine } from '../.backup_engine_v1/core/normalization-engine';
-import { DeduplicationEngine } from '../.backup_engine_v1/core/deduplication-engine';
-import { RankingEngine } from '../.backup_engine_v1/core/ranking-engine';
-import { EngineResource } from '../.backup_engine_v1/types';
+import {
+  LegacyQueryAnalyzer as QueryAnalyzer,
+  LegacySearchPlanner as SearchPlanner,
+  QualityScoringEngine,
+  LegacyNormalizationEngine as NormalizationEngine,
+  DeduplicationEngine,
+  LegacyRankingEngine as RankingEngine,
+  type EngineResource,
+} from '../src/lib/resource-engine-v2';
 
 describe('Multi-Topic Relevance & Discovery Engine Pipeline (Stages A - H)', () => {
   const queryAnalyzer = new QueryAnalyzer();

@@ -4,11 +4,13 @@ import {
   analyzeTopicComplexity,
   createTopicAdaptiveCurriculum,
 } from '@/services/ai/curriculum-adaptive-engine';
-import { distributeResourcesToCourse } from '../.backup_engine_v1/core/module-distributor';
-import { DeduplicationEngine } from '../.backup_engine_v1/core/deduplication-engine';
-import { QualityScoringEngine } from '../.backup_engine_v1/core/quality-scoring';
-import { EngineResource } from '../.backup_engine_v1/types';
-import { calculateFreshnessScore } from '../.backup_engine_v1/utils/scoring-utils';
+import {
+  distributeResourcesToCourse,
+  DeduplicationEngine,
+  QualityScoringEngine,
+  calculateFreshnessScore,
+  type EngineResource,
+} from '../src/lib/resource-engine-v2';
 
 describe('Comprehensive Course Generation & Video Sourcing Pipeline', () => {
   const deduplicationEngine = new DeduplicationEngine();

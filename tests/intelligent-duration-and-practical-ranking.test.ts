@@ -6,13 +6,13 @@ import {
   calculateDurationSuitability,
   extractPracticalLearningSignals,
   QualityScoringEngine,
-  RankingEngine,
-  SearchPlanner,
+  LegacyRankingEngine as RankingEngine,
+  LegacySearchPlanner as SearchPlanner,
   DEFAULT_ENGINE_CONFIG,
   DEFAULT_DURATION_PREFERENCES,
-  EngineResource,
-} from '../.backup_engine_v1';
-import { distributeResourcesToCourse } from '../.backup_engine_v1/core/module-distributor';
+  type EngineResource,
+  distributeResourcesToCourse,
+} from '../src/lib/resource-engine-v2';
 import { createTopicAdaptiveCurriculum } from '@/services/ai/curriculum-adaptive-engine';
 
 describe('Intelligent Duration Preferences, Practical Video Discovery & Ranking Pipeline', () => {

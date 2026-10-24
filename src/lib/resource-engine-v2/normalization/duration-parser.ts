@@ -74,3 +74,21 @@ export function parseIsoDurationToSeconds(isoStr?: string | null): number | unde
 
   return Math.round(totalSeconds);
 }
+
+/**
+ * Parses an ISO 8601 duration string into minutes.
+ * Compatible with legacy engine expectations for minutes.
+ */
+export function parseIsoDurationToMinutes(isoStr?: string | null): number {
+  if (!isoStr || typeof isoStr !== 'string') return 20;
+  const trimmed = isoStr.trim();
+  if (!trimmed) return 20;
+
+  const seconds = parseIsoDurationToSeconds(trimmed);
+  if (seconds === undefined || isNaN(seconds)) return 20;
+  if (seconds === 0 && trimmed.startsWith('PT')) return 1;
+  if (seconds <= 0) return 20;
+
+  return Math.max(1, Math.round(seconds / 60));
+}
+

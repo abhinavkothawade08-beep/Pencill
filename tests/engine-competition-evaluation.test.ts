@@ -6,11 +6,11 @@ import {
   ProviderRegistry,
   NormalizedResourceCandidate,
   DeterministicMockAdapter,
+  QualityScoringEngine,
+  LegacyRankingEngine as V1RankingEngine,
+  distributeResourcesToCourse,
+  type EngineResource,
 } from '../src/lib/resource-engine-v2';
-import { QualityScoringEngine } from '../.backup_engine_v1/core/quality-scoring';
-import { RankingEngine as V1RankingEngine } from '../.backup_engine_v1/core/ranking-engine';
-import { EngineResource } from '../.backup_engine_v1/types';
-import { distributeResourcesToCourse } from '../.backup_engine_v1/core/module-distributor';
 
 /**
  * Normalized 15-Scenario Test Fixtures

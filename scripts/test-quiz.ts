@@ -19,7 +19,7 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-import { QuizProvider } from '../src/lib/resource-engine';
+import { QuizProvider } from '../src/lib/resource-engine-v2';
 
 async function main() {
   console.log('Testing QuizProvider direct synthesis...');

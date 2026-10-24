@@ -2,15 +2,15 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   QualityScoringEngine,
-  SearchPlanner,
+  LegacySearchPlanner as SearchPlanner,
   YouTubeProvider,
-  RankingEngine,
+  LegacyRankingEngine as RankingEngine,
   calculateFreshnessScore,
   canonicalizeUrl,
   extractYouTubeVideoId,
-  EngineResource,
-} from '../.backup_engine_v1';
-import { distributeResourcesToCourse } from '../.backup_engine_v1/core/module-distributor';
+  type EngineResource,
+  distributeResourcesToCourse,
+} from '../src/lib/resource-engine-v2';
 
 describe('Video Sourcing & Quality Ranking System', () => {
   const qualityEngine = new QualityScoringEngine();

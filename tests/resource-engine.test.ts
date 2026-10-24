@@ -187,7 +187,7 @@ describe('Module-Wise Resource Distribution', () => {
 
 describe('Search Planning & Query Normalization', () => {
   test('SearchPlanner avoids redundant prefix duplication in practice queries', async () => {
-    const { SearchPlanner } = await import('../.backup_engine_v1/core/search-planner');
+    const { LegacySearchPlanner: SearchPlanner } = await import('../src/lib/resource-engine-v2');
     const planner = new SearchPlanner();
 
     const plan = planner.createPracticePlan('JEE Physics Rotational Dynamics', { examContext: 'JEE' });

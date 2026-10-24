@@ -156,16 +156,20 @@ export async function discoverPractice(
   }));
 }
 
+import { isYouTubeQuotaExhausted as isYtExhausted } from '../providers/legacy-youtube-provider';
+import { isGoogleSearchAvailable as isGoogleAvail } from '../providers/google-search-provider';
+
 /**
  * Quota and availability status helpers
  */
 export function isYouTubeQuotaExhausted(): boolean {
   const status = defaultEngine['providerRegistry'].get('youtube')?.getHealthStatus();
-  return status?.quotaExhausted ?? false;
+  if (status?.quotaExhausted) return true;
+  return isYtExhausted();
 }
 
 export function isGoogleSearchAvailable(): boolean {
-  return true;
+  return isGoogleAvail();
 }
 
 /**

@@ -7,7 +7,7 @@
  */
 
 import { GeneratedLearningPath, GeneratedModuleOutline, GeneratedLessonSummaryOutline } from './types';
-import { EngineResource } from '@/lib/resource-engine-v2';
+import type { EngineResource } from '@/lib/resource-engine-v2';
 
 export interface TopicComplexityAnalysis {
   complexityTier: 'narrow_focused' | 'foundational_compact' | 'intermediate_core' | 'advanced_frontier' | 'comprehensive_mastery';

@@ -22,19 +22,19 @@ if (fs.existsSync(envPath)) {
 
 
 import {
-  QueryAnalyzer,
-  SearchPlanner,
-  ProviderRegistry,
+  LegacyQueryAnalyzer as QueryAnalyzer,
+  LegacySearchPlanner as SearchPlanner,
+  LegacyProviderRegistry as ProviderRegistry,
   ValidationEngine,
   DeduplicationEngine,
-  RankingEngine,
+  LegacyRankingEngine as RankingEngine,
   DiscoveryEngine,
   discoverResources,
   YouTubeProvider,
   WebProvider,
   PracticeProvider,
   QuizProvider,
-} from '../src/lib/resource-engine';
+} from '../src/lib/resource-engine-v2';
 
 async function runTestSuite() {
   console.log('='.repeat(70));

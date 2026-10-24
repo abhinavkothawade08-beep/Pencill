@@ -4,9 +4,12 @@ import {
   VERIFIED_LEARNING_RESOURCES,
   MASTER_EDUCATOR_DIRECTORY,
 } from '../src/lib/resource-engine-v2/educators/master-dataset';
-import { YouTubeProvider, findVerifiedDirectoryResources } from '../.backup_engine_v1/providers/youtubeProvider';
-import { AcademicNotesProvider } from '../.backup_engine_v1/providers/academicNotesProvider';
-import { ValidationEngine } from '../.backup_engine_v1/core/validation-engine';
+import {
+  YouTubeProvider,
+  findVerifiedDirectoryResources,
+  AcademicNotesProvider,
+  ValidationEngine,
+} from '../src/lib/resource-engine-v2';
 import {
   extractYouTubeVideoId,
   extractYouTubePlaylistId,

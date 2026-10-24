@@ -5,8 +5,11 @@ import {
   createTopicAdaptiveCurriculum,
   validateAndSanitizeCurriculum,
 } from '@/services/ai/curriculum-adaptive-engine';
-import { distributeResourcesToCourse } from '@/lib/resource-engine-v2';
-import { QualityScoringEngine } from '../.backup_engine_v1/core/quality-scoring';
+import {
+  distributeResourcesToCourse,
+  QualityScoringEngine,
+  type EngineResource,
+} from '@/lib/resource-engine-v2';
 import {
   createFullLearningPath,
   getLearningPathById,
@@ -17,7 +20,6 @@ import {
   isUserEnrolled,
 } from '@/services/supabase/enrollmentService';
 import { clearDeletionRegistryForTesting } from '@/services/supabase/deletionRegistry';
-import { EngineResource } from '../.backup_engine_v1/types';
 
 describe('Topic-Adaptive Module Generation & Curriculum Architecture', () => {
   beforeEach(() => {

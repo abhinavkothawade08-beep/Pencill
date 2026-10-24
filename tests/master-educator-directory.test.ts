@@ -12,14 +12,14 @@ import {
 } from '@/lib/resource-engine-v2/educators';
 import {
   YouTubeProvider,
-  SearchPlanner,
+  LegacySearchPlanner as SearchPlanner,
   DeduplicationEngine,
   QualityScoringEngine,
   ValidationEngine,
-  EngineResource,
+  type EngineResource,
   DEFAULT_ENGINE_CONFIG,
   distributeResourcesToCourse,
-} from '../.backup_engine_v1';
+} from '../src/lib/resource-engine-v2';
 import { GeneratedLearningPath } from '@/services/ai';
 
 describe('Master Educator Directory Integration Test Suite', () => {

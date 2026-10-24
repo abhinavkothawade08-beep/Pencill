@@ -6,14 +6,12 @@ import {
   recordYouTubeQuotaExhaustion,
   resetYouTubeQuotaForTesting,
   YouTubeProvider,
-} from '../.backup_engine_v1/providers/youtubeProvider';
-import {
   isGoogleSearchAvailable,
   recordGoogleSearchQuotaExhaustion,
   recordGoogleProjectDisabled,
   resetGoogleSearchCircuitBreakerForTesting,
   GoogleSearchProvider,
-} from '../.backup_engine_v1/providers/googleSearchProvider';
+} from '../src/lib/resource-engine-v2';
 
 describe('YouTube Provider: Topic Filtering & Quota Circuit Breakers', () => {
   beforeEach(() => {

@@ -20,7 +20,7 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-import { discoverResources } from '../src/lib/resource-engine';
+import { discoverResources } from '../src/lib/resource-engine-v2';
 import { aiService } from '../src/services/ai';
 import { createFullLearningPath, getLearningPathById } from '../src/services/supabase/pathService';
 

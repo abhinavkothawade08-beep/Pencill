@@ -1,5 +1,50 @@
 [
   {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvlux0ir",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvlux0ir",
+    "enrolledAt": "2026-10-24T03:46:21.093Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-24T03:46:21.093Z"
+  },
+  {
+    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
+    "userId": "test-learner-alice-uuid-001",
+    "courseId": "oops-in-python-programming-langu-mv9rshpy",
+    "enrolledAt": "2026-10-24T03:46:16.241Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-24T03:46:16.241Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvluw4ti",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvluw4ti",
+    "enrolledAt": "2026-10-24T03:45:39.960Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-24T03:45:39.960Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-lp-v2-mvl53qtx",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "lp-v2-mvl53qtx",
+    "enrolledAt": "2026-10-23T15:48:56.443Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-23T15:48:56.443Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvkx06l0",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvkx06l0",
+    "enrolledAt": "2026-10-23T11:57:01.919Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-23T11:57:01.919Z"
+  },
+  {
     "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvkt6o45",
     "userId": "test-student-charlie-uuid",
     "courseId": "fine-tuning-of-ai-models-compreh-mvkt6o45",
@@ -7,15 +52,6 @@
     "completionStatus": "in_progress",
     "progressPercent": 0,
     "lastAccessedAt": "2026-10-23T10:10:06.117Z"
-  },
-  {
-    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
-    "userId": "test-learner-alice-uuid-001",
-    "courseId": "oops-in-python-programming-langu-mv9rshpy",
-    "enrolledAt": "2026-10-23T10:10:01.777Z",
-    "completionStatus": "in_progress",
-    "progressPercent": 0,
-    "lastAccessedAt": "2026-10-23T10:10:01.777Z"
   },
   {
     "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-lp-v2-mvj6wmjh",

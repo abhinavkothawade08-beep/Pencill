@@ -1,19 +1,19 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  SearchPlanner,
-  NormalizationEngine,
+  LegacySearchPlanner as SearchPlanner,
+  LegacyNormalizationEngine as NormalizationEngine,
   DeduplicationEngine,
   ValidationEngine,
   QualityScoringEngine,
   GoogleSearchProvider,
   AcademicNotesProvider,
   DiscoveryEngine,
-  ProviderRegistry,
-  EngineResource,
+  LegacyProviderRegistry as ProviderRegistry,
+  type EngineResource,
   toCoreResourceType,
   toPublicResource,
-} from '../.backup_engine_v1';
+} from '../src/lib/resource-engine-v2';
 import { NotesDiscoverRequestSchema } from '../src/lib/api-schemas';
 import { createFullLearningPath, getLearningPathById } from '../src/services/supabase/pathService';
 import { LessonNoteResource } from '../src/types';

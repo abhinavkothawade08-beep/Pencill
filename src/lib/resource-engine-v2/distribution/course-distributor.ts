@@ -1,17 +1,9 @@
-import { EngineResource } from '../types/legacy-contracts';
-export interface SequencedPlaylistResult { coverageGaps?: string[]; items?: any[] }
-export interface SequencedResourceItem {
-  resource: EngineResource;
-  sequenceIndex?: number;
-  sequenceNumber?: number;
-  roleInSequence?: string;
-  pedagogicalPurpose?: string;
-  selectionReason?: string;
-  positionReason?: string;
-  qualityScore?: number;
-  qualityEvidence?: any;
-}
-import { GeneratedLearningPath } from '@/services/ai';
+import {
+  EngineResource,
+  SequencedPlaylistResult,
+  SequencedResourceItem,
+} from '../types/legacy-contracts';
+import type { GeneratedLearningPath } from '@/services/ai/types';
 import { LessonNoteResource } from '@/types';
 import { tokenize } from '../utils/text-utils';
 import { calculateFreshnessScore } from '../utils/scoring-utils';

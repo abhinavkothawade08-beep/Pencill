@@ -10,7 +10,7 @@ import { LearningPath } from "@/types";
 import PathCard from "@/components/cards/PathCard";
 import Toast from "@/components/ui/Toast";
 import EmptyState from "@/components/ui/EmptyState";
-import DeleteLearningPathModal from "@/components/ui/DeleteLearningPathModal";
+import DeleteCourseModal from "@/components/ui/DeleteCourseModal";
 import DeleteAllModal from "@/components/ui/DeleteAllModal";
 
 import { useAuth } from "@/context/AuthContext";
@@ -585,7 +585,7 @@ function ExploreContent() {
 
       {/* Confirmation Modal */}
       {targetPathToDelete && (
-        <DeleteLearningPathModal
+        <DeleteCourseModal
           isOpen={Boolean(targetPathToDelete)}
           onClose={() => {
             if (!isDeleting) {
@@ -593,9 +593,14 @@ function ExploreContent() {
             }
           }}
           onConfirm={handleConfirmDelete}
-          pathTitle={targetPathToDelete.title}
-          pathId={targetPathToDelete.id}
+          courseTitle={targetPathToDelete.title}
+          courseId={targetPathToDelete.id}
           isDeleting={isDeleting}
+          requireTitleMatch={false}
+          title="Delete Learning Path?"
+          subtitle="Permanent removal of learning path and all linked assets"
+          confirmButtonText="Delete Permanently"
+          showWarningCallout={false}
         />
       )}
 

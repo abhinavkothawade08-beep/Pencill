@@ -8,12 +8,14 @@ import {
   formatYouTubeTimestampUrl,
   canonicalizeUrl,
 } from '@/lib/resource-engine-v2/utils/url-utils';
-import { DeduplicationEngine } from '../.backup_engine_v1/core/deduplication-engine';
-import { SearchPlanner } from '../.backup_engine_v1/core/search-planner';
-import { YouTubeProvider } from '../.backup_engine_v1/providers/youtubeProvider';
-import { distributeResourcesToCourse } from '@/lib/resource-engine-v2';
+import {
+  DeduplicationEngine,
+  SearchPlanner,
+  YouTubeProvider,
+  distributeResourcesToCourse,
+  EngineResource,
+} from '@/lib/resource-engine-v2';
 import { repairCourseVideoDuplicates } from '@/services/supabase/pathService';
-import { EngineResource } from '../.backup_engine_v1/types';
 import { LearningPath } from '@/types';
 
 function makeVideo(overrides: Partial<EngineResource>): EngineResource {

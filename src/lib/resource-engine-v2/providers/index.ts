@@ -8,6 +8,11 @@ export * from './base-adapter';
 export * from './youtube-adapter';
 export * from './openalex-adapter';
 export * from './arxiv-adapter';
+export * from './base-provider';
+export * from './academic-notes-provider';
+export * from './google-search-provider';
+export * from './legacy-youtube-provider';
+
 
 /**
  * Registry container managing active provider adapters in Resource Engine 2.0.
