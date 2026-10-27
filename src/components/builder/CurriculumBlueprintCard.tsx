@@ -1,29 +1,37 @@
 "use client";
 
-import React from "react";
-import { CurriculumBlueprintEstimate } from "@/lib/curriculum/blueprintEstimator";
+import React, { useMemo } from "react";
+import { useBuilderStore } from "@/lib/store/builderStore";
+import { estimateBlueprint, CurriculumBlueprintEstimate } from "@/lib/curriculum/blueprintEstimator";
 
 interface SynthesizedModulePreview {
   title: string;
   unitCount: number;
+  status?: "Ready" | "Synthesizing" | "Queued";
+  details?: string;
 }
 
 interface CurriculumBlueprintCardProps {
-  estimate: CurriculumBlueprintEstimate;
-  synthesizedModules: SynthesizedModulePreview[];
-  isGenerating: boolean;
+  synthesizedModules?: SynthesizedModulePreview[];
+  isGenerating?: boolean;
 }
 
 export default function CurriculumBlueprintCard({
-  estimate,
-  synthesizedModules,
-  isGenerating,
+  synthesizedModules = [],
+  isGenerating = false,
 }: CurriculumBlueprintCardProps) {
+  const { config } = useBuilderStore();
+
+  // Compute estimate with pure function
+  const estimate: CurriculumBlueprintEstimate = useMemo(() => {
+    return estimateBlueprint(config);
+  }, [config]);
+
   const hasSynthesized = synthesizedModules.length > 0;
 
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col gap-space-sm">
-      {/* Blueprint Header */}
+      {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-surface-container-high">
         <div className="flex items-center gap-1.5">
           <span className="material-symbols-outlined text-primary text-lg">architecture</span>
@@ -31,46 +39,63 @@ export default function CurriculumBlueprintCard({
             Curriculum Blueprint
           </h3>
         </div>
-        <span className="font-label-sm text-label-sm text-secondary font-medium">
-          {hasSynthesized ? "Synthesized Architecture" : "Dynamic Estimate"}
+        <span className="font-label-sm text-label-sm text-secondary font-medium font-mono">
+          {hasSynthesized ? "Live Preview" : "Dynamic Estimate"}
         </span>
       </div>
 
       {hasSynthesized ? (
-        /* Actual Synthesized Modules */
-        <div className="space-y-2 pt-1">
-          <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-2">
-            <span className="material-symbols-outlined text-base text-emerald-600 shrink-0">
-              task_alt
-            </span>
-            <span>
-              Curriculum successfully structured into {synthesizedModules.length} cohesive modules.
-            </span>
-          </div>
+        /* Real-Time Module Preview / Synthesized Modules (Matches Screenshot) */
+        <div className="space-y-2 pt-1" id="modules-container">
+          {synthesizedModules.map((m, idx) => {
+            const num = (idx + 1).toString().padStart(2, "0");
+            const status = m.status || (idx === 0 ? "Ready" : idx === 1 && isGenerating ? "Synthesizing" : "Queued");
 
-          {synthesizedModules.map((m, idx) => (
-            <div
-              key={idx}
-              className="p-3 bg-surface-container-low rounded-lg border border-surface-container-high/40 flex items-center justify-between transition-all hover:bg-surface-container"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-primary text-base shrink-0">
-                  folder
-                </span>
-                <span className="font-label-md text-label-md text-on-surface font-semibold truncate">
-                  Module {(idx + 1).toString().padStart(2, "0")}: {m.title}
+            return (
+              <div
+                key={idx}
+                className="p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between group hover:bg-surface-container transition-all"
+              >
+                <div className="flex items-center gap-space-sm min-w-0 pr-2">
+                  <span className="w-6 h-6 rounded-md bg-surface-container-highest text-primary flex items-center justify-center font-label-sm text-label-sm font-bold shrink-0">
+                    {num}
+                  </span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-label-lg text-label-lg text-on-surface truncate font-semibold">
+                      {m.title}
+                    </span>
+                    <span className="font-label-sm text-label-sm text-on-surface-variant truncate">
+                      {m.details || `${m.unitCount} lectures · 1 practice sheet · 45 mins`}
+                    </span>
+                  </div>
+                </div>
+
+                <span
+                  className={`font-label-sm text-label-sm px-2 py-0.5 rounded font-medium shrink-0 ${
+                    status === "Ready"
+                      ? "text-on-secondary-container bg-secondary-fixed/50"
+                      : status === "Synthesizing"
+                      ? "text-primary bg-primary-fixed"
+                      : "text-on-surface-variant bg-surface-container"
+                  }`}
+                >
+                  {status}
                 </span>
               </div>
-              <span className="font-label-sm text-label-sm text-on-surface-variant shrink-0 bg-surface-container-lowest px-2 py-0.5 rounded font-mono">
-                {m.unitCount} Units
-              </span>
-            </div>
-          ))}
+            );
+          })}
+
+          <div className="mt-space-md pt-space-sm border-t border-surface-container-high flex items-center gap-space-xs text-on-surface-variant">
+            <span className="material-symbols-outlined text-base text-secondary">menu_book</span>
+            <span className="font-label-sm text-label-sm italic">
+              Organized according to {config.examAlign.examName || "NCERT & University"} syllabus directives.
+            </span>
+          </div>
         </div>
       ) : (
         /* Pre-Generation Dynamic Blueprint Estimate */
         <div className="flex flex-col gap-3 pt-1">
-          {/* Top Quick Stats Grid */}
+          {/* Quick Metrics Grid */}
           <div className="grid grid-cols-3 gap-2 p-2.5 bg-surface-container-low rounded-lg border border-surface-container-high/40 text-center">
             <div>
               <span className="text-[10px] font-label-sm text-on-surface-variant block uppercase tracking-wider">
@@ -98,27 +123,27 @@ export default function CurriculumBlueprintCard({
             </div>
           </div>
 
-          {/* Major Learning Stages */}
+          {/* Planned Pedagogical Progression (3 Phases) */}
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-label-sm text-on-surface font-semibold flex items-center gap-1">
               <span className="material-symbols-outlined text-sm text-secondary">linear_scale</span>
               Planned Pedagogical Progression:
             </span>
             <div className="space-y-1.5">
-              {estimate.learningStages.map((stage) => (
+              {estimate.progressionPhases.map((phase) => (
                 <div
-                  key={stage.stageNumber}
+                  key={phase.stageNumber}
                   className="p-2 rounded-lg bg-surface-container-low/70 border border-surface-container-high/40 flex items-start gap-2 text-xs"
                 >
                   <span className="w-4 h-4 rounded-full bg-surface-container text-primary flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
-                    {stage.stageNumber}
+                    {phase.stageNumber}
                   </span>
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-on-surface truncate">
-                      {stage.title}
+                      {phase.title}
                     </span>
                     <span className="text-[11px] text-on-surface-variant leading-tight">
-                      {stage.focus}
+                      {phase.focus}
                     </span>
                   </div>
                 </div>
@@ -126,14 +151,14 @@ export default function CurriculumBlueprintCard({
             </div>
           </div>
 
-          {/* Recommended Prerequisites */}
-          {estimate.recommendedPrerequisites.length > 0 && (
+          {/* Prerequisite Foundations */}
+          {estimate.prerequisiteChips.length > 0 && (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-label-sm text-on-surface font-semibold">
                 Expected Prerequisite Foundations:
               </span>
               <div className="flex flex-wrap gap-1">
-                {estimate.recommendedPrerequisites.map((req, i) => (
+                {estimate.prerequisiteChips.map((req, i) => (
                   <span
                     key={i}
                     className="text-[11px] bg-surface-container px-2 py-0.5 rounded-md text-on-surface-variant border border-surface-container-high/30"
@@ -145,36 +170,32 @@ export default function CurriculumBlueprintCard({
             </div>
           )}
 
-          {/* Modalities Summary */}
+          {/* Included Modality Breakdown (Unchecked are hidden) */}
           <div className="flex flex-col gap-1 pt-1 border-t border-surface-container-high/30">
             <span className="text-xs font-label-sm text-on-surface font-semibold">
               Included Modality Breakdown:
             </span>
             <div className="grid grid-cols-2 gap-1.5">
-              {estimate.modalityCounts
-                .filter((m) => m.enabled)
-                .map((m) => (
-                  <div
-                    key={m.name}
-                    className="flex items-center gap-1.5 text-[11px] text-on-surface-variant bg-surface-container-low p-1.5 rounded border border-surface-container-high/30 truncate"
-                  >
-                    <span className="material-symbols-outlined text-sm text-primary shrink-0">
-                      {m.icon}
-                    </span>
-                    <span className="truncate">{m.countEstimate}</span>
-                  </div>
-                ))}
+              {estimate.modalityCounts.map((m) => (
+                <div
+                  key={m.name}
+                  className="flex items-center gap-1.5 text-[11px] text-on-surface-variant bg-surface-container-low p-1.5 rounded border border-surface-container-high/30 truncate"
+                >
+                  <span className="material-symbols-outlined text-sm text-primary shrink-0">
+                    {m.icon}
+                  </span>
+                  <span className="truncate">{m.countEstimate}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Important Assumptions Label */}
+          {/* Footnote */}
           <div className="p-2 bg-surface-container-low rounded-lg text-[10px] text-on-surface-variant border border-surface-container-high/30 flex items-start gap-1.5 leading-relaxed">
             <span className="material-symbols-outlined text-xs text-secondary shrink-0 mt-0.5">
               info
             </span>
-            <span>
-              Pre-generation estimates automatically adapt to syllabus breadth, learner difficulty, and weekly hours. Module titles and resources are finalized during live synthesis.
-            </span>
+            <span>{estimate.assumptionsFootnote}</span>
           </div>
         </div>
       )}

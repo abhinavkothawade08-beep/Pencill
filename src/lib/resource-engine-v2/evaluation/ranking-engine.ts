@@ -11,6 +11,7 @@ import { EducationalDepthEvaluator } from './depth-evaluator';
 import { DurationIntelligenceEvaluator } from './duration-intelligence';
 import { ObjectiveCoverageAnalyzer } from './coverage-analyzer';
 import { PracticalResourceClassifier } from './practical-classifier';
+import { educatorRegistry } from '../educators/educator-registry';
 
 /**
  * Objective-aware modality suitability guard.
@@ -22,22 +23,24 @@ export function isModalityAppropriateForObjective(
   objective: AnalyzedObjective
 ): boolean {
   if (modality === 'paper') {
-    // Academic paper: appropriate for advanced conceptual, theory, or academic research
+    // Academic paper: NOT appropriate for beginner/elementary learners or school board exams (Class 10-12, CBSE, HSC, NEET, JEE)
     const isBeginner = objective.academicLevel === 'beginner' || objective.academicLevel === 'elementary';
     const isSchoolOrBoardExam = !!objective.targetExam && /^(hsc|cbse|icse|class\s*1[012]|neet|jee)/i.test(objective.targetExam);
-    const isHandsOn = objective.cognitiveIntent === 'coding_walkthrough' || objective.cognitiveIntent === 'project_implementation';
 
-    if (isBeginner || isSchoolOrBoardExam || isHandsOn) {
+    if (isBeginner || isSchoolOrBoardExam) {
       return false;
     }
 
-    return (
-      objective.cognitiveIntent === 'in_depth_conceptual' ||
-      objective.academicLevel === 'advanced' ||
-      objective.academicLevel === 'expert' ||
-      objective.domain === 'data_science_ai' ||
-      objective.domain === 'general_academic'
-    );
+    // For hands-on coding walkthroughs at non-advanced levels (intermediate/foundation), paper is inappropriate
+    if (
+      (objective.cognitiveIntent === 'coding_walkthrough' || objective.cognitiveIntent === 'project_implementation') &&
+      objective.academicLevel !== 'advanced' &&
+      objective.academicLevel !== 'expert'
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   if (modality === 'documentation') {
@@ -131,6 +134,16 @@ export class ExplainableRankingEngine {
         continue;
       }
 
+      // Check modality appropriateness for this objective
+      if (!isModalityAppropriateForObjective(candidate.modality, objective)) {
+        rejectedCandidates.push({
+          candidate,
+          rejectionReasons: [`Modality '${candidate.modality}' is not pedagogically appropriate for ${objective.domain} at ${objective.academicLevel} level with intent '${objective.cognitiveIntent}'.`],
+          relevanceScore: 0,
+        });
+        continue;
+      }
+
       // 1. Relevance Scoring (Gating Factor)
       const relevance = this.relevanceScorer.score(objective, candidate);
 
@@ -208,7 +221,95 @@ export class ExplainableRankingEngine {
         }
       }
 
-      // 6. Overall Score Computation (Normalized weights sum to 1.0)
+      // 6. Master Educator Trust & Subject-Aware Pedagogical Adaptation
+      let educatorTrustBonus = 0;
+      let educatorAttribution = '';
+
+      const rawMeta = candidate.rawMetadata || {};
+      const isVerifiedEducator = candidate.verificationStatus === 'verified_channel' || rawMeta.isVerifiedEducator === true;
+      const educatorId = (rawMeta.educatorId as string | undefined) || candidate.creator?.authorId;
+      const eduRecord = educatorId
+        ? educatorRegistry.getById(educatorId)
+        : candidate.creator?.channelId
+        ? educatorRegistry.getByChannelId(candidate.creator.channelId)
+        : undefined;
+
+      if (isVerifiedEducator && eduRecord) {
+        // Base trust bonus: +8 pts for verified directory educator
+        educatorTrustBonus += 8;
+
+        // Corroboration / Tier boost: +2 pts for Tier 1 / Gold / L1
+        if (
+          eduRecord.Corroboration_Level === 'L1' ||
+          eduRecord.Confidence_Level === 'Gold' ||
+          eduRecord.Confidence_Level === 'Tier 1' ||
+          eduRecord.Verification_Status === 'VERIFIED'
+        ) {
+          educatorTrustBonus += 2;
+        }
+
+        // Subject / Domain Alignment Boost
+        const eduSubjects = (eduRecord.Subjects || '').toLowerCase();
+        const objDomain = (objective.domain || '').toLowerCase();
+        const objSubject = (objective.subject || '').toLowerCase();
+        const primaryConceptLower = objective.primaryConcepts.map((c) => c.toLowerCase());
+
+        const hasSubjectMatch =
+          eduSubjects.includes(objSubject) ||
+          eduSubjects.includes(objDomain.replace(/_/g, ' ')) ||
+          primaryConceptLower.some((c) => eduSubjects.includes(c));
+
+        if (hasSubjectMatch) {
+          educatorTrustBonus += 2;
+        }
+
+        // Subject-specific pedagogical adaptation (Section 5)
+        // 1. Programming & CS: practical coding demonstrations, implementation depth
+        if (objective.domain === 'computer_science' || objective.domain === 'data_science_ai') {
+          if (
+            practicalEval.primaryCategory === 'practical_tutorial' ||
+            practicalEval.primaryCategory === 'project_based' ||
+            practicalEval.practicalQualityScore >= 65
+          ) {
+            educatorTrustBonus += 3;
+          }
+        }
+        // 2. Mathematics: conceptual rigor, derivations, worked problem solving
+        else if (objective.domain === 'mathematics') {
+          if (
+            practicalEval.primaryCategory === 'guided_exercise' ||
+            depth.tier === 'in_depth_lecture' ||
+            depth.tier === 'comprehensive_course'
+          ) {
+            educatorTrustBonus += 3;
+          }
+        }
+        // 3. Physics & Engineering: balance of theory and practical / laboratory demonstrations
+        else if (objective.domain === 'physics' || objective.domain === 'engineering') {
+          if (
+            depth.score >= 70 ||
+            practicalEval.primaryCategory === 'guided_exercise' ||
+            practicalEval.primaryCategory === 'practical_tutorial'
+          ) {
+            educatorTrustBonus += 3;
+          }
+        }
+        // 4. Competitive Exams: Syllabus alignment, exam focus
+        if (objective.targetExam) {
+          const targetExamLower = objective.targetExam.toLowerCase();
+          const eduExams = (eduRecord.Relevant_Examinations || '').toLowerCase();
+          const eduExamIds = (eduRecord.Exam_IDs || []).map((e) => e.toLowerCase());
+          if (eduExams.includes(targetExamLower) || eduExamIds.some((e) => e.includes(targetExamLower))) {
+            educatorTrustBonus += 4;
+          }
+        }
+
+        // Cap educator bonus to +15 pts max so it cannot overshadow fundamental quality and relevance
+        educatorTrustBonus = Math.min(15, educatorTrustBonus);
+        educatorAttribution = `Educator Trust: +${educatorTrustBonus} (${eduRecord.Educator_Name} verified); `;
+      }
+
+      // 7. Overall Score Computation (Normalized weights sum to 1.0)
       const overallScore = Math.max(
         0,
         Math.min(
@@ -218,13 +319,14 @@ export class ExplainableRankingEngine {
             depth.score * normDepW +
             categoryAdjustedDuration.score * normDurW +
             coverage.coverageRatio * 100 * normCovW +
-            categoryAlignmentBonus
+            categoryAlignmentBonus +
+            educatorTrustBonus
           )
         )
       );
 
       const rankingRationale =
-        `Overall: ${overallScore}/100 — Category: ${practicalEval.primaryCategory} (Quality: ${practicalEval.practicalQualityScore}/100); ` +
+        `Overall: ${overallScore}/100 — ${educatorAttribution}Category: ${practicalEval.primaryCategory} (Quality: ${practicalEval.practicalQualityScore}/100); ` +
         `Relevance: ${relevance.score}/100; Depth: ${depth.tier} (${depth.score}/100); ` +
         `Duration: ${categoryAdjustedDuration.suitabilityRationale}; Coverage: ${Math.round(coverage.coverageRatio * 100)}%.`;
 

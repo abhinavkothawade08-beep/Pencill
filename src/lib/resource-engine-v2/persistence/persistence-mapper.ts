@@ -108,7 +108,7 @@ export class PersistenceMapper {
             quality_score: normalizedQualityScore,
             is_verified: res.isVerified,
             last_verified_at: new Date().toISOString(),
-            educator_id: res.creator?.authorId || res.creator?.channelId || null,
+            educator_id: res.educatorId || res.creator?.authorId || res.creator?.channelId || null,
             discovery_source: res.discoverySource || 'open_discovery',
           });
         }
@@ -138,7 +138,7 @@ export class PersistenceMapper {
           formulae: [],
           summary_points: [res.coverageAssessment],
           study_notes: readingNotesInModule.length > 0 ? (readingNotesInModule as any) : null,
-          educator_id: res.creator?.channelId || res.creator?.authorId || null,
+          educator_id: res.educatorId || res.creator?.authorId || res.creator?.channelId || null,
           discovery_source: res.discoverySource || 'open_discovery',
         });
 
@@ -154,9 +154,9 @@ export class PersistenceMapper {
           chapters: formattedChapters,
           qualityScore: res.overallScore,
           studyNotes: readingNotesInModule.length > 0 ? (readingNotesInModule as any) : undefined,
-          educatorId: res.creator?.channelId || res.creator?.authorId || undefined,
+          educatorId: res.educatorId || res.creator?.authorId || res.creator?.channelId || undefined,
           discoverySource: res.discoverySource,
-          selectionExplanation: res.selectionReason,
+          selectionExplanation: res.selectionExplanation || res.selectionReason,
           coverageAssessment: res.coverageAssessment,
         });
       }

@@ -11,6 +11,7 @@ import DeleteAllModal from "@/components/ui/DeleteAllModal";
 import Toast from "@/components/ui/Toast";
 import { getAllQuizzes, deleteQuiz, batchDeleteQuizzes } from "@/services/supabase/quizService";
 import { addBookmark } from "@/services/supabase/bookmarkService";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
 import { useAuth } from "@/context/AuthContext";
 
 interface QuizItem {
@@ -77,7 +78,43 @@ export default function PracticeQuizzesPage() {
     setLoadingQuizzes(true);
     setQuizError(null);
     try {
-      const data = await getAllQuizzes(user?.id || null);
+      let data: any[] = [];
+      try {
+        data = await getAllQuizzes(user?.id || null);
+      } catch (e) {
+        console.warn("[Practice] Supabase quizzes failed, extracting from savedPaths:", e);
+      }
+
+      // Harvest checkpoint quizzes from storageAdapter saved paths
+      const savedPaths = await storageAdapter.getSavedPaths();
+      const harvested: QuizItem[] = [];
+      for (const p of savedPaths) {
+        if (p.modules) {
+          for (const m of p.modules) {
+            if (m.checkpointQuestions && m.checkpointQuestions.length > 0) {
+              harvested.push({
+                id: `checkpoint-${p.id}-${m.id}`,
+                title: `${m.title} Diagnostic Checkpoint`,
+                topic: p.subject || p.domain || "Academic Milestone",
+                subject: p.subject || "Curriculum Unit",
+                difficulty: p.difficulty || "intermediate",
+                courseTitle: p.title,
+                timeLimitMinutes: Math.round(m.checkpointQuestions.length * 2.5),
+                totalQuestions: m.checkpointQuestions.length,
+                createdAt: p.createdAt || new Date().toISOString(),
+                userId: user?.id || null,
+              });
+            }
+          }
+        }
+      }
+
+      const qMap = new Map<string, QuizItem>();
+      data.forEach((q) => qMap.set(q.id, q));
+      harvested.forEach((q) => {
+        if (!qMap.has(q.id)) qMap.set(q.id, q);
+      });
+      data = Array.from(qMap.values());
       setQuizzes(data);
     } catch (err) {
       console.error("Failed to load quizzes:", err);

@@ -1,3 +1,5 @@
+import { EducatorMatcher } from '../educators/educator-matcher';
+import type { MasterEducatorRecord } from '../educators/types';
 import {
   AnalyzedObjective,
   PlannerConfig,
@@ -44,6 +46,50 @@ export class QueryGenerator {
 
     // Subject Anchor
     const subjectPrefix = objective.subject ? `${objective.subject} ` : '';
+
+    // 0. Curated Master Educator Targeted Queries
+    if (config.matchingEducators && config.matchingEducators.length > 0) {
+      for (const edu of config.matchingEducators.slice(0, 2)) {
+        const eduChannelHint = edu.YouTube_Channel_ID || edu.Channel_Handle || edu.YouTube_Channel_Name;
+        const eduConceptQuery = cleanQueryString(
+          `${edu.Educator_Name} ${subjectPrefix}${primaryTerm} full explanation`
+        );
+        candidates.push({
+          id: `q-edu-${edu.Educator_ID}-${hashString(eduConceptQuery)}`,
+          targetConcept: primaryTerm,
+          queryString: eduConceptQuery,
+          intent: 'foundational_explanation',
+          preferredModality: 'video',
+          providerCompatibility: ['youtube', 'curated_directory'],
+          priority: 1,
+          provenance: `Curated Master Educator query targeting ${edu.Educator_Name} (${edu.Educator_ID})`,
+          negativeTerms,
+          targetExam: objective.targetExam,
+          language: objective.preferredLanguage,
+          channelOrSourceHint: eduChannelHint,
+        });
+
+        if ((edu.Playlist_Available === 'Yes' || edu.Complete_Course_Available === 'Yes') && (config.maxTotalQueries ?? 6) > 6) {
+          const eduPlaylistQuery = cleanQueryString(
+            `${edu.Educator_Name} ${primaryTerm} course playlist`
+          );
+          candidates.push({
+            id: `q-edu-pl-${edu.Educator_ID}-${hashString(eduPlaylistQuery)}`,
+            targetConcept: primaryTerm,
+            queryString: eduPlaylistQuery,
+            intent: 'in_depth_conceptual',
+            preferredModality: 'video',
+            providerCompatibility: ['youtube', 'curated_directory'],
+            priority: 1,
+            provenance: `Curated structured playlist query for ${edu.Educator_Name} (${edu.Educator_ID})`,
+            negativeTerms,
+            targetExam: objective.targetExam,
+            language: objective.preferredLanguage,
+            channelOrSourceHint: eduChannelHint,
+          });
+        }
+      }
+    }
 
     // 1. Core Foundational Query
     const foundationalQuery = cleanQueryString(

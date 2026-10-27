@@ -1,376 +1,216 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  EXAM_CATALOG,
-  ExamDefinition,
-  searchExaminations,
-} from "@/lib/catalogs/examCatalog";
-import { TargetExamConfig } from "@/lib/types/builder";
+import React, { useState } from "react";
+import { EXAM_CATALOG, ExamDefinition, searchExaminations } from "@/lib/catalogs/examCatalog";
+import { useBuilderStore } from "@/lib/store/builderStore";
 
-interface ExamSelectorProps {
-  targetExam: TargetExamConfig | null;
-  onTargetExamChange: (exam: TargetExamConfig | null) => void;
-}
-
-export default function ExamSelector({
-  targetExam,
-  onTargetExamChange,
-}: ExamSelectorProps) {
-  const [isEnabled, setIsEnabled] = useState(Boolean(targetExam));
+export default function ExamSelector() {
+  const { config, updateConfig } = useBuilderStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [customExamName, setCustomExamName] = useState("");
-  const [customRegion, setCustomRegion] = useState("India");
-  const [isCustomMode, setIsCustomMode] = useState(false);
 
-  // Sync state if external prop changes
-  useEffect(() => {
-    setIsEnabled(Boolean(targetExam));
-  }, [targetExam]);
+  const hasExamsForDomain = config.domainId !== "personal-practical";
 
-  const handleToggle = (checked: boolean) => {
-    setIsEnabled(checked);
-    if (!checked) {
-      onTargetExamChange(null);
-    } else if (!targetExam) {
-      // Default to JEE Main or first catalog item
-      const defaultExam = EXAM_CATALOG[0];
-      onTargetExamChange({
-        id: defaultExam.id,
-        name: defaultExam.name,
-        acronym: defaultExam.acronym,
-        category: defaultExam.category,
-        countryOrRegion: defaultExam.countryOrRegion,
-      });
+  // Filter exams according to active domain
+  const availableExams = EXAM_CATALOG.filter((exam) => {
+    if (config.domainId === "school-education") {
+      return (
+        exam.category === "school_boards" ||
+        exam.category === "engineering_medical_entrance" ||
+        exam.category === "olympiads_competitions"
+      );
     }
-  };
-
-  const handleSelectExam = (exam: ExamDefinition) => {
-    onTargetExamChange({
-      id: exam.id,
-      name: exam.name,
-      acronym: exam.acronym,
-      category: exam.category,
-      countryOrRegion: exam.countryOrRegion,
-      examDate: targetExam?.examDate,
-      targetScore: targetExam?.targetScore,
-      attemptNumber: targetExam?.attemptNumber,
-    });
-    setIsCustomMode(false);
-  };
-
-  const handleSaveCustomExam = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customExamName.trim()) return;
-
-    onTargetExamChange({
-      id: `custom-exam-${Date.now()}`,
-      name: customExamName.trim(),
-      acronym: customExamName.trim().slice(0, 10).toUpperCase(),
-      category: 'custom',
-      countryOrRegion: customRegion,
-      examDate: targetExam?.examDate,
-      targetScore: targetExam?.targetScore,
-    });
-    setCustomExamName("");
-    setIsCustomMode(false);
-  };
-
-  const [regionFilter, setRegionFilter] = useState("all");
-  const [levelFilter, setLevelFilter] = useState("all");
-
-  const filteredExams = searchExaminations(searchQuery, categoryFilter, 20).filter((e) => {
-    if (regionFilter !== "all") {
-      if (regionFilter === "India" && !e.countryOrRegion.includes("India")) return false;
-      if (regionFilter === "Global" && !e.countryOrRegion.includes("Global")) return false;
-      if (regionFilter === "USA" && !e.countryOrRegion.includes("USA")) return false;
+    if (config.domainId === "engineering-technology") {
+      return (
+        exam.category === "engineering_medical_entrance" ||
+        exam.category === "it_industry_certifications" ||
+        exam.category === "olympiads_competitions"
+      );
     }
-    if (levelFilter !== "all") {
-      const l = e.level.toLowerCase();
-      if (levelFilter === "school" && !l.includes("class") && !l.includes("secondary")) return false;
-      if (levelFilter === "undergrad" && !l.includes("undergraduate") && !l.includes("entrance")) return false;
-      if (levelFilter === "postgrad" && !l.includes("postgraduate") && !l.includes("fellowship") && !l.includes("research")) return false;
-      if (levelFilter === "professional" && !l.includes("professional") && !l.includes("licensure") && !l.includes("charter")) return false;
+    if (config.domainId === "medical-health") {
+      return exam.category === "engineering_medical_entrance" || exam.category === "medical_licensing";
+    }
+    if (config.domainId === "business-management") {
+      return exam.category === "university_higher_ed" || exam.category === "accounting_finance_professional";
+    }
+    if (config.domainId === "law-government") {
+      return exam.category === "law_entrance" || exam.category === "government_civil_services";
+    }
+    if (config.domainId === "finance-qualifications") {
+      return exam.category === "accounting_finance_professional";
+    }
+    if (config.domainId === "languages-communication") {
+      return exam.category === "international_university_language";
     }
     return true;
   });
 
-  const popularExams = [
-    { acronym: "JEE Main", id: "jee-main" },
-    { acronym: "JEE Adv", id: "jee-advanced" },
-    { acronym: "NEET UG", id: "neet-ug" },
-    { acronym: "GATE", id: "gate" },
-    { acronym: "UPSC CSE", id: "upsc-cse" },
-    { acronym: "CAT", id: "cat" },
-    { acronym: "AWS SAA", id: "aws-cert" },
-    { acronym: "CA Exam", id: "ca-exam" },
-    { acronym: "SAT", id: "sat" },
-  ];
+  const filteredExams = availableExams.filter((exam) => {
+    if (categoryFilter !== "all" && exam.category !== categoryFilter) return false;
+    if (!searchQuery.trim()) return true;
+    const clean = searchQuery.toLowerCase();
+    return (
+      exam.name.toLowerCase().includes(clean) ||
+      exam.acronym.toLowerCase().includes(clean) ||
+      exam.typicalSubjects.some((s) => s.toLowerCase().includes(clean))
+    );
+  });
+
+  const handleToggleAlign = (checked: boolean) => {
+    if (!checked) {
+      updateConfig((prev) => ({
+        ...prev,
+        examAlign: { enabled: false },
+      }));
+    } else {
+      const defaultExam = availableExams[0] || EXAM_CATALOG[0];
+      updateConfig((prev) => ({
+        ...prev,
+        examAlign: {
+          enabled: true,
+          examId: defaultExam.id,
+          examName: defaultExam.name,
+          syllabusUnits: defaultExam.typicalSubjects,
+        },
+        modalities: {
+          ...prev.modalities,
+          pyq: true,
+        },
+      }));
+    }
+  };
+
+  const handleSelectExam = (exam: ExamDefinition) => {
+    updateConfig((prev) => ({
+      ...prev,
+      examAlign: {
+        enabled: true,
+        examId: exam.id,
+        examName: exam.name,
+        syllabusUnits: exam.typicalSubjects,
+      },
+      modalities: {
+        ...prev.modalities,
+        pyq: true,
+      },
+    }));
+  };
 
   return (
-    <div className="flex flex-col gap-space-sm p-4 rounded-xl bg-surface-container-low/50 border border-surface-container-high/60 transition-all">
-      {/* Enable Toggle Header */}
+    <div className="p-space-md rounded-xl bg-surface-container-low/50 border border-surface-container-high/60 flex flex-col gap-3">
+      {/* Alignment Toggle Header */}
       <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2.5 cursor-pointer">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
           <input
             type="checkbox"
-            checked={isEnabled}
-            onChange={(e) => handleToggle(e.target.checked)}
-            className="w-4 h-4 rounded text-primary accent-primary"
+            checked={config.examAlign.enabled}
+            disabled={!hasExamsForDomain}
+            onChange={(e) => handleToggleAlign(e.target.checked)}
+            className="w-4 h-4 rounded text-primary accent-primary cursor-pointer disabled:opacity-40"
           />
-          <div className="flex flex-col">
-            <span className="font-label-lg text-label-lg text-on-surface font-semibold flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base text-secondary">verified_user</span>
-              Align to Examination or Certification
-            </span>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">
-              Filters curriculum strictly according to official test syllabus and question styles.
-            </span>
-          </div>
+          <span className={`text-sm font-semibold ${hasExamsForDomain ? "text-on-surface" : "text-on-surface-variant opacity-60"}`}>
+            Align to Examination or Certification Syllabus
+          </span>
         </label>
-        {isEnabled && targetExam && (
-          <span className="bg-secondary/15 text-secondary text-xs px-2.5 py-0.5 rounded-full font-semibold border border-secondary/30">
-            {targetExam.acronym || targetExam.name}
+
+        {!hasExamsForDomain ? (
+          <span
+            className="text-[11px] text-on-surface-variant italic cursor-help"
+            title="Standardized examinations are not applicable to the Personal & Practical Learning domain."
+          >
+            Not applicable for this domain
+          </span>
+        ) : (
+          <span className="text-[11px] text-secondary font-medium font-mono">
+            {config.examAlign.enabled ? "Active Alignment" : "Optional"}
           </span>
         )}
       </div>
 
-      {/* Expandable Exam Picker */}
-      {isEnabled && (
-        <div className="flex flex-col gap-space-md pt-space-xs mt-1 border-t border-surface-container-high/40">
-          {/* Quick Popular Pills */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-label-sm text-label-sm text-on-surface-variant">Popular targets:</span>
-            {popularExams.map((p) => {
-              const isSelected = targetExam?.id === p.id || targetExam?.acronym === p.acronym;
+      {/* Expanded Exam Directory Picker */}
+      {config.examAlign.enabled && hasExamsForDomain && (
+        <div className="flex flex-col gap-3 pt-2 border-t border-surface-container-high/40 animate-in fade-in duration-150">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-base">
+                search
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search examination (e.g. JEE Main, NEET, CBSE 12, GATE, UPSC)..."
+                className="w-full pl-9 pr-3 py-2 bg-surface-container-lowest rounded-lg border border-surface-container-high text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="bg-surface-container-lowest text-xs text-on-surface px-2.5 py-2 rounded-lg border border-surface-container-high focus:outline-none"
+            >
+              <option value="all">All Categories</option>
+              <option value="school_boards">School Boards</option>
+              <option value="engineering_medical_entrance">Entrance Exams</option>
+              <option value="government_civil_services">Civil Services</option>
+              <option value="it_industry_certifications">Certifications</option>
+            </select>
+          </div>
+
+          {/* Active Selection Pill */}
+          {config.examAlign.examName && (
+            <div className="p-2.5 rounded-lg bg-surface-container-lowest border border-secondary/30 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="material-symbols-outlined text-secondary text-base shrink-0">
+                  verified
+                </span>
+                <span className="font-semibold text-primary truncate">
+                  {config.examAlign.examName}
+                </span>
+              </div>
+              <span className="text-[10px] text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded font-mono shrink-0">
+                PYQ Syllabus Grounded
+              </span>
+            </div>
+          )}
+
+          {/* Exams Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-0.5">
+            {filteredExams.map((exam) => {
+              const isSelected = config.examAlign.examId === exam.id;
               return (
                 <button
-                  key={p.id}
+                  key={exam.id}
                   type="button"
-                  onClick={() => {
-                    const match = EXAM_CATALOG.find((e) => e.id === p.id);
-                    if (match) handleSelectExam(match);
-                  }}
-                  className={`px-2 py-0.5 rounded-md font-label-sm text-label-sm transition-all border ${
+                  onClick={() => handleSelectExam(exam)}
+                  className={`p-2 rounded-lg border text-left transition-all flex flex-col justify-between ${
                     isSelected
-                      ? "bg-primary text-on-primary border-primary font-semibold shadow-2xs"
-                      : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant border-surface-container-high/40"
+                      ? "bg-primary text-on-primary border-primary shadow-xs"
+                      : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/40"
                   }`}
                 >
-                  {p.acronym}
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-semibold text-xs truncate">{exam.acronym}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                        isSelected
+                          ? "bg-primary-container text-primary-fixed"
+                          : "bg-surface-container text-on-surface-variant"
+                      }`}
+                    >
+                      {exam.countryOrRegion}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-[11px] truncate mt-0.5 ${
+                      isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"
+                    }`}
+                  >
+                    {exam.name}
+                  </span>
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => setIsCustomMode(!isCustomMode)}
-              className="text-xs text-primary font-semibold hover:underline ml-auto"
-            >
-              {isCustomMode ? "Cancel Custom" : "+ Custom Exam"}
-            </button>
           </div>
-
-          {/* Custom Exam Creator */}
-          {isCustomMode ? (
-            <form onSubmit={handleSaveCustomExam} className="p-3 bg-surface-container-lowest rounded-lg border border-primary/30 flex flex-col gap-2">
-              <span className="font-label-sm text-label-sm font-semibold text-primary">Add Unlisted Exam or Certification</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  value={customExamName}
-                  onChange={(e) => setCustomExamName(e.target.value)}
-                  placeholder="Exam Name (e.g. Karnataka PGCET, PLAB 1, Azure AI-900)"
-                  className="bg-surface-container-low px-3 py-1.5 rounded-md text-on-surface font-body-sm text-body-sm border border-surface-container-high"
-                />
-                <input
-                  type="text"
-                  value={customRegion}
-                  onChange={(e) => setCustomRegion(e.target.value)}
-                  placeholder="Country or State (e.g. India, USA, Global)"
-                  className="bg-surface-container-low px-3 py-1.5 rounded-md text-on-surface font-body-sm text-body-sm border border-surface-container-high"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsCustomMode(false)}
-                  className="px-3 py-1 text-xs text-on-surface-variant hover:text-on-surface"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!customExamName.trim()}
-                  className="px-3 py-1 text-xs font-semibold bg-primary text-on-primary rounded-md disabled:opacity-40"
-                >
-                  Save Exam Target
-                </button>
-              </div>
-            </form>
-          ) : (
-            /* Search Catalog Bar */
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant text-base">
-                    search
-                  </span>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search 35+ exams by name or acronym (e.g. JEE, UPSC, GATE, AWS, CFA)..."
-                    className="w-full bg-surface-container pl-9 pr-3 py-2 rounded-lg text-on-surface font-body-sm text-body-sm border border-surface-container-high/40 focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="bg-surface-container px-2 py-2 rounded-lg text-on-surface font-label-sm text-label-sm border border-surface-container-high/40"
-                >
-                  <option value="all">All Categories</option>
-                  <option value="school_boards">School Boards</option>
-                  <option value="engineering_medical_entrance">Eng &amp; Med Entrance</option>
-                  <option value="university_higher_ed">Higher Ed (GATE/CAT/NET)</option>
-                  <option value="government_civil_services">Govt &amp; Civil Services</option>
-                  <option value="it_industry_certifications">IT Certifications</option>
-                  <option value="accounting_finance_professional">Accounting / CA / CFA</option>
-                </select>
-                <select
-                  value={regionFilter}
-                  onChange={(e) => setRegionFilter(e.target.value)}
-                  className="bg-surface-container px-2 py-2 rounded-lg text-on-surface font-label-sm text-label-sm border border-surface-container-high/40"
-                >
-                  <option value="all">All Regions</option>
-                  <option value="India">India</option>
-                  <option value="Global">Global</option>
-                  <option value="USA">USA</option>
-                </select>
-                <select
-                  value={levelFilter}
-                  onChange={(e) => setLevelFilter(e.target.value)}
-                  className="bg-surface-container px-2 py-2 rounded-lg text-on-surface font-label-sm text-label-sm border border-surface-container-high/40"
-                >
-                  <option value="all">All Levels</option>
-                  <option value="school">School / Board</option>
-                  <option value="undergrad">Undergrad Entrance</option>
-                  <option value="postgrad">Postgraduate / Masters</option>
-                  <option value="professional">Professional Charter</option>
-                </select>
-              </div>
-
-              {/* Filtered Exam Results */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pt-1">
-                {filteredExams.map((exam) => {
-                  const isSelected = targetExam?.id === exam.id;
-                  return (
-                    <button
-                      key={exam.id}
-                      type="button"
-                      onClick={() => handleSelectExam(exam)}
-                      className={`flex flex-col items-start p-2 rounded-lg border text-left transition-all ${
-                        isSelected
-                          ? "bg-primary-container text-on-primary border-primary-container shadow-2xs"
-                          : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/40"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-label-md text-label-md font-semibold truncate">
-                          {exam.acronym}
-                        </span>
-                        {isSelected && (
-                          <span className="material-symbols-outlined text-xs text-secondary-fixed">
-                            check_circle
-                          </span>
-                        )}
-                      </div>
-                      <span className={`text-[11px] truncate w-full ${isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"}`}>
-                        {exam.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Selected Exam Information & Optional Fields */}
-          {targetExam && (
-            <div className="p-3 bg-surface-container-lowest rounded-lg border border-surface-container-high/60 flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="font-label-md text-label-md text-primary font-semibold">
-                  Active Target: {targetExam.name}
-                </span>
-                {targetExam.category && (
-                  <span className="text-[10px] font-mono text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded">
-                    {targetExam.countryOrRegion || "National"}
-                  </span>
-                )}
-              </div>
-
-              {/* Optional Target Date and Score */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-1 border-t border-surface-container-high/30">
-                <div>
-                  <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                    Exam Subject (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={targetExam.examSubject || ""}
-                    onChange={(e) =>
-                      onTargetExamChange({ ...targetExam, examSubject: e.target.value })
-                    }
-                    placeholder="e.g. Physics, CS, Bio"
-                    className="w-full bg-surface-container px-2 py-1 rounded text-on-surface text-xs border border-surface-container-high/40"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                    Exam Date (Optional)
-                  </label>
-                  <input
-                    type="date"
-                    value={targetExam.examDate || ""}
-                    onChange={(e) =>
-                      onTargetExamChange({ ...targetExam, examDate: e.target.value })
-                    }
-                    className="w-full bg-surface-container px-2 py-1 rounded text-on-surface text-xs border border-surface-container-high/40"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                    Target Score / Rank
-                  </label>
-                  <input
-                    type="text"
-                    value={targetExam.targetScore || ""}
-                    onChange={(e) =>
-                      onTargetExamChange({ ...targetExam, targetScore: e.target.value })
-                    }
-                    placeholder="e.g. 99%ile, Rank < 500, Pass"
-                    className="w-full bg-surface-container px-2 py-1 rounded text-on-surface text-xs border border-surface-container-high/40"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                    Attempt Number
-                  </label>
-                  <select
-                    value={targetExam.attemptNumber || 1}
-                    onChange={(e) =>
-                      onTargetExamChange({ ...targetExam, attemptNumber: Number(e.target.value) })
-                    }
-                    className="w-full bg-surface-container px-2 py-1 rounded text-on-surface text-xs border border-surface-container-high/40"
-                  >
-                    <option value={1}>1st Attempt</option>
-                    <option value={2}>2nd Attempt</option>
-                    <option value={3}>3rd+ Attempt / Repeater</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

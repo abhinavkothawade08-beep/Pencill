@@ -23,11 +23,36 @@ export interface MasterEducatorRecord {
   Subject_Expertise_Evidence: string;
   Educational_Credibility: string;
   Quality_Assessment: string;
-  Verification_Status: 'VERIFIED' | 'CANDIDATE' | 'REQUIRES_REVIEW' | 'REJECTED' | 'INACTIVE' | string;
+  Verification_Status: 'VERIFIED' | 'CANDIDATE' | 'REQUIRES_REVIEW' | 'REJECTED' | 'INACTIVE' | 'CHANNEL_VERIFIED_CONTENT_NOT_REVIEWED' | 'UNVERIFIED' | string;
   Active_Status: 'Active' | 'Inactive' | string;
   Last_Verified_Date: string;
   Source_URLs: string;
   Research_Notes: string;
+
+  // Master YouTube Educator Directory Extensions
+  Key?: string;
+  Channel_Handle?: string;
+  Entity_Type?: string;
+  Access_Model?: string;
+  Region_Group?: string;
+  Corroboration_Level?: 'C0' | 'C1' | 'C2' | string;
+  Confidence_Level?: 'High' | 'Medium' | 'Low' | string;
+  Learning_Objectives?: string[];
+  Intents?: string[];
+  Taxonomy_Domains?: string[];
+  Taxonomy_Subjects?: string[];
+  Taxonomy_Subdomains?: string[];
+  Taxonomy_Topics?: string[];
+  Exam_Names?: string[];
+  Exam_IDs?: string[];
+  Board_Names?: string[];
+  Board_IDs?: string[];
+  Representative_Video_URLs?: string[];
+  Relevant_Playlist_URLs?: string[];
+  Strengths?: string;
+  Limitations?: string;
+  Best_For?: string;
+  Channel_ID_Verification_Status?: string;
 }
 
 export const MasterEducatorSchema = z.object({
@@ -36,14 +61,14 @@ export const MasterEducatorSchema = z.object({
   Educator_Type: z.string().default('Individual Educator'),
   YouTube_Channel_Name: z.string().min(1, 'YouTube_Channel_Name is required'),
   YouTube_Channel_ID: z.string().default(''),
-  Official_Channel_URL: z.string().min(1, 'Official_Channel_URL is required'),
+  Official_Channel_URL: z.string().default(''),
   Official_Website: z.string().default(''),
   Primary_Domain: z.string().min(1, 'Primary_Domain is required'),
   Subdomain: z.string().default(''),
-  Subjects: z.string().min(1, 'Subjects is required'),
+  Subjects: z.string().default(''),
   Relevant_Examinations: z.string().default(''),
-  Country: z.string().default('India'),
-  Primary_Language: z.string().min(1, 'Primary_Language is required'),
+  Country: z.string().default(''),
+  Primary_Language: z.string().default('English'),
   Additional_Languages: z.string().default(''),
   Teaching_Level: z.string().default(''),
   Teaching_Specialization: z.string().default(''),
@@ -52,12 +77,37 @@ export const MasterEducatorSchema = z.object({
   Playlist_Available: z.string().default('Yes'),
   Subject_Expertise_Evidence: z.string().default(''),
   Educational_Credibility: z.string().default(''),
-  Quality_Assessment: z.string().default('High'),
-  Verification_Status: z.enum(['VERIFIED', 'CANDIDATE', 'REQUIRES_REVIEW', 'REJECTED', 'INACTIVE']).or(z.string()).default('VERIFIED'),
-  Active_Status: z.enum(['Active', 'Inactive']).or(z.string()).default('Active'),
-  Last_Verified_Date: z.string().default('2026-10-18'),
+  Quality_Assessment: z.string().default('Adequate'),
+  Verification_Status: z.string().default('UNVERIFIED'),
+  Active_Status: z.string().default('Active'),
+  Last_Verified_Date: z.string().default('2026-10-24'),
   Source_URLs: z.string().default(''),
   Research_Notes: z.string().default(''),
+
+  // Optional extensions
+  Key: z.string().optional(),
+  Channel_Handle: z.string().optional(),
+  Entity_Type: z.string().optional(),
+  Access_Model: z.string().optional(),
+  Region_Group: z.string().optional(),
+  Corroboration_Level: z.string().optional(),
+  Confidence_Level: z.string().optional(),
+  Learning_Objectives: z.array(z.string()).optional(),
+  Intents: z.array(z.string()).optional(),
+  Taxonomy_Domains: z.array(z.string()).optional(),
+  Taxonomy_Subjects: z.array(z.string()).optional(),
+  Taxonomy_Subdomains: z.array(z.string()).optional(),
+  Taxonomy_Topics: z.array(z.string()).optional(),
+  Exam_Names: z.array(z.string()).optional(),
+  Exam_IDs: z.array(z.string()).optional(),
+  Board_Names: z.array(z.string()).optional(),
+  Board_IDs: z.array(z.string()).optional(),
+  Representative_Video_URLs: z.array(z.string()).optional(),
+  Relevant_Playlist_URLs: z.array(z.string()).optional(),
+  Strengths: z.string().optional(),
+  Limitations: z.string().optional(),
+  Best_For: z.string().optional(),
+  Channel_ID_Verification_Status: z.string().optional(),
 });
 
 export interface DomainTaxonomyRecord {

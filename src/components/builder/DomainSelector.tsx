@@ -1,86 +1,76 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import {
-  EDUCATIONAL_DOMAINS,
-  searchEducationalDomain,
-  SearchDomainResult,
-  getDomainTopicSuggestions,
-} from "@/lib/catalogs/domainCatalog";
+import taxonomyData from "@/data/taxonomy.json";
+import { storageAdapter, StorageRecentItem } from "@/lib/storage/storageAdapter";
+import { useBuilderStore } from "@/lib/store/builderStore";
+import { SelectedTopicItem } from "@/lib/types/builderConfig";
 
-interface DomainSelectorProps {
-  selectedDomainId: string;
-  selectedSubject: string;
-  topics: string[];
-  onDomainChange: (domainId: string, domainName: string) => void;
-  onSubjectChange: (subject: string) => void;
-  onTopicsChange: (topics: string[]) => void;
-}
+export default function DomainSelector() {
+  const {
+    config,
+    updateConfig,
+    addTopic,
+    removeTopic,
+    renameTopic,
+    clearTopics,
+  } = useBuilderStore();
 
-const RECENT_TOPICS_KEY = "pencill_recent_topics";
-
-export default function DomainSelector({
-  selectedDomainId,
-  selectedSubject,
-  topics,
-  onDomainChange,
-  onSubjectChange,
-  onTopicsChange,
-}: DomainSelectorProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchDomainResult[]>([]);
-  const [customInput, setCustomInput] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    Array<{
+      id: string;
+      label: string;
+      domainId: string;
+      domainName: string;
+      subjectName: string;
+      synonyms: string[];
+      complexity: number;
+      prereqs: string[];
+    }>
+  >([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchHighlightIndex, setSearchHighlightIndex] = useState(0);
+
+  // Custom topic input & feedback
+  const [customTopicInput, setCustomTopicInput] = useState("");
+  const [customTopicError, setCustomTopicError] = useState<string | null>(null);
+  const [editingTopicId, setEditingTopicId] = useState<string | null>(null);
+  const [editingTopicText, setEditingTopicText] = useState("");
+
+  // Custom subject input
   const [isCustomSubjectMode, setIsCustomSubjectMode] = useState(false);
   const [customSubjectText, setCustomSubjectText] = useState("");
-  const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(null);
-  const [recentTopics, setRecentTopics] = useState<string[]>([]);
+
+  // Domain change cascade prompt
+  const [domainSwitchPending, setDomainSwitchPending] = useState<string | null>(null);
+
+  // Recent topics
+  const [recentTopics, setRecentTopics] = useState<StorageRecentItem[]>([]);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentDomain = EDUCATIONAL_DOMAINS.find((d) => d.id === selectedDomainId) || EDUCATIONAL_DOMAINS[0];
+  // Active domain lookup
+  const currentDomain =
+    taxonomyData.domains.find((d) => d.id === config.domainId) || taxonomyData.domains[0];
 
-  // Load recent topics from localStorage on mount
+  // Load recents from storage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(RECENT_TOPICS_KEY);
-        if (stored) {
-          setRecentTopics(JSON.parse(stored).slice(0, 6));
-        } else {
-          setRecentTopics([
-            "Class 12 Physics: Electromagnetism",
-            "Python Foundations & Algorithms",
-            "Organic Chemistry: Haloalkanes",
-            "Machine Learning: Transformers",
-            "Macroeconomics & Fiscal Policy",
-          ]);
-        }
-      } catch {}
-    }
+    storageAdapter.getRecents().then((list) => {
+      if (list.length > 0) {
+        setRecentTopics(list);
+      } else {
+        // Seed helpful initial recents
+        const seed: StorageRecentItem[] = [
+          { id: "r1", type: "topic", label: "Class 11 Mechanics & Rotational Dynamics", domainId: "school-education", timestamp: new Date().toISOString() },
+          { id: "r2", type: "topic", label: "Electrostatics & Current Electricity", domainId: "school-education", timestamp: new Date().toISOString() },
+          { id: "r3", type: "topic", label: "Differential Calculus & Vectors", domainId: "science-mathematics", timestamp: new Date().toISOString() },
+          { id: "r4", type: "topic", label: "Data Structures & Algorithmic Complexity", domainId: "engineering-technology", timestamp: new Date().toISOString() },
+        ];
+        setRecentTopics(seed);
+      }
+    });
   }, []);
-
-  // Save topic to recents
-  const saveToRecents = (topicName: string) => {
-    if (typeof window === "undefined" || !topicName) return;
-    try {
-      const updated = [topicName, ...recentTopics.filter((t) => t !== topicName)].slice(0, 8);
-      setRecentTopics(updated);
-      localStorage.setItem(RECENT_TOPICS_KEY, JSON.stringify(updated));
-    } catch {}
-  };
-
-  // Perform search with debounce
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-
-    const results = searchEducationalDomain(searchQuery, 8);
-    setSearchResults(results);
-    setIsDropdownOpen(true);
-  }, [searchQuery]);
 
   // Handle outside click to close search dropdown
   useEffect(() => {
@@ -93,77 +83,207 @@ export default function DomainSelector({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelectSearchResult = (result: SearchDomainResult) => {
-    onDomainChange(result.domainId, result.domainName);
-    if (result.subjectName) {
-      onSubjectChange(result.subjectName);
+  // Search logic over taxonomy names and synonyms
+  useEffect(() => {
+    const clean = searchQuery.trim().toLowerCase();
+    if (!clean) {
+      setSearchResults([]);
+      setIsDropdownOpen(false);
+      return;
     }
-    const topicToAdd = result.subtopicName || result.topicName || result.subjectName;
-    if (topicToAdd && !topics.includes(topicToAdd)) {
-      onTopicsChange([...topics, topicToAdd]);
-      saveToRecents(topicToAdd);
-    }
-    setSearchQuery("");
-    setIsDropdownOpen(false);
-  };
 
-  const handleAddCustomTopic = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const clean = customInput.trim();
-    if (!clean) return;
+    const matches: Array<{
+      id: string;
+      label: string;
+      domainId: string;
+      domainName: string;
+      subjectName: string;
+      synonyms: string[];
+      complexity: number;
+      prereqs: string[];
+    }> = [];
 
-    if (editingTopicIndex !== null) {
-      // Update existing topic
-      const updated = [...topics];
-      updated[editingTopicIndex] = clean;
-      onTopicsChange(updated);
-      setEditingTopicIndex(null);
-    } else {
-      if (!topics.includes(clean)) {
-        onTopicsChange([...topics, clean]);
-        saveToRecents(clean);
+    for (const d of taxonomyData.domains) {
+      for (const cat of d.categories) {
+        for (const sub of cat.subjects) {
+          for (const top of sub.topics) {
+            const matchName = top.label.toLowerCase().includes(clean);
+            const matchSyn = top.synonyms.some((s) => s.toLowerCase().includes(clean));
+            const matchSub = sub.label.toLowerCase().includes(clean);
+
+            if (matchName || matchSyn || matchSub) {
+              matches.push({
+                id: top.id,
+                label: top.label,
+                domainId: d.id,
+                domainName: d.label,
+                subjectName: sub.label,
+                synonyms: top.synonyms,
+                complexity: top.complexity,
+                prereqs: top.prereqs,
+              });
+            }
+            if (matches.length >= 10) break;
+          }
+        }
       }
     }
-    setCustomInput("");
-  };
 
-  const handleEditTopic = (index: number) => {
-    setCustomInput(topics[index]);
-    setEditingTopicIndex(index);
-  };
+    setSearchResults(matches);
+    setSearchHighlightIndex(0);
+    setIsDropdownOpen(true);
+  }, [searchQuery]);
 
-  const handleRemoveTopic = (topicToRemove: string) => {
-    onTopicsChange(topics.filter((t) => t !== topicToRemove));
-    if (editingTopicIndex !== null && topics[editingTopicIndex] === topicToRemove) {
-      setEditingTopicIndex(null);
-      setCustomInput("");
+  // Handle Domain Selection
+  const handleDomainTileClick = (newDomainId: string) => {
+    if (newDomainId === config.domainId) return;
+
+    // Check if topics are currently selected
+    if (config.selectedTopics.length > 0) {
+      setDomainSwitchPending(newDomainId);
+    } else {
+      executeDomainSwitch(newDomainId, true);
     }
   };
 
-  const handleAddSuggestedTopic = (topic: string) => {
-    if (!topics.includes(topic)) {
-      onTopicsChange([...topics, topic]);
-      saveToRecents(topic);
-    }
+  const executeDomainSwitch = (newDomainId: string, clearExistingTopics: boolean) => {
+    const targetDomain = taxonomyData.domains.find((d) => d.id === newDomainId) || taxonomyData.domains[0];
+    const firstSubject = targetDomain.categories[0]?.subjects[0]?.label || "General";
+
+    updateConfig((prev) => ({
+      ...prev,
+      domainId: newDomainId,
+      subjectId: firstSubject,
+      selectedTopics: clearExistingTopics ? [] : prev.selectedTopics,
+    }));
+
+    setDomainSwitchPending(null);
+    setCustomTopicError(null);
   };
 
-  const handleSaveCustomSubject = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customSubjectText.trim()) return;
-    onSubjectChange(customSubjectText.trim());
+  // Add custom subject
+  const handleSaveCustomSubject = async () => {
+    const clean = customSubjectText.trim();
+    if (!clean) return;
+
+    await storageAdapter.saveCustomTaxonomyNode({
+      id: `custom-sub-${Date.now()}`,
+      domainId: config.domainId,
+      type: "subject",
+      name: clean,
+    });
+
+    updateConfig((prev) => ({
+      ...prev,
+      subjectId: clean,
+    }));
+
     setIsCustomSubjectMode(false);
+    setCustomSubjectText("");
   };
 
-  const suggestedTopics = getDomainTopicSuggestions(selectedDomainId);
+  // Add custom topic
+  const handleAddCustomTopic = () => {
+    const raw = customTopicInput;
+    const clean = raw.trim();
 
-  // Available subjects for current domain's disciplines
-  const allDomainSubjects = currentDomain.disciplines.flatMap((disc) =>
-    disc.subjects.map((sub) => ({ discipline: disc.name, subject: sub.name, id: sub.id }))
+    if (!clean) {
+      setCustomTopicError("Please enter a topic name.");
+      return;
+    }
+
+    if (clean.length < 3) {
+      setCustomTopicError("Topic must be at least 3 characters long.");
+      return;
+    }
+
+    const res = addTopic({
+      label: clean,
+      source: "custom",
+      complexity: 3,
+    });
+
+    if (res.added) {
+      setCustomTopicInput("");
+      setCustomTopicError(null);
+    } else {
+      setCustomTopicError(res.reason || "Topic could not be added.");
+    }
+  };
+
+  // Keyboard navigation for search dropdown
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSearchHighlightIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : 0));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSearchHighlightIndex((prev) => (prev > 0 ? prev - 1 : searchResults.length - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (searchResults.length > 0 && searchResults[searchHighlightIndex]) {
+        const item = searchResults[searchHighlightIndex];
+        const res = addTopic({
+          id: item.id,
+          label: item.label,
+          source: "taxonomy",
+          complexity: item.complexity,
+          prereqs: item.prereqs,
+        });
+        if (res.added) {
+          setSearchQuery("");
+          setIsDropdownOpen(false);
+          setCustomTopicError(null);
+        } else {
+          setCustomTopicError(res.reason || "Topic could not be added.");
+        }
+      } else if (searchQuery.trim().length >= 3) {
+        const res = addTopic({
+          label: searchQuery.trim(),
+          source: "custom",
+          complexity: 3,
+        });
+        if (res.added) {
+          setSearchQuery("");
+          setIsDropdownOpen(false);
+          setCustomTopicError(null);
+        } else {
+          setCustomTopicError(res.reason || "Topic could not be added.");
+        }
+      }
+    } else if (e.key === "Escape") {
+      setIsDropdownOpen(false);
+    }
+  };
+
+  // Clear all topics with confirmation if > 2
+  const handleClearAll = () => {
+    if (config.selectedTopics.length > 2) {
+      if (window.confirm(`Clear all ${config.selectedTopics.length} selected topics?`)) {
+        clearTopics();
+        setCustomTopicError(null);
+      }
+    } else {
+      clearTopics();
+      setCustomTopicError(null);
+    }
+  };
+
+  // Subjects for dropdown
+  const availableSubjects = currentDomain.categories.flatMap((cat) =>
+    cat.subjects.map((sub) => ({
+      categoryLabel: cat.label,
+      subjectLabel: sub.label,
+      id: sub.id,
+    }))
   );
+
+  // Popular topics for current domain
+  const popularTopicsInDomain = currentDomain.popularTopics || [];
 
   return (
     <div className="flex flex-col gap-space-md">
-      {/* Step Header */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
@@ -171,30 +291,62 @@ export default function DomainSelector({
           </span>
           Educational Domain, Subject &amp; Topics
         </label>
-        <span className="font-label-sm text-label-sm text-secondary font-medium">Universal Taxonomy</span>
+        <span className="font-label-sm text-label-sm text-secondary font-medium">Step 1 of 5</span>
       </div>
-      <p className="font-body-sm text-body-sm text-on-surface-variant -mt-2">
-        Choose from standard academic domains or type any specialized topic, custom subject, or curriculum.
-      </p>
 
-      {/* Domain Quick-Select Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pt-1">
-        {EDUCATIONAL_DOMAINS.map((domain) => {
-          const isSelected = domain.id === selectedDomainId;
+      {/* Domain Switch Confirmation Banner if pending */}
+      {domainSwitchPending && (
+        <div className="p-3 bg-secondary-container/40 border border-secondary/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-secondary text-base">swap_horiz</span>
+            <span>
+              You have {config.selectedTopics.length} topic(s) selected in {currentDomain.label}. Switch domain and:
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => executeDomainSwitch(domainSwitchPending, false)}
+              className="px-2.5 py-1 bg-surface-container hover:bg-surface-container-high rounded text-on-surface font-semibold"
+            >
+              Keep Topics
+            </button>
+            <button
+              type="button"
+              onClick={() => executeDomainSwitch(domainSwitchPending, true)}
+              className="px-2.5 py-1 bg-primary text-on-primary rounded font-semibold"
+            >
+              Clear &amp; Switch
+            </button>
+            <button
+              type="button"
+              onClick={() => setDomainSwitchPending(null)}
+              className="text-on-surface-variant hover:text-on-surface px-1"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 12 Domain Tiles (Single-Select Radio Group) */}
+      <div
+        role="radiogroup"
+        aria-label="Educational Domain"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pt-1"
+      >
+        {taxonomyData.domains.map((dom) => {
+          const isSelected = dom.id === config.domainId;
           return (
             <button
-              key={domain.id}
+              key={dom.id}
               type="button"
-              onClick={() => {
-                onDomainChange(domain.id, domain.name);
-                const firstSub = domain.disciplines[0]?.subjects[0]?.name;
-                if (firstSub && !selectedSubject) {
-                  onSubjectChange(firstSub);
-                }
-              }}
+              role="radio"
+              aria-checked={isSelected}
+              onClick={() => handleDomainTileClick(dom.id)}
               className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
                 isSelected
-                  ? "bg-primary-container text-on-primary border-primary-container shadow-xs"
+                  ? "bg-primary-container text-on-primary border-primary-container shadow-xs ring-1 ring-primary-container"
                   : "bg-surface-container-low hover:bg-surface-container text-on-surface border-surface-container-high/50"
               }`}
             >
@@ -203,64 +355,73 @@ export default function DomainSelector({
                   isSelected ? "text-secondary-fixed" : "text-primary/80"
                 }`}
               >
-                {domain.icon}
+                {dom.icon}
               </span>
               <span className="font-label-sm text-label-sm font-semibold truncate leading-tight">
-                {domain.name}
+                {dom.label}
               </span>
             </button>
           );
         })}
       </div>
 
-      {/* Cascading Subject & Discipline Bar */}
+      {/* Active Subject Selector & Custom Subject Trigger */}
       <div className="p-3 bg-surface-container-low/70 rounded-lg border border-surface-container-high/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <span className="text-xs font-semibold text-on-surface-variant shrink-0">Active Subject:</span>
           {isCustomSubjectMode ? (
-            <form onSubmit={handleSaveCustomSubject} className="flex items-center gap-1.5 flex-1">
+            <div className="flex items-center gap-1.5 flex-1">
               <input
                 type="text"
                 value={customSubjectText}
                 onChange={(e) => setCustomSubjectText(e.target.value)}
-                placeholder="Type unlisted subject name..."
-                className="bg-surface-container-lowest px-2.5 py-1 rounded text-xs text-on-surface border border-surface-container-high w-full"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSaveCustomSubject();
+                  } else if (e.key === "Escape") {
+                    setIsCustomSubjectMode(false);
+                  }
+                }}
+                placeholder="Type custom subject name..."
+                className="bg-surface-container-lowest px-2.5 py-1 rounded text-xs text-on-surface border border-surface-container-high w-full focus:outline-none focus:ring-1 focus:ring-primary"
                 autoFocus
               />
               <button
-                type="submit"
-                className="px-2 py-1 bg-primary text-on-primary text-xs rounded font-semibold shrink-0"
+                type="button"
+                onClick={handleSaveCustomSubject}
+                className="px-2 py-1 bg-primary text-on-primary text-xs rounded font-semibold shrink-0 cursor-pointer"
               >
-                Set
+                Save
               </button>
               <button
                 type="button"
                 onClick={() => setIsCustomSubjectMode(false)}
-                className="text-xs text-on-surface-variant hover:text-on-surface px-1"
+                className="text-xs text-on-surface-variant hover:text-on-surface px-1 cursor-pointer"
               >
                 Cancel
               </button>
-            </form>
+            </div>
           ) : (
             <div className="flex items-center gap-2 flex-wrap">
               <select
-                value={selectedSubject}
-                onChange={(e) => onSubjectChange(e.target.value)}
-                className="bg-surface-container-lowest text-xs text-on-surface px-2.5 py-1 rounded border border-surface-container-high font-medium"
+                value={config.subjectId}
+                onChange={(e) => updateConfig({ subjectId: e.target.value })}
+                className="bg-surface-container-lowest text-xs text-on-surface px-2.5 py-1 rounded border border-surface-container-high font-medium max-w-[280px] truncate"
               >
-                {allDomainSubjects.map((sub) => (
-                  <option key={`${sub.discipline}-${sub.id}`} value={sub.subject}>
-                    {sub.discipline} → {sub.subject}
+                {availableSubjects.map((sub, i) => (
+                  <option key={`${sub.id}-${i}`} value={sub.subjectLabel}>
+                    {sub.categoryLabel} → {sub.subjectLabel}
                   </option>
                 ))}
               </select>
               <button
                 type="button"
                 onClick={() => {
-                  setCustomSubjectText(selectedSubject);
+                  setCustomSubjectText("");
                   setIsCustomSubjectMode(true);
                 }}
-                className="text-[11px] text-primary hover:underline font-semibold"
+                className="text-[11px] text-primary hover:underline font-semibold cursor-pointer"
               >
                 + Custom Subject
               </button>
@@ -269,21 +430,22 @@ export default function DomainSelector({
         </div>
       </div>
 
-      {/* Search Across All Catalogs */}
-      <div className="relative mt-1" ref={dropdownRef}>
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-3.5 top-3.5 text-on-surface-variant text-lg">
+      {/* Fuzzy Topic Search Box with Keyboard Navigation */}
+      <div className="relative" ref={dropdownRef}>
+        <div className="relative flex items-center">
+          <span className="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-lg pointer-events-none">
             search
           </span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             onFocus={() => {
               if (searchQuery.trim().length > 0) setIsDropdownOpen(true);
             }}
-            placeholder="Search disciplines, subjects, or subtopics (e.g. Electrodynamics, Machine Learning, Organic Chemistry)..."
-            className="w-full bg-surface-container-low pl-10 pr-4 py-3 rounded-lg text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] border border-surface-container-high/40 transition-all placeholder:text-on-surface-variant/70"
+            placeholder="Search disciplines, subjects, subtopics or synonyms (e.g. Electrodynamics, Machine Learning)..."
+            className="w-full pl-10 pr-10 py-3 bg-surface-container-low rounded-lg text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] transition-all"
           />
           {searchQuery && (
             <button
@@ -292,178 +454,281 @@ export default function DomainSelector({
                 setSearchQuery("");
                 setIsDropdownOpen(false);
               }}
-              className="absolute right-3 top-3 text-on-surface-variant hover:text-primary p-0.5 rounded-full"
+              className="absolute right-3 text-on-surface-variant hover:text-on-surface p-1"
+              aria-label="Clear search input"
             >
               <span className="material-symbols-outlined text-base">close</span>
             </button>
           )}
         </div>
 
-        {/* Search Results Dropdown */}
-        {isDropdownOpen && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-lowest rounded-xl shadow-lg border border-surface-container-high overflow-hidden z-30 max-h-72 overflow-y-auto">
-            <div className="px-3 py-1.5 bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container-high flex items-center justify-between">
-              <span>Matching Catalog Items</span>
-              <span className="font-mono text-[10px]">{searchResults.length} found</span>
-            </div>
-            {searchResults.map((item, idx) => (
-              <button
-                key={`${item.domainId}-${item.displayName}-${idx}`}
-                type="button"
-                onClick={() => handleSelectSearchResult(item)}
-                className="w-full text-left px-3.5 py-2.5 hover:bg-surface-container-low border-b border-surface-container-high/30 last:border-b-0 flex items-center justify-between group transition-colors"
-              >
-                <div className="flex flex-col min-w-0 pr-2">
-                  <span className="font-label-md text-label-md text-on-surface font-medium group-hover:text-primary truncate">
-                    {item.topicName || item.subtopicName || item.subjectName || item.displayName}
-                  </span>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant truncate">
-                    {item.domainName} {item.subjectName && `· ${item.subjectName}`}
-                  </span>
-                </div>
-                <span className="material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                  add_circle
-                </span>
-              </button>
-            ))}
+        {/* Autocomplete Dropdown */}
+        {isDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-lowest rounded-xl shadow-xl border border-surface-container-high z-40 max-h-64 overflow-y-auto divide-y divide-surface-container-high/40">
+            {searchResults.length === 0 ? (
+              <div className="p-4 text-center text-xs text-on-surface-variant">
+                <span>No match for &quot;{searchQuery}&quot;.</span>
+                {searchQuery.trim().length >= 3 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const res = addTopic({ label: searchQuery.trim(), source: "custom", complexity: 3 });
+                      if (res.added) {
+                        setSearchQuery("");
+                        setIsDropdownOpen(false);
+                        setCustomTopicError(null);
+                      } else {
+                        setCustomTopicError(res.reason || "Topic could not be added.");
+                      }
+                    }}
+                    className="block mx-auto mt-2 text-primary font-semibold hover:underline cursor-pointer"
+                  >
+                    + Add &quot;{searchQuery}&quot; as custom topic
+                  </button>
+                )}
+              </div>
+            ) : (
+              searchResults.map((item, idx) => {
+                const isHighlighted = idx === searchHighlightIndex;
+                const isAlreadySelected = config.selectedTopics.some(
+                  (t) => t.label.toLowerCase() === item.label.toLowerCase()
+                );
+                return (
+                  <div
+                    key={`${item.id}-${idx}`}
+                    onMouseEnter={() => setSearchHighlightIndex(idx)}
+                    onClick={() => {
+                      if (!isAlreadySelected) {
+                        const res = addTopic({
+                          id: item.id,
+                          label: item.label,
+                          source: "taxonomy",
+                          complexity: item.complexity,
+                          prereqs: item.prereqs,
+                        });
+                        if (res.added) {
+                          setSearchQuery("");
+                          setIsDropdownOpen(false);
+                          setCustomTopicError(null);
+                        } else {
+                          setCustomTopicError(res.reason || "Topic could not be added.");
+                        }
+                      } else {
+                        setSearchQuery("");
+                        setIsDropdownOpen(false);
+                      }
+                    }}
+                    className={`p-2.5 flex items-center justify-between cursor-pointer transition-colors ${
+                      isHighlighted ? "bg-surface-container" : "hover:bg-surface-container-low"
+                    } ${isAlreadySelected ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex flex-col min-w-0 pr-2">
+                      <span className="font-semibold text-xs text-on-surface truncate">
+                        {item.label}
+                      </span>
+                      <span className="text-[11px] text-on-surface-variant truncate">
+                        {item.domainName} · {item.subjectName}
+                      </span>
+                    </div>
+                    <span className="font-label-sm text-[10px] text-secondary shrink-0 font-medium">
+                      {isAlreadySelected ? "Selected" : "+ Add"}
+                    </span>
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
       </div>
 
-      {/* Selected Topics Chips */}
-      <div className="flex flex-col gap-1.5">
+      {/* Selected Topics Tray */}
+      <div className="flex flex-col gap-2 pt-1">
         <div className="flex items-center justify-between">
-          <span className="font-label-sm text-label-sm text-on-surface-variant font-semibold">
-            Selected Topics / Learning Targets ({topics.length}):
+          <span className="text-xs font-semibold text-on-surface flex items-center gap-1.5">
+            <span>Selected Learning Topics</span>
+            <span className="font-mono text-secondary font-bold">
+              ({config.selectedTopics.length}/8)
+            </span>
           </span>
-          {topics.length > 0 && (
+          {config.selectedTopics.length > 0 && (
             <button
               type="button"
-              onClick={() => onTopicsChange([])}
-              className="text-[11px] font-label-sm text-error hover:underline"
+              onClick={handleClearAll}
+              className="text-xs text-error hover:underline font-medium cursor-pointer"
             >
               Clear All
             </button>
           )}
         </div>
 
-        {topics.length === 0 ? (
-          <div className="p-3 rounded-lg bg-surface-container-low border border-dashed border-surface-container-high/70 text-on-surface-variant font-body-sm text-body-sm text-center">
-            No specific topics selected yet. Add custom concepts below or click a suggested topic.
+        {config.selectedTopics.length === 0 ? (
+          <div className="p-3 bg-surface-container-low rounded-lg border border-dashed border-surface-container-high text-center text-xs text-on-surface-variant">
+            No topics selected. Select from popular topics below, search, or add a custom concept. (Minimum 1 topic required to build).
           </div>
         ) : (
-          <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-surface-container-low/70 border border-surface-container-high/40 min-h-[46px] items-center">
-            {topics.map((t, idx) => (
-              <span
-                key={`${t}-${idx}`}
-                className="inline-flex items-center gap-1.5 bg-surface-container-lowest text-primary px-3 py-1 rounded-full font-label-md text-label-md font-medium border border-surface-container-high shadow-2xs group"
-              >
-                <span>{t}</span>
-                <button
-                  type="button"
-                  onClick={() => handleEditTopic(idx)}
-                  className="text-on-surface-variant hover:text-primary rounded-full p-0.5 transition-colors"
-                  title={`Edit "${t}"`}
+          <div className="flex flex-wrap gap-2">
+            {config.selectedTopics.map((topic) => {
+              const isEditing = editingTopicId === topic.id;
+              return (
+                <div
+                  key={topic.id}
+                  className="group flex items-center gap-1.5 bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-medium shadow-xs"
                 >
-                  <span className="material-symbols-outlined text-xs">edit</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTopic(t)}
-                  className="text-on-surface-variant hover:text-error rounded-full p-0.5 transition-colors"
-                  title={`Remove "${t}"`}
-                >
-                  <span className="material-symbols-outlined text-xs">close</span>
-                </button>
-              </span>
-            ))}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editingTopicText}
+                      onChange={(e) => setEditingTopicText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          renameTopic(topic.id, editingTopicText);
+                          setEditingTopicId(null);
+                        } else if (e.key === "Escape") {
+                          setEditingTopicId(null);
+                        }
+                      }}
+                      onBlur={() => {
+                        renameTopic(topic.id, editingTopicText);
+                        setEditingTopicId(null);
+                      }}
+                      className="bg-primary-container text-on-primary px-1.5 py-0.5 rounded text-xs focus:outline-none w-32"
+                      autoFocus
+                    />
+                  ) : (
+                    <span
+                      onClick={() => {
+                        setEditingTopicId(topic.id);
+                        setEditingTopicText(topic.label);
+                      }}
+                      className="cursor-pointer hover:underline"
+                      title="Click to rename"
+                    >
+                      {topic.label}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removeTopic(topic.id);
+                      setCustomTopicError(null);
+                    }}
+                    className="text-primary-fixed-dim hover:text-white transition-colors cursor-pointer"
+                    aria-label={`Remove topic ${topic.label}`}
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Custom Topic Input with Edit state */}
-      <form onSubmit={handleAddCustomTopic} className="flex gap-2">
-        <input
-          type="text"
-          value={customInput}
-          onChange={(e) => setCustomInput(e.target.value)}
-          placeholder={
-            editingTopicIndex !== null
-              ? `Editing topic #${editingTopicIndex + 1}...`
-              : "Add custom topic or learning objective (e.g. Quantum Error Correction, Rotational Dynamics)..."
-          }
-          className="flex-1 bg-surface-container-low px-3.5 py-2 rounded-lg text-on-surface font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary border border-surface-container-high/40 transition-all placeholder:text-on-surface-variant/70"
-        />
-        <button
-          type="submit"
-          disabled={!customInput.trim()}
-          className="bg-primary hover:bg-primary-container disabled:opacity-40 text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md font-semibold flex items-center gap-1 transition-all shadow-2xs"
-        >
-          <span className="material-symbols-outlined text-sm">
-            {editingTopicIndex !== null ? "done" : "add"}
-          </span>
-          <span>{editingTopicIndex !== null ? "Update" : "Add"}</span>
-        </button>
-        {editingTopicIndex !== null && (
+      {/* Inline Custom Topic Input */}
+      <div className="flex flex-col gap-1.5 pt-1">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={customTopicInput}
+            onChange={(e) => {
+              setCustomTopicInput(e.target.value);
+              if (customTopicError) setCustomTopicError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddCustomTopic();
+              }
+            }}
+            placeholder="Add specialized or unlisted topic (e.g. Projectile Motion on Inclined Plane)..."
+            className="flex-1 bg-surface-container-low px-3 py-2 rounded-lg text-xs text-on-surface border border-surface-container-high focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary"
+          />
           <button
             type="button"
-            onClick={() => {
-              setEditingTopicIndex(null);
-              setCustomInput("");
-            }}
-            className="px-2 py-2 text-xs text-on-surface-variant hover:text-on-surface"
+            onClick={handleAddCustomTopic}
+            className="px-3 py-2 bg-primary hover:bg-primary-container text-on-primary rounded-lg text-xs font-semibold shrink-0 cursor-pointer transition-colors shadow-xs"
           >
-            Cancel
+            + Add Topic
           </button>
+        </div>
+        {customTopicError && (
+          <p className="text-xs text-error font-medium flex items-center gap-1 animate-in fade-in duration-150">
+            <span className="material-symbols-outlined text-xs">info</span>
+            <span>{customTopicError}</span>
+          </p>
         )}
-      </form>
+      </div>
 
-      {/* Recent & Frequently Used Topics */}
-      {recentTopics.length > 0 && (
-        <div className="flex flex-col gap-1 pt-1">
-          <div className="flex items-center gap-1.5 text-on-surface-variant">
-            <span className="material-symbols-outlined text-xs text-secondary">history</span>
-            <span className="font-label-sm text-xs font-semibold">
-              Recent &amp; Frequently Explored:
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {recentTopics.map((rec) => (
+      {/* Popular Topics in Domain */}
+      {popularTopicsInDomain.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] font-semibold text-on-surface-variant">
+            Popular in {currentDomain.label}:
+          </span>
+          {popularTopicsInDomain.map((pop) => {
+            const isSelected = config.selectedTopics.some(
+              (t) => t.label.toLowerCase() === pop.toLowerCase()
+            );
+            return (
               <button
-                key={rec}
+                key={pop}
                 type="button"
-                onClick={() => handleAddSuggestedTopic(rec)}
-                className="bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary px-2 py-0.5 rounded text-[11px] transition-colors border border-surface-container-high/40"
+                disabled={isSelected}
+                onClick={() => {
+                  const res = addTopic({ label: pop, source: "popular" });
+                  if (res.added) {
+                    setCustomTopicError(null);
+                  } else {
+                    setCustomTopicError(res.reason || "Topic could not be added.");
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                  isSelected
+                    ? "bg-surface-container-high text-on-surface-variant opacity-60 cursor-not-allowed"
+                    : "bg-surface-container hover:bg-surface-container-high text-primary"
+                }`}
               >
-                + {rec}
+                {isSelected ? `✓ ${pop}` : `+ ${pop}`}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Domain-Specific Suggestions */}
-      {suggestedTopics.length > 0 && (
-        <div className="flex flex-col gap-1.5 pt-1">
-          <div className="flex items-center gap-1.5 text-on-surface-variant">
-            <span className="material-symbols-outlined text-sm text-secondary">lightbulb</span>
-            <span className="font-label-sm text-label-sm font-medium">
-              Popular topics in {currentDomain.name}:
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {suggestedTopics.map((sub) => (
+      {/* Recent & Frequently Explored Topics */}
+      {recentTopics.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs">history</span>
+            Recent &amp; Frequently Explored:
+          </span>
+          {recentTopics.slice(0, 4).map((rec) => {
+            const isSelected = config.selectedTopics.some(
+              (t) => t.label.toLowerCase() === rec.label.toLowerCase()
+            );
+            return (
               <button
-                key={sub}
+                key={rec.id}
                 type="button"
-                onClick={() => handleAddSuggestedTopic(sub)}
-                className="bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary px-2.5 py-1 rounded-md font-label-sm text-label-sm transition-colors flex items-center gap-1 border border-surface-container-high/40"
+                disabled={isSelected}
+                onClick={() => {
+                  const res = addTopic({ label: rec.label, source: "recent" });
+                  if (res.added) {
+                    setCustomTopicError(null);
+                  } else {
+                    setCustomTopicError(res.reason || "Topic could not be added.");
+                  }
+                }}
+                className={`px-2 py-0.5 rounded text-[11px] transition-colors cursor-pointer ${
+                  isSelected
+                    ? "bg-surface-container-high text-on-surface-variant opacity-50 cursor-not-allowed"
+                    : "bg-surface-container-low hover:bg-surface-container text-on-surface"
+                }`}
               >
-                <span>+</span>
-                <span>{sub}</span>
+                {rec.label}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
     </div>

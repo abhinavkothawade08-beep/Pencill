@@ -19,6 +19,8 @@ import {
   addBookmark,
   removeBookmark,
 } from "@/services/supabase/bookmarkService";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
+import taxonomyData from "@/data/taxonomy.json";
 
 function ExploreContent() {
   const searchParams = useSearchParams();
@@ -51,13 +53,24 @@ function ExploreContent() {
         getLearningPaths(),
         user?.id ? getUserBookmarks(user.id) : Promise.resolve([]),
       ]);
-      setCourses(pathsData);
+      // Merge with local saved paths from storageAdapter
+      const localSaved = await storageAdapter.getSavedPaths();
+      const combined = new Map<string, any>();
+      pathsData.forEach((p) => combined.set(p.id, p));
+      localSaved.forEach((p) => {
+        if (!combined.has(p.id)) combined.set(p.id, p);
+      });
+      setCourses(Array.from(combined.values()));
 
       const bMap = new Map<string, string>();
       bookmarksData.forEach((b) => {
         if (b.pathId) {
           bMap.set(b.pathId, b.id);
         }
+      });
+      const localBookmarks = await storageAdapter.getBookmarks();
+      localBookmarks.forEach((b) => {
+        if (b.pathId) bMap.set(b.pathId, b.id);
       });
       setBookmarkedMap(bMap);
     } catch (err: unknown) {
@@ -100,7 +113,7 @@ function ExploreContent() {
     const course = courses.find((c) => c.id === pathId);
     if (!course) return;
 
-    if (!user) {
+    if (false && !user) {
       setToastState({
         open: true,
         message: "Please sign in to save learning paths to your shelf.",
@@ -109,40 +122,50 @@ function ExploreContent() {
     }
 
     if (isBookmarked) {
-      const newId = await addBookmark(
-        {
-          title: course.title,
-          source: course.domain,
-          type: "path",
-          category: "path",
-          description: course.description,
-          pathId: course.id,
-        },
-        user.id
-      );
-
-      if (newId) {
-        setBookmarkedMap((prev) => new Map(prev).set(pathId, newId));
-        setToastState({
-          open: true,
-          message: `Saved "${course.title}" to your shelf.`,
-        });
+      let newId: string | null = null;
+      if (user?.id) {
+        newId = await addBookmark(
+          {
+            title: course.title,
+            source: course.domain,
+            type: "path",
+            category: "path",
+            description: course.description,
+            pathId: course.id,
+          },
+          user.id
+        );
       }
+
+      await storageAdapter.addBookmark({
+        type: "path",
+        title: course.title,
+        pathId: course.id,
+        source: course.domain || "Pencill",
+      });
+
+      setBookmarkedMap((prev) => new Map(prev).set(pathId, newId || `bm-${course.id}`));
+      setToastState({
+        open: true,
+        message: `Saved "${course.title}" to your shelf.`,
+      });
     } else {
       const existingBookmarkId = bookmarkedMap.get(pathId);
-      if (existingBookmarkId) {
+      await storageAdapter.removeBookmark(`bm-${course.id}`);
+      await storageAdapter.removeBookmark(course.id);
+      if (existingBookmarkId && user?.id) {
         await removeBookmark(existingBookmarkId, user.id);
-        setBookmarkedMap((prev) => {
-          const next = new Map(prev);
-          next.delete(pathId);
-          return next;
-        });
-        setToastState({
-          open: true,
-          message: `Removed "${course.title}" from bookmarks.`,
-          icon: "bookmark_remove",
-        });
       }
+      setBookmarkedMap((prev) => {
+        const next = new Map(prev);
+        next.delete(pathId);
+        return next;
+      });
+      setToastState({
+        open: true,
+        message: `Removed "${course.title}" from bookmarks.`,
+        icon: "bookmark_remove",
+      });
     }
   };
 

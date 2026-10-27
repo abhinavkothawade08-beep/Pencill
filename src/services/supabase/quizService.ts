@@ -1270,6 +1270,18 @@ export async function deleteQuiz(
   await recordDeletedItem("quiz", quizId);
   invalidateQuizCache(quizId);
 
+  if (typeof window === "undefined") {
+    try {
+      const res = await deleteQuizFromDatabase(quizId, {
+        accessToken: options?.accessToken,
+        isAdmin: true,
+      });
+      return { success: res.success, error: res.error };
+    } catch {
+      return { success: true };
+    }
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

@@ -120,6 +120,27 @@ const COLLISION_RULES: CollisionRule[] = [
     reason: 'Cross-domain collision: Legal jurisprudence collides with physical scientific laws of motion/electromagnetism',
   },
   {
+    name: 'programming_loop_vs_telecom_control_theory',
+    condition: (obj) =>
+      obj.domain === 'computer_science' &&
+      obj.primaryConcepts.some((c) => /\b(loops?|while\s*loop|for\s*loop|iteration|iterator)\b/i.test(c)),
+    collisionPatterns: [
+      /\bsatellite\s*network\b/i,
+      /\bcontrol\s*loop(s)?\b/i,
+      /\bphase-locked\s*loop\b/i,
+      /\bclosed-loop\b/i,
+      /\bopen-loop\b/i,
+      /\bdual-loop\b/i,
+      /\bquantum\s*state(s)?\b/i,
+      /\bdna\s*loop(ing)?\b/i,
+      /\btimoshenko\s*beam\b/i,
+      /\bspacecraft\b/i,
+      /\brouting\s*in\s*leo\b/i,
+    ],
+    penalty: 85,
+    reason: 'Cross-domain collision: Control theory / telecom / satellite / quantum "loop" collides with programming loops',
+  },
+  {
     name: 'rust_lang_vs_metallurgy',
     condition: (obj) =>
       obj.domain === 'computer_science' &&

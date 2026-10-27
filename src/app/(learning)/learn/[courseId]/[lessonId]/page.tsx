@@ -27,6 +27,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/services/supabase/client";
 import { LessonNoteResource } from "@/types";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
 
 function extractYouTubeEmbedUrl(url?: string): string | null {
   if (!url) return null;
@@ -135,6 +136,18 @@ export default function LearningWorkspacePage() {
       // Fetch bookmark status
       if (uid && lessonId) {
         const existing = await getBookmarkForResource(uid, lessonId);
+        if (mounted && existing) {
+          setIsBookmarked(true);
+          setBookmarkId(existing.id);
+        } else if (mounted) {
+          setIsBookmarked(false);
+          setBookmarkId(null);
+        }
+      } else if (lessonId) {
+        const localBookmarks = await storageAdapter.getBookmarks();
+        const existing = localBookmarks.find(
+          (b) => b.resourceId === lessonId || (b.pathId === courseId && b.title === data?.lesson?.title)
+        );
         if (mounted && existing) {
           setIsBookmarked(true);
           setBookmarkId(existing.id);
@@ -262,10 +275,23 @@ export default function LearningWorkspacePage() {
     if (!lesson || !course) return;
 
     if (!currentUser) {
-      setToastState({
-        open: true,
-        message: "Please sign in to save bookmarks to your study shelf.",
-      });
+      if (isBookmarked && bookmarkId) {
+        await storageAdapter.removeBookmark(bookmarkId);
+        setIsBookmarked(false);
+        setBookmarkId(null);
+        setToastState({ open: true, message: `Removed "${lesson.title}" from bookmarks.` });
+      } else {
+        const added = await storageAdapter.addBookmark({
+          title: lesson.title,
+          source: lesson.sourceName || "Pencill",
+          type: "resource",
+          pathId: course.id,
+          resourceId: lesson.id,
+        });
+        setIsBookmarked(true);
+        setBookmarkId(added.id);
+        setToastState({ open: true, message: `Saved "${lesson.title}" to your study shelf!` });
+      }
       return;
     }
 

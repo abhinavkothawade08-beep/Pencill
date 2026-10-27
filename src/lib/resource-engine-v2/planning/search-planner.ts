@@ -10,6 +10,7 @@ import {
 import { LearningObjectiveAnalyzer } from '../analysis/objective-analyzer';
 import { QueryGenerator } from './query-generator';
 import { QueryDeduplicator } from './query-deduplicator';
+import { EducatorMatcher } from '../educators/educator-matcher';
 
 /**
  * Intent-Aware Search Planner (Stage 2 of Resource Engine 2.0)
@@ -34,11 +35,35 @@ export class IntentAwareSearchPlanner {
     // 1. Validate objective schema
     const validatedObjective = AnalyzedObjectiveSchema.parse(objective);
 
+    // Auto-discover matching educators if not explicitly provided
+    const effectiveConfig = { ...config };
+    if (!effectiveConfig.matchingEducators) {
+      try {
+        const eduContext = EducatorMatcher.deriveContext({
+          query: validatedObjective.rawTitle,
+          courseTitle: validatedObjective.rawTitle,
+          moduleTitle: validatedObjective.rawTitle,
+          moduleObjective: validatedObjective.rawTitle,
+          moduleObjectives: validatedObjective.primaryConcepts,
+          level: validatedObjective.academicLevel,
+          academicLevel: validatedObjective.academicLevel,
+          targetExam: validatedObjective.targetExam,
+          domain: validatedObjective.domain,
+          subject: validatedObjective.subject,
+          preferredLanguage: validatedObjective.preferredLanguage,
+        });
+        const matched = EducatorMatcher.matchEducators(eduContext, { limit: 2, minScore: 45 });
+        effectiveConfig.matchingEducators = matched.map((m) => m.educator);
+      } catch {
+        // Fall back gracefully
+      }
+    }
+
     // 2. Generate raw candidate queries
-    const candidates = QueryGenerator.generateCandidates(validatedObjective, config);
+    const candidates = QueryGenerator.generateCandidates(validatedObjective, effectiveConfig);
 
     // 3. Deduplicate and enforce diversity limits
-    const deduplicated = QueryDeduplicator.deduplicate(candidates, config);
+    const deduplicated = QueryDeduplicator.deduplicate(candidates, effectiveConfig);
 
     // 4. Validate output schema for every query item
     return deduplicated.map((q) => SearchQueryItemSchema.parse(q));

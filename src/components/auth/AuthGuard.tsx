@@ -1,21 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { isSupabaseConfigured } from "@/services/supabase/client";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    setMounted(true);
+  }, []);
+
+  const isGuest =
+    mounted &&
+    (localStorage.getItem("pencill_guest_access") === "true" ||
+      sessionStorage.getItem("pencill_guest_access") === "true" ||
+      !isSupabaseConfigured);
+
+  useEffect(() => {
+    if (mounted && !loading && !user && !isGuest) {
       router.replace(`/login?redirectTo=${encodeURIComponent(pathname || "/dashboard")}`);
     }
-  }, [user, loading, router, pathname]);
+  }, [user, loading, router, pathname, isGuest, mounted]);
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
         <div className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -26,7 +38,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) {
+  if (!user && !isGuest) {
     return null;
   }
 

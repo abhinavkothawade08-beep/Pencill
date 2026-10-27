@@ -53,6 +53,10 @@ export const DistributedResourceItemSchema = z.object({
   sourceName: z.string(),
   isVerified: z.boolean().default(false),
   discoverySource: z.string().default('open_discovery'),
+  educatorId: z.string().optional(),
+  educatorName: z.string().optional(),
+  channelId: z.string().optional(),
+  selectionExplanation: z.string().optional(),
 });
 export type DistributedResourceItem = z.infer<typeof DistributedResourceItemSchema>;
 

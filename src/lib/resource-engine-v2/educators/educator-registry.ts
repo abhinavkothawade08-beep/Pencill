@@ -24,6 +24,8 @@ export class EducatorRegistry {
   private educatorsById = new Map<string, MasterEducatorRecord>();
   private educatorsByChannelId = new Map<string, MasterEducatorRecord>();
   private educatorsByHandle = new Map<string, MasterEducatorRecord>();
+  private educatorsByName = new Map<string, MasterEducatorRecord>();
+  private educatorsByKey = new Map<string, MasterEducatorRecord>();
   private educatorsByDomain = new Map<string, Set<string>>();
   private educatorsBySubject = new Map<string, Set<string>>();
   private educatorsByExam = new Map<string, Set<string>>();
@@ -119,15 +121,45 @@ export class EducatorRegistry {
       // Add to main map
       this.educatorsById.set(rec.Educator_ID, rec);
 
-      // Channel ID index
+      // Channel ID index (canonical PEN-ED- records take precedence over legacy EDU- records)
       if (rec.YouTube_Channel_ID && rec.YouTube_Channel_ID.trim().length > 0) {
-        this.educatorsByChannelId.set(rec.YouTube_Channel_ID.trim(), rec);
+        const cleanChId = rec.YouTube_Channel_ID.trim();
+        const existingForChannel = this.educatorsByChannelId.get(cleanChId);
+        if (!existingForChannel || (!existingForChannel.Educator_ID.startsWith('PEN-ED-') && rec.Educator_ID.startsWith('PEN-ED-'))) {
+          this.educatorsByChannelId.set(cleanChId, rec);
+        }
       }
 
-      // Handle index
-      const handle = ChannelVerifier.extractHandle(rec.Official_Channel_URL);
+      // Handle index (canonical PEN-ED- records take precedence)
+      const handle = rec.Channel_Handle
+        ? ChannelVerifier.extractHandle(rec.Channel_Handle)
+        : ChannelVerifier.extractHandle(rec.Official_Channel_URL);
       if (handle) {
-        this.educatorsByHandle.set(handle, rec);
+        const existingForHandle = this.educatorsByHandle.get(handle);
+        if (!existingForHandle || (!existingForHandle.Educator_ID.startsWith('PEN-ED-') && rec.Educator_ID.startsWith('PEN-ED-'))) {
+          this.educatorsByHandle.set(handle, rec);
+        }
+      }
+
+      // Name & Channel Name index (canonical PEN-ED- records take precedence)
+      if (rec.Educator_Name) {
+        const normName = ChannelVerifier.normalizeChannelName(rec.Educator_Name);
+        const existingName = this.educatorsByName.get(normName);
+        if (!existingName || (!existingName.Educator_ID.startsWith('PEN-ED-') && rec.Educator_ID.startsWith('PEN-ED-'))) {
+          this.educatorsByName.set(normName, rec);
+        }
+      }
+      if (rec.YouTube_Channel_Name) {
+        const normChName = ChannelVerifier.normalizeChannelName(rec.YouTube_Channel_Name);
+        const existingChName = this.educatorsByName.get(normChName);
+        if (!existingChName || (!existingChName.Educator_ID.startsWith('PEN-ED-') && rec.Educator_ID.startsWith('PEN-ED-'))) {
+          this.educatorsByName.set(normChName, rec);
+        }
+      }
+
+      // Key index
+      if (rec.Key) {
+        this.educatorsByKey.set(rec.Key.toLowerCase(), rec);
       }
 
       // Domain index
@@ -202,10 +234,47 @@ export class EducatorRegistry {
   }
 
   /**
+   * Retrieves an educator by normalized channel or creator name.
+   */
+  getByName(name?: string): MasterEducatorRecord | undefined {
+    if (!name) return undefined;
+    const norm = ChannelVerifier.normalizeChannelName(name);
+    return this.educatorsByName.get(norm);
+  }
+
+  /**
+   * Retrieves an educator by their short directory key (e.g. '3b1b', 'karpathy').
+   */
+  getByKey(key?: string): MasterEducatorRecord | undefined {
+    if (!key) return undefined;
+    return this.educatorsByKey.get(key.toLowerCase());
+  }
+
+  /**
    * Returns all registered master educators.
    */
-  getAll(): MasterEducatorRecord[] {
+  getAll(options?: { dataset?: 'all' | 'pen' | 'legacy' }): MasterEducatorRecord[] {
+    if (options?.dataset === 'pen') {
+      return Array.from(this.educatorsById.values()).filter((e) => e.Educator_ID.startsWith('PEN-ED-'));
+    }
+    if (options?.dataset === 'legacy') {
+      return Array.from(this.educatorsById.values()).filter((e) => e.Educator_ID.startsWith('EDU-'));
+    }
     return Array.from(this.educatorsById.values());
+  }
+
+  /**
+   * Returns the 96 Global Master YouTube Educator Directory records (PEN-ED-0001 to PEN-ED-0096).
+   */
+  getGlobalEducators(): MasterEducatorRecord[] {
+    return this.getAll({ dataset: 'pen' });
+  }
+
+  /**
+   * Returns legacy educator records (EDU-001 to EDU-060) for backwards compatibility.
+   */
+  getLegacyEducators(): MasterEducatorRecord[] {
+    return this.getAll({ dataset: 'legacy' });
   }
 
   /**

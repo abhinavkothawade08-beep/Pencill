@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { MasterEducatorRecord } from '../educators/types';
 
 /**
  * Educational Resource Modality represents the form factor of the resource.
@@ -81,9 +82,10 @@ export interface PlannerConfig {
   enableExamAnchoring?: boolean;         // Default: true
   preferredProviders?: QueryProviderTarget[];
   allowedModalities?: ResourceModality[];
+  matchingEducators?: MasterEducatorRecord[];
 }
 
-export const DEFAULT_PLANNER_CONFIG: Required<Omit<PlannerConfig, 'preferredProviders' | 'allowedModalities'>> & {
+export const DEFAULT_PLANNER_CONFIG: Required<Omit<PlannerConfig, 'preferredProviders' | 'allowedModalities' | 'matchingEducators'>> & {
   preferredProviders: QueryProviderTarget[];
   allowedModalities: ResourceModality[];
 } = {

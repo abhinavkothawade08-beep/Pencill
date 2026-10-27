@@ -10,6 +10,7 @@ import {
   QueryProviderTarget,
 } from './types';
 import { LearningObjectiveAnalyzer } from './analysis/objective-analyzer';
+import { EducatorMatcher } from './educators/educator-matcher';
 import { IntentAwareSearchPlanner } from './planning/search-planner';
 import { ProviderRegistry } from './providers';
 import { ExplainableRankingEngine } from './evaluation/ranking-engine';
@@ -186,6 +187,7 @@ export class ResourceEngineV2 {
           targetExam: input.targetExam,
           preferredLanguage: input.preferredLanguage || input.language,
           domainHint: input.domain,
+          subject: input.subject,
         });
 
         analyzedModules.push({
@@ -203,6 +205,7 @@ export class ResourceEngineV2 {
         academicLevel,
         targetExam: input.targetExam,
         domainHint: input.domain,
+        subject: input.subject,
         preferredLanguage: input.preferredLanguage || input.language,
       });
 
@@ -216,13 +219,36 @@ export class ResourceEngineV2 {
 
     const primaryObjective = analyzedModules[0].objective;
 
-    // 2. Generate search plans for all modules
+    // 2. Generate search plans for all modules with Master Educator matching
     const allQueryTasks: Array<{ query: SearchQueryItem; provider: QueryProviderTarget }> = [];
     for (const mod of analyzedModules) {
+      // Find matching Master Educators for this specific module context
+      let candidateEducators: import('./educators/types').MasterEducatorRecord[] | undefined;
+      try {
+        const eduContext = EducatorMatcher.deriveContext({
+          query: rawTopic,
+          courseTitle: rawTopic,
+          moduleTitle: mod.moduleTitle,
+          moduleObjective: mod.objective.rawTitle,
+          moduleObjectives: mod.objective.primaryConcepts,
+          level: academicLevel,
+          academicLevel,
+          targetExam: input.targetExam,
+          domain: mod.objective.domain,
+          subject: mod.objective.subject,
+          preferredLanguage: input.preferredLanguage || input.language,
+        });
+        const matched = EducatorMatcher.matchEducators(eduContext, { limit: 3, minScore: 40 });
+        candidateEducators = matched.map((m) => m.educator);
+      } catch {
+        // Fall back gracefully if matcher encounters issues
+      }
+
       const queries = this.planner.plan(mod.objective, {
-        maxTotalQueries: 6,
+        maxTotalQueries: 8,
         maxQueriesPerIntent: 2,
-        maxQueriesPerModality: 3,
+        maxQueriesPerModality: 4,
+        matchingEducators: candidateEducators,
       });
 
       for (const q of queries) {

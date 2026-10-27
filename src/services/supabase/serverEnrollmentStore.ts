@@ -43,9 +43,24 @@ export function readServerEnrollments(): StoredEnrollmentRecord[] {
 export function writeServerEnrollments(records: StoredEnrollmentRecord[]): void {
   ensureDataFile();
   try {
-    const tmpFile = `${ENROLLMENTS_FILE}.tmp`;
-    fs.writeFileSync(tmpFile, JSON.stringify(records, null, 2), "utf-8");
-    fs.renameSync(tmpFile, ENROLLMENTS_FILE);
+    const content = JSON.stringify(records, null, 2);
+    try {
+      const tmpFile = `${ENROLLMENTS_FILE}.${Date.now()}-${Math.random().toString(36).substring(2, 6)}.tmp`;
+      fs.writeFileSync(tmpFile, content, "utf-8");
+      try {
+        if (fs.existsSync(ENROLLMENTS_FILE)) {
+          fs.unlinkSync(ENROLLMENTS_FILE);
+        }
+        fs.renameSync(tmpFile, ENROLLMENTS_FILE);
+      } catch {
+        fs.writeFileSync(ENROLLMENTS_FILE, content, "utf-8");
+        try {
+          if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+        } catch {}
+      }
+    } catch {
+      fs.writeFileSync(ENROLLMENTS_FILE, content, "utf-8");
+    }
   } catch (err) {
     console.error("[serverEnrollmentStore] Failed to write enrollments.json:", err);
   }

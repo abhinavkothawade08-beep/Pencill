@@ -1,0 +1,3713 @@
+{
+  "version": "2.0.0",
+  "updatedAt": "2026-10-26T16:05:24.712Z",
+  "domainsCount": 12,
+  "totalTopicsCount": 204,
+  "domains": [
+    {
+      "id": "school-education",
+      "label": "School Education",
+      "description": "K-12 curricula, national & international boards, core foundational subjects.",
+      "icon": "school",
+      "popularTopics": [
+        "CBSE Class 12 Physics",
+        "ICSE Mathematics",
+        "Class 10 Biology",
+        "Class 11 Chemistry",
+        "CBSE Computer Science"
+      ],
+      "categories": [
+        {
+          "id": "curricula-boards",
+          "label": "Boards & Curricula",
+          "subjects": [
+            {
+              "id": "cbse",
+              "label": "CBSE (Central Board of Secondary Education)",
+              "topics": [
+                {
+                  "id": "cbse-class-9",
+                  "label": "Class 9 All Subjects",
+                  "synonyms": [],
+                  "complexity": 2,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "c9-math",
+                      "label": "Mathematics"
+                    },
+                    {
+                      "id": "c9-sci",
+                      "label": "Science"
+                    }
+                  ]
+                },
+                {
+                  "id": "cbse-class-10",
+                  "label": "Class 10 Board Preparation",
+                  "synonyms": [],
+                  "complexity": 2,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "c10-math",
+                      "label": "Standard Mathematics"
+                    },
+                    {
+                      "id": "c10-sci",
+                      "label": "Integrated Science"
+                    },
+                    {
+                      "id": "c10-sst",
+                      "label": "Social Science"
+                    }
+                  ]
+                },
+                {
+                  "id": "cbse-class-11",
+                  "label": "Class 11 Senior Secondary",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "c11-phy",
+                      "label": "Physics"
+                    },
+                    {
+                      "id": "c11-chem",
+                      "label": "Chemistry"
+                    },
+                    {
+                      "id": "c11-math",
+                      "label": "Mathematics"
+                    },
+                    {
+                      "id": "c11-bio",
+                      "label": "Biology"
+                    },
+                    {
+                      "id": "c11-cs",
+                      "label": "Computer Science"
+                    }
+                  ]
+                },
+                {
+                  "id": "cbse-class-12",
+                  "label": "Class 12 Board Mastery",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "c12-phy",
+                      "label": "Physics"
+                    },
+                    {
+                      "id": "c12-chem",
+                      "label": "Chemistry"
+                    },
+                    {
+                      "id": "c12-math",
+                      "label": "Mathematics"
+                    },
+                    {
+                      "id": "c12-bio",
+                      "label": "Biology"
+                    },
+                    {
+                      "id": "c12-acc",
+                      "label": "Accountancy"
+                    },
+                    {
+                      "id": "c12-eco",
+                      "label": "Economics"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "icse-isc",
+              "label": "ICSE & ISC (CISCE)",
+              "topics": [
+                {
+                  "id": "icse-10",
+                  "label": "ICSE Class 10",
+                  "synonyms": [],
+                  "complexity": 2,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "icse-phy",
+                      "label": "Physics"
+                    },
+                    {
+                      "id": "icse-chem",
+                      "label": "Chemistry"
+                    },
+                    {
+                      "id": "icse-math",
+                      "label": "Mathematics"
+                    }
+                  ]
+                },
+                {
+                  "id": "isc-12",
+                  "label": "ISC Class 12",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "isc-phy",
+                      "label": "Physics"
+                    },
+                    {
+                      "id": "isc-chem",
+                      "label": "Chemistry"
+                    },
+                    {
+                      "id": "isc-math",
+                      "label": "Mathematics"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "state-boards",
+              "label": "State Boards & NIOS",
+              "topics": [
+                {
+                  "id": "mh-state-board",
+                  "label": "Maharashtra State Board (HSC/SSC)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "nios",
+                  "label": "National Institute of Open Schooling (NIOS)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "other-state-boards",
+                  "label": "Karnataka, Tamil Nadu, UP, WB & Andhra State Boards",
+                  "synonyms": [
+                    "Karnataka",
+                    "Tamil Nadu",
+                    "Andhra State Boards"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "international-boards",
+              "label": "International Curricula (IB & Cambridge)",
+              "topics": [
+                {
+                  "id": "ib-myp",
+                  "label": "IB Middle Years Programme (MYP)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ib-dp",
+                  "label": "IB Diploma Programme (DP) HL/SL",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "ib-math-aa",
+                      "label": "Mathematics Analysis & Approaches"
+                    },
+                    {
+                      "id": "ib-physics-hl",
+                      "label": "Physics Higher Level"
+                    }
+                  ]
+                },
+                {
+                  "id": "cambridge-igcse",
+                  "label": "Cambridge IGCSE",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "cambridge-as-a",
+                  "label": "Cambridge International AS & A Level",
+                  "synonyms": [
+                    "Cambridge International AS",
+                    "A Level"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "school-subjects",
+          "label": "Core School Subjects",
+          "subjects": [
+            {
+              "id": "school-math",
+              "label": "Mathematics",
+              "topics": [
+                {
+                  "id": "sm-algebra",
+                  "label": "Polynomials & Quadratic Equations",
+                  "synonyms": [
+                    "Polynomials",
+                    "Quadratic Equations"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sm-trig",
+                  "label": "Trigonometry & Heights/Distances",
+                  "synonyms": [
+                    "Trigonometry",
+                    "Heights/Distances"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sm-calculus",
+                  "label": "Differential & Integral Calculus",
+                  "synonyms": [
+                    "Differential & Integral",
+                    "Analysis",
+                    "Differential",
+                    "Integral Calculus"
+                  ],
+                  "complexity": 4,
+                  "prereqs": [
+                    "Coordinate Geometry",
+                    "Functions & Limits"
+                  ],
+                  "popular": true,
+                  "subtopics": []
+                },
+                {
+                  "id": "sm-coordinate",
+                  "label": "Coordinate Geometry & Conic Sections",
+                  "synonyms": [
+                    "Coordinate Geometry",
+                    "Conic Sections"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sm-vectors",
+                  "label": "Vectors & 3D Geometry",
+                  "synonyms": [
+                    "Vectors",
+                    "3D Geometry"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "school-physics",
+              "label": "Physics",
+              "topics": [
+                {
+                  "id": "sp-mechanics",
+                  "label": "Laws of Motion & Rotational Dynamics",
+                  "synonyms": [
+                    "Laws of Motion",
+                    "Rotational Dynamics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Vectors & Kinematics",
+                    "Newton's Laws of Motion"
+                  ],
+                  "popular": true,
+                  "subtopics": []
+                },
+                {
+                  "id": "sp-thermo",
+                  "label": "Thermodynamics & Kinetic Theory",
+                  "synonyms": [
+                    "Thermodynamics",
+                    "Kinetic Theory"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sp-electromagnetism",
+                  "label": "Electrostatics & Current Electricity",
+                  "synonyms": [
+                    "Electrostatics",
+                    "Current Electricity"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sp-optics",
+                  "label": "Ray & Wave Optics",
+                  "synonyms": [
+                    "Ray",
+                    "Wave Optics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Coulomb's Law Basics",
+                    "Vector Calculus Intuition"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sp-modern",
+                  "label": "Modern Physics & Dual Nature",
+                  "synonyms": [
+                    "Physical Science",
+                    "Modern Physics",
+                    "Dual Nature"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "school-chemistry",
+              "label": "Chemistry",
+              "topics": [
+                {
+                  "id": "sc-physical",
+                  "label": "Solutions, Electrochemistry & Kinetics",
+                  "synonyms": [
+                    "Solutions",
+                    "Electrochemistry",
+                    "Kinetics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sc-inorganic",
+                  "label": "Coordination Compounds & p-Block/d-Block",
+                  "synonyms": [
+                    "Coordination Compounds",
+                    "Block/d",
+                    "Block"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sc-organic",
+                  "label": "Haloalkanes, Haloarenes & Biomolecules",
+                  "synonyms": [
+                    "Haloalkanes",
+                    "Haloarenes",
+                    "Biomolecules"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "school-biology",
+              "label": "Biology",
+              "topics": [
+                {
+                  "id": "sb-genetics",
+                  "label": "Genetics, Evolution & Molecular Basis",
+                  "synonyms": [
+                    "Genetics",
+                    "Evolution",
+                    "Molecular Basis"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sb-human-phys",
+                  "label": "Human Physiology & Anatomy",
+                  "synonyms": [
+                    "Human Physiology",
+                    "Anatomy"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sb-ecology",
+                  "label": "Ecology & Environment",
+                  "synonyms": [
+                    "Ecology",
+                    "Environment"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "school-humanities",
+              "label": "Social Sciences & Humanities",
+              "topics": [
+                {
+                  "id": "sh-history",
+                  "label": "Modern Indian & World History",
+                  "synonyms": [
+                    "Modern Indian",
+                    "World History"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sh-geography",
+                  "label": "Physical & Human Geography",
+                  "synonyms": [
+                    "Physical",
+                    "Human Geography"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sh-polsci",
+                  "label": "Indian Constitution & Political Science",
+                  "synonyms": [
+                    "Indian Constitution",
+                    "Political Science"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sh-economics",
+                  "label": "Microeconomics & Macroeconomics",
+                  "synonyms": [
+                    "Microeconomics",
+                    "Macroeconomics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "school-languages",
+              "label": "Languages & Literature",
+              "topics": [
+                {
+                  "id": "sl-english",
+                  "label": "English Literature & Reading Comprehension",
+                  "synonyms": [
+                    "English Literature",
+                    "Reading Comprehension"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sl-hindi",
+                  "label": "Hindi Core & Elective (Grammar & Sahitya)",
+                  "synonyms": [
+                    "Hindi Core",
+                    "Elective (Grammar",
+                    "Sahitya)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sl-marathi",
+                  "label": "Marathi Language & Literature",
+                  "synonyms": [
+                    "Marathi Language",
+                    "Literature"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sl-sanskrit",
+                  "label": "Sanskrit Grammar & Classical Texts",
+                  "synonyms": [
+                    "Sanskrit Grammar",
+                    "Classical Texts"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Class 10 Foundational Science & Mathematics"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "engineering-technology",
+      "label": "Engineering & Technology",
+      "description": "Computer Science, Artificial Intelligence, Robotics, Software & Core Engineering.",
+      "icon": "terminal",
+      "popularTopics": [
+        "Data Structures & Algorithms",
+        "Machine Learning Foundations",
+        "System Design",
+        "Cloud Architecture",
+        "Full-Stack Development"
+      ],
+      "categories": [
+        {
+          "id": "cs-ai",
+          "label": "Computer Science & AI",
+          "subjects": [
+            {
+              "id": "ai-ml",
+              "label": "Artificial Intelligence & Machine Learning",
+              "topics": [
+                {
+                  "id": "ml-foundations",
+                  "label": "Machine Learning Foundations",
+                  "synonyms": [
+                    "ML",
+                    "Deep Learning",
+                    "Statistical Learning"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Python Syntax",
+                    "Linear Algebra & Matrices",
+                    "Calculus Basics"
+                  ],
+                  "popular": true,
+                  "subtopics": [
+                    {
+                      "id": "sup-learn",
+                      "label": "Supervised Learning"
+                    },
+                    {
+                      "id": "un-sup",
+                      "label": "Unsupervised Learning & Clustering"
+                    }
+                  ]
+                },
+                {
+                  "id": "deep-learning",
+                  "label": "Deep Learning & Neural Networks",
+                  "synonyms": [
+                    "Deep Learning",
+                    "Neural Networks"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Vectors & Kinematics",
+                    "Newton's Laws of Motion"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "backprop",
+                      "label": "Backpropagation"
+                    },
+                    {
+                      "id": "cnns",
+                      "label": "CNNs for Computer Vision"
+                    },
+                    {
+                      "id": "rnns",
+                      "label": "RNNs & LSTMs"
+                    }
+                  ]
+                },
+                {
+                  "id": "gen-ai-llms",
+                  "label": "Generative AI & Large Language Models",
+                  "synonyms": [
+                    "Generative AI",
+                    "Large Language Models"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "transformers",
+                      "label": "Transformer Architecture & Self-Attention"
+                    },
+                    {
+                      "id": "peft-lora",
+                      "label": "PEFT, LoRA & QLoRA Fine-Tuning"
+                    },
+                    {
+                      "id": "rag-systems",
+                      "label": "Retrieval-Augmented Generation (RAG)"
+                    },
+                    {
+                      "id": "rlhf",
+                      "label": "RLHF & Alignment"
+                    }
+                  ]
+                },
+                {
+                  "id": "nlp",
+                  "label": "Natural Language Processing",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "tokenization",
+                      "label": "Tokenization & Embeddings"
+                    },
+                    {
+                      "id": "seq2seq",
+                      "label": "Seq2Seq Modeling"
+                    }
+                  ]
+                },
+                {
+                  "id": "computer-vision",
+                  "label": "Computer Vision & Image Processing",
+                  "synonyms": [
+                    "Computer Vision",
+                    "Image Processing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "software-dev",
+              "label": "Software Engineering & Development",
+              "topics": [
+                {
+                  "id": "dsa",
+                  "label": "Algorithms and Data Structures",
+                  "synonyms": [
+                    "DSA",
+                    "Data Structures & Algorithms"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "arrays-trees",
+                      "label": "Trees, Graphs & Heaps"
+                    },
+                    {
+                      "id": "dynamic-prog",
+                      "label": "Dynamic Programming"
+                    }
+                  ]
+                },
+                {
+                  "id": "system-design",
+                  "label": "System Design & High-Scalability Architecture",
+                  "synonyms": [
+                    "System Design",
+                    "High",
+                    "Scalability Architecture"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "microservices",
+                      "label": "Microservices & Distributed Systems"
+                    },
+                    {
+                      "id": "caching-queues",
+                      "label": "Caching, Message Queues & Load Balancing"
+                    }
+                  ]
+                },
+                {
+                  "id": "web-dev",
+                  "label": "Web & Full-Stack Development",
+                  "synonyms": [
+                    "Web",
+                    "Full",
+                    "Stack Development"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": [
+                    {
+                      "id": "react-next",
+                      "label": "React & Next.js Full Stack"
+                    },
+                    {
+                      "id": "node-backend",
+                      "label": "Node.js, Express & REST/GraphQL APIs"
+                    }
+                  ]
+                },
+                {
+                  "id": "mobile-dev",
+                  "label": "Mobile App Development (Android / iOS / Flutter)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "database-systems",
+                  "label": "Database Management Systems (PostgreSQL, NoSQL, Redis)",
+                  "synonyms": [
+                    "Database Management Systems (PostgreSQL",
+                    "NoSQL",
+                    "Redis)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "os-networking",
+                  "label": "Operating Systems & Computer Networking",
+                  "synonyms": [
+                    "Operating Systems",
+                    "Computer Networking"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Vectors & Kinematics",
+                    "Newton's Laws of Motion"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "devops-cyber",
+              "label": "Cloud, DevOps & Cybersecurity",
+              "topics": [
+                {
+                  "id": "cloud-aws",
+                  "label": "Cloud Computing & AWS Architecture",
+                  "synonyms": [
+                    "Cloud Computing",
+                    "AWS Architecture"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "devops-k8s",
+                  "label": "DevOps, Docker & Kubernetes Orchestration",
+                  "synonyms": [
+                    "DevOps",
+                    "Docker",
+                    "Kubernetes Orchestration"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "cybersecurity",
+                  "label": "Cybersecurity, Cryptography & Ethical Hacking",
+                  "synonyms": [
+                    "Cybersecurity",
+                    "Cryptography",
+                    "Ethical Hacking"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "core-engineering",
+          "label": "Core Engineering Disciplines",
+          "subjects": [
+            {
+              "id": "ece-vlsi",
+              "label": "Electronics & Communication",
+              "topics": [
+                {
+                  "id": "vlsi-design",
+                  "label": "VLSI Design & Semiconductor Technology",
+                  "synonyms": [
+                    "VLSI Design",
+                    "Semiconductor Technology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "embedded-iot",
+                  "label": "Embedded Systems & Internet of Things (IoT)",
+                  "synonyms": [
+                    "Embedded Systems",
+                    "Internet of Things (IoT)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "signals-systems",
+                  "label": "Signals and Systems & DSP",
+                  "synonyms": [
+                    "Signals and Systems",
+                    "DSP"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "mechanical-eng",
+              "label": "Mechanical Engineering",
+              "topics": [
+                {
+                  "id": "eng-mechanics",
+                  "label": "Engineering Mechanics & Strength of Materials",
+                  "synonyms": [
+                    "Newtonian Mechanics",
+                    "Kinematics & Dynamics",
+                    "Classical Mechanics",
+                    "Engineering Mechanics",
+                    "Strength of Materials"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Basic Trigonometry & Vectors",
+                    "Differentiation & Integration Fundamentals"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "thermo-fluid",
+                  "label": "Thermodynamics & Fluid Mechanics",
+                  "synonyms": [
+                    "Newtonian Mechanics",
+                    "Kinematics & Dynamics",
+                    "Classical Mechanics",
+                    "Thermodynamics",
+                    "Fluid Mechanics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Basic Trigonometry & Vectors",
+                    "Differentiation & Integration Fundamentals"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "cad-manufacturing",
+                  "label": "Manufacturing Processes & CAD/CAM",
+                  "synonyms": [
+                    "Manufacturing Processes",
+                    "CAD/CAM"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "robotics-mechatronics",
+                  "label": "Robotics & Mechatronics",
+                  "synonyms": [
+                    "Robotics",
+                    "Mechatronics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "civil-chemical-eng",
+              "label": "Civil, Chemical & Aerospace Engineering",
+              "topics": [
+                {
+                  "id": "structural-analysis",
+                  "label": "Structural Analysis & Geotechnical Engineering",
+                  "synonyms": [
+                    "Structural Analysis",
+                    "Geotechnical Engineering"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "chemical-reaction",
+                  "label": "Chemical Reaction Engineering & Transport Phenomena",
+                  "synonyms": [
+                    "Chemical Reaction Engineering",
+                    "Transport Phenomena"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "aerodynamics",
+                  "label": "Aerodynamics & Propulsion Systems",
+                  "synonyms": [
+                    "Aerodynamics",
+                    "Propulsion Systems"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "biotech-eng",
+                  "label": "Biotechnology Engineering & Bioprocess",
+                  "synonyms": [
+                    "Biotechnology Engineering",
+                    "Bioprocess"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "High School Algebra & Computational Thinking"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "medical-health",
+      "label": "Medical & Health Sciences",
+      "description": "Human Anatomy, Clinical Medicine, Pharmacology, Nursing & Healthcare.",
+      "icon": "stethoscope",
+      "popularTopics": [
+        "Human Anatomy",
+        "Pathology & Diagnostics",
+        "Clinical Pharmacology",
+        "Microbiology",
+        "Forensic Medicine"
+      ],
+      "categories": [
+        {
+          "id": "pre-clinical",
+          "label": "Pre-Clinical & Para-Clinical Sciences",
+          "subjects": [
+            {
+              "id": "anatomy-physio",
+              "label": "Anatomy, Physiology & Biochemistry",
+              "topics": [
+                {
+                  "id": "gross-anatomy",
+                  "label": "Gross Anatomy, Neuroanatomy & Embryology",
+                  "synonyms": [
+                    "Gross Anatomy",
+                    "Neuroanatomy",
+                    "Embryology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "systemic-physio",
+                  "label": "Systemic Human Physiology (Cardio, Renal, Neuro)",
+                  "synonyms": [
+                    "Systemic Human Physiology (Cardio",
+                    "Renal",
+                    "Neuro)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "med-biochem",
+                  "label": "Medical Biochemistry & Metabolic Pathways",
+                  "synonyms": [
+                    "Medical Biochemistry",
+                    "Metabolic Pathways"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "patho-pharm",
+              "label": "Pathology, Pharmacology & Microbiology",
+              "topics": [
+                {
+                  "id": "gen-pathology",
+                  "label": "General & Systemic Pathology",
+                  "synonyms": [
+                    "General",
+                    "Systemic Pathology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "pharmacology",
+                  "label": "Clinical Pharmacology & Therapeutics",
+                  "synonyms": [
+                    "Clinical Pharmacology",
+                    "Therapeutics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "medical-microbio",
+                  "label": "Medical Microbiology & Immunology",
+                  "synonyms": [
+                    "Medical Microbiology",
+                    "Immunology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "forensic-med",
+                  "label": "Forensic Medicine & Toxicology",
+                  "synonyms": [
+                    "Forensic Medicine",
+                    "Toxicology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "clinical-sciences",
+          "label": "Clinical Medicine & Allied Health",
+          "subjects": [
+            {
+              "id": "general-med-surgery",
+              "label": "Medicine & Surgery",
+              "topics": [
+                {
+                  "id": "internal-med",
+                  "label": "Internal Medicine & Diagnostic Workups",
+                  "synonyms": [
+                    "Internal Medicine",
+                    "Diagnostic Workups"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Vectors & Kinematics",
+                    "Newton's Laws of Motion"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "general-surgery",
+                  "label": "General Surgery & Operative Techniques",
+                  "synonyms": [
+                    "General Surgery",
+                    "Operative Techniques"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "pediatrics",
+                  "label": "Pediatrics & Neonatology",
+                  "synonyms": [
+                    "Pediatrics",
+                    "Neonatology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ob-gyn",
+                  "label": "Obstetrics & Gynecology",
+                  "synonyms": [
+                    "Obstetrics",
+                    "Gynecology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "allied-health-dental",
+              "label": "Dentistry, Nursing & Allied Health",
+              "topics": [
+                {
+                  "id": "dentistry",
+                  "label": "Dentistry & Oral Maxillofacial Surgery",
+                  "synonyms": [
+                    "Dentistry",
+                    "Oral Maxillofacial Surgery"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "nursing-care",
+                  "label": "Clinical Nursing & Critical Care",
+                  "synonyms": [
+                    "Clinical Nursing",
+                    "Critical Care"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "pharmacy",
+                  "label": "Pharmaceutics & Clinical Pharmacy",
+                  "synonyms": [
+                    "Pharmaceutics",
+                    "Clinical Pharmacy"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "physiotherapy",
+                  "label": "Physiotherapy & Rehabilitation Sciences",
+                  "synonyms": [
+                    "Physiotherapy",
+                    "Rehabilitation Sciences"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "radiology-mlt",
+                  "label": "Radiology, Medical Laboratory Technology & Diagnostics",
+                  "synonyms": [
+                    "Radiology",
+                    "Medical Laboratory Technology",
+                    "Diagnostics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "public-health",
+                  "label": "Public Health, Epidemiology & Community Medicine",
+                  "synonyms": [
+                    "Public Health",
+                    "Epidemiology",
+                    "Community Medicine"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "nutrition-dietetics",
+                  "label": "Clinical Nutrition & Dietetics",
+                  "synonyms": [
+                    "Clinical Nutrition",
+                    "Dietetics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business-management",
+      "label": "Business, Management & Commerce",
+      "description": "Corporate Finance, Marketing, Economics, Entrepreneurship, Supply Chain & Strategy.",
+      "icon": "monitoring",
+      "popularTopics": [
+        "Financial Accounting & Modeling",
+        "Corporate Finance",
+        "Strategic Marketing",
+        "Product Management",
+        "Supply Chain Management"
+      ],
+      "categories": [
+        {
+          "id": "mgmt-strategy",
+          "label": "Management & Strategy",
+          "subjects": [
+            {
+              "id": "business-admin",
+              "label": "Business Administration & Leadership",
+              "topics": [
+                {
+                  "id": "business-strategy",
+                  "label": "Business Strategy & Competitive Advantage",
+                  "synonyms": [
+                    "Business Strategy",
+                    "Competitive Advantage"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "product-mgmt",
+                  "label": "Product Management & Lifecycle Design",
+                  "synonyms": [
+                    "Product Management",
+                    "Lifecycle Design"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "project-mgmt",
+                  "label": "Project Management (PMP, Agile, Scrum)",
+                  "synonyms": [
+                    "Project Management (PMP",
+                    "Agile",
+                    "Scrum)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "operations-scm",
+                  "label": "Operations & Supply Chain Management",
+                  "synonyms": [
+                    "Operations",
+                    "Supply Chain Management"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "entrepreneurship",
+                  "label": "Entrepreneurship & Venture Creation",
+                  "synonyms": [
+                    "Entrepreneurship",
+                    "Venture Creation"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "marketing-sales",
+              "label": "Marketing & Consumer Analytics",
+              "topics": [
+                {
+                  "id": "digital-marketing",
+                  "label": "Digital Marketing & Growth Engineering",
+                  "synonyms": [
+                    "Digital Marketing",
+                    "Growth Engineering"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "brand-strategy",
+                  "label": "Brand Strategy & Market Positioning",
+                  "synonyms": [
+                    "Brand Strategy",
+                    "Market Positioning"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "consumer-behavior",
+                  "label": "Consumer Behavior & Market Research",
+                  "synonyms": [
+                    "Consumer Behavior",
+                    "Market Research"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "b2b-sales",
+                  "label": "Enterprise Sales & Revenue Operations",
+                  "synonyms": [
+                    "Enterprise Sales",
+                    "Revenue Operations"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "finance-commerce",
+          "label": "Finance, Banking & Analytics",
+          "subjects": [
+            {
+              "id": "corporate-finance",
+              "label": "Corporate Finance & Investment",
+              "topics": [
+                {
+                  "id": "fin-modeling",
+                  "label": "Financial Modeling & Valuation (DCF, LBO)",
+                  "synonyms": [
+                    "Financial Modeling",
+                    "Valuation (DCF",
+                    "LBO)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "investment-banking",
+                  "label": "Investment Banking & Capital Markets",
+                  "synonyms": [
+                    "Investment Banking",
+                    "Capital Markets"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "banking-insurance",
+                  "label": "Commercial Banking & Risk Management",
+                  "synonyms": [
+                    "Commercial Banking",
+                    "Risk Management"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "fin-accounting",
+                  "label": "Financial Accounting & Balance Sheet Analysis",
+                  "synonyms": [
+                    "Financial Accounting",
+                    "Balance Sheet Analysis"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "business-analytics",
+              "label": "Analytics & Business Economics",
+              "topics": [
+                {
+                  "id": "biz-analytics",
+                  "label": "Business Analytics & Predictive Modeling",
+                  "synonyms": [
+                    "Business Analytics",
+                    "Predictive Modeling"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "managerial-econ",
+                  "label": "Managerial Economics & Pricing Strategies",
+                  "synonyms": [
+                    "Managerial Economics",
+                    "Pricing Strategies"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "hr-analytics",
+                  "label": "Human Resource Management & Organizational Behavior",
+                  "synonyms": [
+                    "Human Resource Management",
+                    "Organizational Behavior"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "science-mathematics",
+      "label": "Science & Mathematics",
+      "description": "Pure and Applied Mathematics, Quantum Physics, Chemistry, Astrophysics & Biology.",
+      "icon": "biotech",
+      "popularTopics": [
+        "Multivariable Calculus",
+        "Quantum Mechanics",
+        "Linear Algebra",
+        "Statistical Inference",
+        "Molecular Biology"
+      ],
+      "categories": [
+        {
+          "id": "mathematical-sciences",
+          "label": "Pure & Applied Mathematics",
+          "subjects": [
+            {
+              "id": "pure-math",
+              "label": "Pure Mathematics",
+              "topics": [
+                {
+                  "id": "real-analysis",
+                  "label": "Real Analysis & Measure Theory",
+                  "synonyms": [
+                    "Real Analysis",
+                    "Measure Theory"
+                  ],
+                  "complexity": 5,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "abstract-algebra",
+                  "label": "Abstract Algebra, Groups & Rings",
+                  "synonyms": [
+                    "Linear Algebra",
+                    "Matrices",
+                    "Abstract Algebra",
+                    "Groups",
+                    "Rings"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "complex-analysis",
+                  "label": "Complex Analysis & Contour Integration",
+                  "synonyms": [
+                    "Complex Analysis",
+                    "Contour Integration"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "topology",
+                  "label": "Topology & Differential Geometry",
+                  "synonyms": [
+                    "Topology",
+                    "Differential Geometry"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "applied-math",
+              "label": "Applied Mathematics & Statistics",
+              "topics": [
+                {
+                  "id": "linear-algebra-adv",
+                  "label": "Linear Algebra & Matrix Decompositions",
+                  "synonyms": [
+                    "Linear Algebra",
+                    "Matrices",
+                    "Matrix Decompositions"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "diff-equations",
+                  "label": "Partial Differential Equations (PDEs)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "probability-stats",
+                  "label": "Probability Theory & Mathematical Statistics",
+                  "synonyms": [
+                    "Probability Theory",
+                    "Mathematical Statistics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "scientific-computing",
+                  "label": "Numerical Analysis & Scientific Computing",
+                  "synonyms": [
+                    "Numerical Analysis",
+                    "Scientific Computing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "physical-biological-sciences",
+          "label": "Physical & Natural Sciences",
+          "subjects": [
+            {
+              "id": "physics-astronomy",
+              "label": "Physics & Astrophysics",
+              "topics": [
+                {
+                  "id": "quantum-mechanics",
+                  "label": "Quantum Mechanics & Hilbert Spaces",
+                  "synonyms": [
+                    "Newtonian Mechanics",
+                    "Kinematics & Dynamics",
+                    "Classical Mechanics",
+                    "Quantum Mechanics",
+                    "Hilbert Spaces"
+                  ],
+                  "complexity": 5,
+                  "prereqs": [
+                    "Basic Trigonometry & Vectors",
+                    "Differentiation & Integration Fundamentals"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "classical-electrodynamics",
+                  "label": "Classical Electrodynamics & Maxwell Fields",
+                  "synonyms": [
+                    "Classical Electrodynamics",
+                    "Maxwell Fields"
+                  ],
+                  "complexity": 4,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "stat-mechanics",
+                  "label": "Statistical Mechanics & Phase Transitions",
+                  "synonyms": [
+                    "Newtonian Mechanics",
+                    "Kinematics & Dynamics",
+                    "Classical Mechanics",
+                    "Statistical Mechanics",
+                    "Phase Transitions"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Basic Trigonometry & Vectors",
+                    "Differentiation & Integration Fundamentals"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "astrophysics",
+                  "label": "Astronomy, Astrophysics & Cosmology",
+                  "synonyms": [
+                    "Physical Science",
+                    "Astronomy",
+                    "Astrophysics",
+                    "Cosmology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "condensed-matter",
+                  "label": "Condensed Matter & Materials Science",
+                  "synonyms": [
+                    "Condensed Matter",
+                    "Materials Science"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "chemistry-earth",
+              "label": "Chemistry, Earth & Environmental",
+              "topics": [
+                {
+                  "id": "adv-organic-chem",
+                  "label": "Synthetic Organic Chemistry & Retrosynthesis",
+                  "synonyms": [
+                    "Carbon Chemistry",
+                    "Reaction Mechanisms",
+                    "Synthetic Organic Chemistry",
+                    "Retrosynthesis"
+                  ],
+                  "complexity": 4,
+                  "prereqs": [
+                    "Chemical Bonding & Molecular Structure",
+                    "Periodic Table Trends"
+                  ],
+                  "popular": true,
+                  "subtopics": []
+                },
+                {
+                  "id": "physical-chem",
+                  "label": "Quantum Chemistry & Spectroscopy",
+                  "synonyms": [
+                    "Quantum Chemistry",
+                    "Spectroscopy"
+                  ],
+                  "complexity": 5,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "earth-geology",
+                  "label": "Geology, Geophysics & Earth Systems",
+                  "synonyms": [
+                    "Physical Science",
+                    "Geology",
+                    "Geophysics",
+                    "Earth Systems"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "environmental-sci",
+                  "label": "Environmental Science & Climate Dynamics",
+                  "synonyms": [
+                    "Environmental Science",
+                    "Climate Dynamics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arts-humanities",
+      "label": "Arts, Humanities & Social Sciences",
+      "description": "History, Philosophy, Psychology, Political Science, Literature, Design & Music.",
+      "icon": "palette",
+      "popularTopics": [
+        "Modern World History",
+        "Cognitive Psychology",
+        "Political Philosophy",
+        "Linguistics",
+        "Architecture History"
+      ],
+      "categories": [
+        {
+          "id": "humanities-philosophy",
+          "label": "Humanities & Philosophy",
+          "subjects": [
+            {
+              "id": "history-archeology",
+              "label": "History & Archaeology",
+              "topics": [
+                {
+                  "id": "ancient-history",
+                  "label": "Ancient & Medieval Civilizations",
+                  "synonyms": [
+                    "Ancient",
+                    "Medieval Civilizations"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "modern-history",
+                  "label": "Modern World History & Decolonization",
+                  "synonyms": [
+                    "Modern World History",
+                    "Decolonization"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "indian-history",
+                  "label": "Ancient, Medieval & Modern Indian History",
+                  "synonyms": [
+                    "Ancient",
+                    "Medieval",
+                    "Modern Indian History"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "archaeology",
+                  "label": "Archaeological Methods & Material Culture",
+                  "synonyms": [
+                    "Archaeological Methods",
+                    "Material Culture"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "philosophy-lit",
+              "label": "Philosophy & Literature",
+              "topics": [
+                {
+                  "id": "epistemology-ethics",
+                  "label": "Epistemology, Ethics & Moral Philosophy",
+                  "synonyms": [
+                    "Epistemology",
+                    "Ethics",
+                    "Moral Philosophy"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "political-philosophy",
+                  "label": "Political Philosophy & Social Theory",
+                  "synonyms": [
+                    "Political Philosophy",
+                    "Social Theory"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "world-literature",
+                  "label": "World Literature & Literary Theory",
+                  "synonyms": [
+                    "World Literature",
+                    "Literary Theory"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "linguistics",
+                  "label": "Linguistics, Syntax, Phonetics & Semantics",
+                  "synonyms": [
+                    "Linguistics",
+                    "Syntax",
+                    "Phonetics",
+                    "Semantics"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "social-sciences-arts",
+          "label": "Social Sciences & Creative Arts",
+          "subjects": [
+            {
+              "id": "psychology-sociology",
+              "label": "Psychology, Sociology & Politics",
+              "topics": [
+                {
+                  "id": "cognitive-psych",
+                  "label": "Cognitive & Behavioral Psychology",
+                  "synonyms": [
+                    "Cognitive",
+                    "Behavioral Psychology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sociology-theory",
+                  "label": "Sociological Theory & Social Stratification",
+                  "synonyms": [
+                    "Sociological Theory",
+                    "Social Stratification"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "political-science",
+                  "label": "Comparative Politics & International Relations",
+                  "synonyms": [
+                    "Comparative Politics",
+                    "International Relations"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "anthropology",
+                  "label": "Cultural & Physical Anthropology",
+                  "synonyms": [
+                    "Cultural",
+                    "Physical Anthropology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "creative-arts-design",
+              "label": "Visual Arts, Design & Music",
+              "topics": [
+                {
+                  "id": "fine-arts-history",
+                  "label": "Art History & Visual Culture",
+                  "synonyms": [
+                    "Art History",
+                    "Visual Culture"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "design-thinking",
+                  "label": "Industrial & Architectural Design",
+                  "synonyms": [
+                    "Industrial",
+                    "Architectural Design"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "film-media",
+                  "label": "Film Studies, Cinematography & Mass Communication",
+                  "synonyms": [
+                    "Film Studies",
+                    "Cinematography",
+                    "Mass Communication"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "music-theory",
+                  "label": "Music Theory, Composition & Ethnomusicology",
+                  "synonyms": [
+                    "Music Theory",
+                    "Composition",
+                    "Ethnomusicology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "law-government",
+      "label": "Law & Government",
+      "description": "Constitutional Law, Jurisprudence, Corporate Law, Public Policy & Governance.",
+      "icon": "gavel",
+      "popularTopics": [
+        "Constitutional Law of India",
+        "Criminal Law & IPC/BNS",
+        "Corporate & Securities Law",
+        "Intellectual Property Law",
+        "Public Administration"
+      ],
+      "categories": [
+        {
+          "id": "legal-studies",
+          "label": "Legal Jurisprudence & Systems",
+          "subjects": [
+            {
+              "id": "constitutional-criminal",
+              "label": "Public & Criminal Law",
+              "topics": [
+                {
+                  "id": "constitutional-law",
+                  "label": "Constitutional Law & Judicial Review",
+                  "synonyms": [
+                    "Constitutional Law",
+                    "Judicial Review"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "criminal-law",
+                  "label": "Criminal Law, Procedure & Evidence",
+                  "synonyms": [
+                    "Criminal Law",
+                    "Procedure",
+                    "Evidence"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "civil-procedure",
+                  "label": "Civil Procedure & Law of Torts",
+                  "synonyms": [
+                    "Civil Procedure",
+                    "Law of Torts"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "administrative-law",
+                  "label": "Administrative Law & Regulatory Governance",
+                  "synonyms": [
+                    "Administrative Law",
+                    "Regulatory Governance"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "commercial-intl-law",
+              "label": "Commercial, IP & International Law",
+              "topics": [
+                {
+                  "id": "corporate-law",
+                  "label": "Corporate Governance & Company Law",
+                  "synonyms": [
+                    "Corporate Governance",
+                    "Company Law"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ip-law",
+                  "label": "Intellectual Property (Patents, Trademarks, Copyright)",
+                  "synonyms": [
+                    "Intellectual Property (Patents",
+                    "Trademarks",
+                    "Copyright)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "international-law",
+                  "label": "Public & Private International Law",
+                  "synonyms": [
+                    "Public",
+                    "Private International Law"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "tax-law",
+                  "label": "Direct & Indirect Taxation Law (GST, Income Tax)",
+                  "synonyms": [
+                    "Direct",
+                    "Indirect Taxation Law (GST",
+                    "Income Tax)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "environmental-human-rights",
+                  "label": "Environmental Law & International Human Rights",
+                  "synonyms": [
+                    "Environmental Law",
+                    "International Human Rights"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "legal-research",
+                  "label": "Legal Research & Case Brief Drafting",
+                  "synonyms": [
+                    "Legal Research",
+                    "Case Brief Drafting"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "governance-policy",
+          "label": "Public Policy & Administration",
+          "subjects": [
+            {
+              "id": "public-admin",
+              "label": "Public Administration & Policy",
+              "topics": [
+                {
+                  "id": "public-policy-analysis",
+                  "label": "Public Policy Formulation & Evaluation",
+                  "synonyms": [
+                    "Public Policy Formulation",
+                    "Evaluation"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "governance-ethics",
+                  "label": "Ethics in Governance & Civil Service Leadership",
+                  "synonyms": [
+                    "Ethics in Governance",
+                    "Civil Service Leadership"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "development-admin",
+                  "label": "Development Administration & Welfare Schemes",
+                  "synonyms": [
+                    "Development Administration",
+                    "Welfare Schemes"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "finance-qualifications",
+      "label": "Finance, Accounting & Professional Qualifications",
+      "description": "Chartered Accountancy, CMA, CS, CFA, FRM, Auditing, Tax & Actuarial Science.",
+      "icon": "receipt_long",
+      "popularTopics": [
+        "CA Final Financial Reporting",
+        "CFA Level 1 Quantitative Methods",
+        "Direct & Indirect Taxation",
+        "Auditing & Assurance",
+        "Financial Modeling"
+      ],
+      "categories": [
+        {
+          "id": "chartered-accounting",
+          "label": "Accounting Professional Bodies (CA / CMA / CS)",
+          "subjects": [
+            {
+              "id": "icai-ca",
+              "label": "Chartered Accountancy (ICAI)",
+              "topics": [
+                {
+                  "id": "ca-foundation",
+                  "label": "CA Foundation (Accounting, Law, Quant, Business)",
+                  "synonyms": [
+                    "CA Foundation (Accounting",
+                    "Law",
+                    "Quant",
+                    "Business)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ca-inter",
+                  "label": "CA Intermediate (Advanced Accounting, Tax, Costing, Audit)",
+                  "synonyms": [
+                    "CA Intermediate (Advanced Accounting",
+                    "Tax",
+                    "Costing",
+                    "Audit)"
+                  ],
+                  "complexity": 4,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ca-final",
+                  "label": "CA Final (Financial Reporting, Strategic Financial Mgmt, Audit)",
+                  "synonyms": [
+                    "CA Final (Financial Reporting",
+                    "Strategic Financial Mgmt",
+                    "Audit)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "cma-cs",
+              "label": "Cost Accountancy & Company Secretary",
+              "topics": [
+                {
+                  "id": "cma-qual",
+                  "label": "CMA Foundation, Inter & Final (Cost & Management Accounting)",
+                  "synonyms": [
+                    "CMA Foundation",
+                    "Inter",
+                    "Final (Cost",
+                    "Management Accounting)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "cs-qual",
+                  "label": "CS Executive & Professional (Company Law, Capital Markets)",
+                  "synonyms": [
+                    "CS Executive",
+                    "Professional (Company Law",
+                    "Capital Markets)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "global-finance",
+          "label": "Global Finance & Actuarial",
+          "subjects": [
+            {
+              "id": "cfa-frm-acca",
+              "label": "Global Professional Charters (CFA, FRM, ACCA, CPA)",
+              "topics": [
+                {
+                  "id": "cfa-prep",
+                  "label": "CFA Level I, II & III Curriculum",
+                  "synonyms": [
+                    "CFA Level I",
+                    "III Curriculum"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "frm-prep",
+                  "label": "Financial Risk Manager (FRM Part I & II)",
+                  "synonyms": [
+                    "Financial Risk Manager (FRM Part I",
+                    "II)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "acca-cpa",
+                  "label": "ACCA & US CPA Exam Preparation",
+                  "synonyms": [
+                    "ACCA",
+                    "US CPA Exam Preparation"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "actuarial-science",
+                  "label": "Actuarial Science & Life Contingencies",
+                  "synonyms": [
+                    "Actuarial Science",
+                    "Life Contingencies"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "applied-finance",
+              "label": "Applied Financial Practices",
+              "topics": [
+                {
+                  "id": "financial-accounting-standards",
+                  "label": "Ind AS, IFRS & US GAAP Standards",
+                  "synonyms": [
+                    "Ind AS",
+                    "IFRS",
+                    "US GAAP Standards"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "forensic-audit",
+                  "label": "Forensic Accounting & Fraud Auditing",
+                  "synonyms": [
+                    "Forensic Accounting",
+                    "Fraud Auditing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "risk-analytics",
+                  "label": "Market & Credit Risk Modeling",
+                  "synonyms": [
+                    "Market",
+                    "Credit Risk Modeling"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vocational-professional",
+      "label": "Vocational & Applied Technical Skills",
+      "description": "Industrial trades, UI/UX, Graphic Design, Electrical, Manufacturing, Hospitality.",
+      "icon": "build",
+      "popularTopics": [
+        "UI/UX Design Systems",
+        "Graphic Design & Branding",
+        "Video Editing & Motion Graphics",
+        "Electrical Installation",
+        "Automotive Diagnostics"
+      ],
+      "categories": [
+        {
+          "id": "design-media",
+          "label": "Design, Media & Digital Arts",
+          "subjects": [
+            {
+              "id": "ui-ux-design",
+              "label": "UI/UX & Product Design",
+              "topics": [
+                {
+                  "id": "ui-design-figma",
+                  "label": "Figma Design Systems & Visual Hierarchy",
+                  "synonyms": [
+                    "Figma Design Systems",
+                    "Visual Hierarchy"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "ux-research",
+                  "label": "User Research, Wireframing & Usability Testing",
+                  "synonyms": [
+                    "User Research",
+                    "Wireframing",
+                    "Usability Testing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "interaction-design",
+                  "label": "Micro-interactions & Prototyping",
+                  "synonyms": [
+                    "Micro",
+                    "interactions",
+                    "Prototyping"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "digital-media",
+              "label": "Digital Media, Graphic Design & Video",
+              "topics": [
+                {
+                  "id": "graphic-design",
+                  "label": "Brand Identity & Graphic Design",
+                  "synonyms": [
+                    "Brand Identity",
+                    "Graphic Design"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "video-editing",
+                  "label": "Video Editing (Premiere, DaVinci Resolve)",
+                  "synonyms": [
+                    "Video Editing (Premiere",
+                    "DaVinci Resolve)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "motion-graphics",
+                  "label": "Motion Graphics & 2D/3D Animation",
+                  "synonyms": [
+                    "Motion Graphics",
+                    "2D/3D Animation"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "commercial-photo",
+                  "label": "Commercial Photography & Post-Processing",
+                  "synonyms": [
+                    "Commercial Photography",
+                    "Post",
+                    "Processing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "trades-industry",
+          "label": "Technical Trades & Industry Skills",
+          "subjects": [
+            {
+              "id": "industrial-trades",
+              "label": "Electrical, Mechanical & Construction",
+              "topics": [
+                {
+                  "id": "electrician-training",
+                  "label": "Industrial & Domestic Electrician Certification",
+                  "synonyms": [
+                    "Industrial",
+                    "Domestic Electrician Certification"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "plumbing-hvac",
+                  "label": "Plumbing & HVAC Systems",
+                  "synonyms": [
+                    "Plumbing",
+                    "HVAC Systems"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "automotive-tech",
+                  "label": "Automotive Mechanics & EV Powertrains",
+                  "synonyms": [
+                    "Newtonian Mechanics",
+                    "Kinematics & Dynamics",
+                    "Classical Mechanics",
+                    "Automotive Mechanics",
+                    "EV Powertrains"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Basic Trigonometry & Vectors",
+                    "Differentiation & Integration Fundamentals"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "cnc-machining",
+                  "label": "CNC Machining, Lathe & Welding Technology",
+                  "synonyms": [
+                    "CNC Machining",
+                    "Lathe",
+                    "Welding Technology"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "construction-supervision",
+                  "label": "Construction Technology & Site Management",
+                  "synonyms": [
+                    "Construction Technology",
+                    "Site Management"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "hospitality-business-skills",
+              "label": "Hospitality & Practical Services",
+              "topics": [
+                {
+                  "id": "culinary-arts",
+                  "label": "Culinary Arts & Food Safety (HACCP)",
+                  "synonyms": [
+                    "Culinary Arts",
+                    "Food Safety (HACCP)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "hospitality-mgmt",
+                  "label": "Hotel & Hospitality Operations",
+                  "synonyms": [
+                    "Hotel",
+                    "Hospitality Operations"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "office-productivity",
+                  "label": "Advanced Office Productivity (Excel, Automation)",
+                  "synonyms": [
+                    "Advanced Office Productivity (Excel",
+                    "Automation)"
+                  ],
+                  "complexity": 4,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "languages-communication",
+      "label": "Languages & Communication",
+      "description": "English, Indian Languages, World Languages, Phonetics, Grammar & Fluency.",
+      "icon": "translate",
+      "popularTopics": [
+        "Advanced English Fluency",
+        "Spoken Hindi & Grammar",
+        "Conversational Japanese",
+        "French for Beginners",
+        "Sanskrit Classical Grammar"
+      ],
+      "categories": [
+        {
+          "id": "indian-languages",
+          "label": "Indian Languages",
+          "subjects": [
+            {
+              "id": "indic-languages",
+              "label": "Classical & Regional Indian Languages",
+              "topics": [
+                {
+                  "id": "hindi-mastery",
+                  "label": "Hindi (Grammar, Conversation, Literary Sahitya)",
+                  "synonyms": [
+                    "Hindi (Grammar",
+                    "Conversation",
+                    "Literary Sahitya)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "marathi-mastery",
+                  "label": "Marathi (Spoken, Grammar & Formal Writing)",
+                  "synonyms": [
+                    "Marathi (Spoken",
+                    "Grammar",
+                    "Formal Writing)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "sanskrit-classical",
+                  "label": "Sanskrit (Vyakaran, Paninian Sutras, Shlokas)",
+                  "synonyms": [
+                    "Sanskrit (Vyakaran",
+                    "Paninian Sutras",
+                    "Shlokas)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "tamil-language",
+                  "label": "Tamil (Classical & Spoken Fluency)",
+                  "synonyms": [
+                    "Tamil (Classical",
+                    "Spoken Fluency)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "bengali-language",
+                  "label": "Bengali (Grammar, Reading & Conversation)",
+                  "synonyms": [
+                    "Bengali (Grammar",
+                    "Reading",
+                    "Conversation)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "telugu-language",
+                  "label": "Telugu (Grammar & Spoken Fluency)",
+                  "synonyms": [
+                    "Telugu (Grammar",
+                    "Spoken Fluency)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "global-languages",
+          "label": "International World Languages",
+          "subjects": [
+            {
+              "id": "english-fluency",
+              "label": "English Mastery & Communication",
+              "topics": [
+                {
+                  "id": "english-grammar-vocab",
+                  "label": "English Grammar, Syntax & Lexicon Building",
+                  "synonyms": [
+                    "English Grammar",
+                    "Syntax",
+                    "Lexicon Building"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "business-english",
+                  "label": "Professional & Business English Communication",
+                  "synonyms": [
+                    "Professional",
+                    "Business English Communication"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "academic-english",
+                  "label": "Academic English & Critical Reading",
+                  "synonyms": [
+                    "Academic English",
+                    "Critical Reading"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "pronunciation-speaking",
+                  "label": "Pronunciation, Accent Training & Public Speaking",
+                  "synonyms": [
+                    "Pronunciation",
+                    "Accent Training",
+                    "Public Speaking"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "foreign-languages",
+              "label": "Major World Languages",
+              "topics": [
+                {
+                  "id": "french-language",
+                  "label": "French (A1 to C2 Grammar, Vocab, DELF Prep)",
+                  "synonyms": [
+                    "French (A1 to C2 Grammar",
+                    "Vocab",
+                    "DELF Prep)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "german-language",
+                  "label": "German (A1 to C1 Goethe-Zertifikat Prep)",
+                  "synonyms": [
+                    "German (A1 to C1 Goethe",
+                    "Zertifikat Prep)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "spanish-language",
+                  "label": "Spanish (DELE A1 to B2 Conversational Mastery)",
+                  "synonyms": [],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "japanese-language",
+                  "label": "Japanese (JLPT N5 to N1, Kanji, Kana)",
+                  "synonyms": [
+                    "Japanese (JLPT N5 to N1",
+                    "Kanji",
+                    "Kana)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "korean-language",
+                  "label": "Korean (Hangul, TOPIK I & II, Conversational)",
+                  "synonyms": [
+                    "Korean (Hangul",
+                    "TOPIK I",
+                    "Conversational)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "mandarin-language",
+                  "label": "Mandarin Chinese (HSK 1-6, Pinyin, Characters)",
+                  "synonyms": [
+                    "Mandarin Chinese (HSK 1",
+                    "Pinyin",
+                    "Characters)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "arabic-language",
+                  "label": "Modern Standard Arabic & Classical Grammar",
+                  "synonyms": [
+                    "Modern Standard Arabic",
+                    "Classical Grammar"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "research-academic",
+      "label": "Research & Academic Development",
+      "description": "Methodology, Academic Publishing, Thesis Formulation, Citation & Statistical Analysis.",
+      "icon": "menu_book",
+      "popularTopics": [
+        "Research Methodology & Experimental Design",
+        "Scientific Writing & LaTeX",
+        "Literature Review Synthesis",
+        "Statistical Data Analysis (R / Python)",
+        "Thesis & Dissertation Preparation"
+      ],
+      "categories": [
+        {
+          "id": "research-foundations",
+          "label": "Methodology & Experimental Design",
+          "subjects": [
+            {
+              "id": "methodology-design",
+              "label": "Research Design & Quantitative Analysis",
+              "topics": [
+                {
+                  "id": "research-methods",
+                  "label": "Quantitative & Qualitative Research Methodologies",
+                  "synonyms": [
+                    "Quantitative",
+                    "Qualitative Research Methodologies"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "experimental-design",
+                  "label": "Experimental Design, Control Variables & Sampling",
+                  "synonyms": [
+                    "Experimental Design",
+                    "Control Variables",
+                    "Sampling"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "stats-in-research",
+                  "label": "Statistical Testing (ANOVA, Regression, Hypothesis Testing)",
+                  "synonyms": [
+                    "Statistical Testing (ANOVA",
+                    "Regression",
+                    "Hypothesis Testing)"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "data-viz-research",
+                  "label": "Scientific Data Visualization & Charts",
+                  "synonyms": [
+                    "Scientific Data Visualization",
+                    "Charts"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "academic-writing",
+              "label": "Academic Writing & Publishing",
+              "topics": [
+                {
+                  "id": "paper-writing",
+                  "label": "Writing High-Impact Peer-Reviewed Journal Papers",
+                  "synonyms": [
+                    "Writing High",
+                    "Impact Peer",
+                    "Reviewed Journal Papers"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "lit-review",
+                  "label": "Systematic Literature Review & Meta-Analysis",
+                  "synonyms": [
+                    "Systematic Literature Review",
+                    "Meta",
+                    "Analysis"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "thesis-dissertation",
+                  "label": "Thesis & Dissertation Structuring and Defense",
+                  "synonyms": [
+                    "Thesis",
+                    "Dissertation Structuring and Defense"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "citation-mgmt",
+                  "label": "Citation Standards (APA, IEEE, Chicago) & Zotero/Mendeley",
+                  "synonyms": [
+                    "Citation Standards (APA",
+                    "IEEE",
+                    "Chicago)",
+                    "Zotero/Mendeley"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "latex-academic",
+                  "label": "LaTeX for Scholarly Manuscripts & Mathematical Layouts",
+                  "synonyms": [
+                    "LaTeX for Scholarly Manuscripts",
+                    "Mathematical Layouts"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "personal-practical",
+      "label": "Personal & Practical Learning",
+      "description": "Critical Thinking, Productivity, Personal Finance, Communication & Leadership.",
+      "icon": "psychology",
+      "popularTopics": [
+        "Critical Thinking & Problem Solving",
+        "Personal Finance & Investing Basics",
+        "Public Speaking & Presentation",
+        "Productivity & Time Architecture",
+        "Creative Writing"
+      ],
+      "categories": [
+        {
+          "id": "cognitive-skills",
+          "label": "Cognitive & Thinking Frameworks",
+          "subjects": [
+            {
+              "id": "thinking-mastery",
+              "label": "Logic, Reasoning & Decision Making",
+              "topics": [
+                {
+                  "id": "critical-thinking",
+                  "label": "Critical Thinking & Mental Models",
+                  "synonyms": [
+                    "Critical Thinking",
+                    "Mental Models"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "formal-logic",
+                  "label": "Formal Logic, Cognitive Biases & Fallacies",
+                  "synonyms": [
+                    "Formal Logic",
+                    "Cognitive Biases",
+                    "Fallacies"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "memory-techniques",
+                  "label": "Memory Palaces, Spaced Repetition & Mnemonic Mastery",
+                  "synonyms": [
+                    "Memory Palaces",
+                    "Spaced Repetition",
+                    "Mnemonic Mastery"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "problem-solving",
+                  "label": "First Principles & Structured Problem Solving",
+                  "synonyms": [
+                    "First Principles",
+                    "Structured Problem Solving"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            },
+            {
+              "id": "personal-effectiveness",
+              "label": "Productivity & Life Architecture",
+              "topics": [
+                {
+                  "id": "personal-finance",
+                  "label": "Personal Finance, Budgeting & Index Investing",
+                  "synonyms": [
+                    "Personal Finance",
+                    "Budgeting",
+                    "Index Investing"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "public-speaking",
+                  "label": "Public Speaking, Oratory & Persuasion",
+                  "synonyms": [
+                    "Public Speaking",
+                    "Oratory",
+                    "Persuasion"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "creative-writing",
+                  "label": "Creative Writing, Storytelling & Essay Craft",
+                  "synonyms": [
+                    "Creative Writing",
+                    "Storytelling",
+                    "Essay Craft"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "leadership-comm",
+                  "label": "Interpersonal Communication & Empathetic Leadership",
+                  "synonyms": [
+                    "Interpersonal Communication",
+                    "Empathetic Leadership"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                },
+                {
+                  "id": "digital-literacy",
+                  "label": "Digital Literacy, Privacy & AI Tool Mastery",
+                  "synonyms": [
+                    "Digital Literacy",
+                    "Privacy",
+                    "AI Tool Mastery"
+                  ],
+                  "complexity": 3,
+                  "prereqs": [
+                    "Foundational Subject Concepts"
+                  ],
+                  "popular": false,
+                  "subtopics": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,151 +1,165 @@
 "use client";
 
-import React, { useState } from "react";
-import { AdvancedLearningPreferences } from "@/lib/types/builder";
+import React, { useState, useEffect } from "react";
+import { useBuilderStore } from "@/lib/store/builderStore";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
 
-interface AdvancedPreferencesAccordionProps {
-  preferences: AdvancedLearningPreferences;
-  onPreferencesChange: (preferences: AdvancedLearningPreferences) => void;
-}
+const ACCORDION_OPEN_KEY = "pencill_builder_accordion_open";
 
-export default function AdvancedPreferencesAccordion({
-  preferences,
-  onPreferencesChange,
-}: AdvancedPreferencesAccordionProps) {
+export default function AdvancedPreferencesAccordion() {
+  const { config, updateConfig, updateAdvanced } = useBuilderStore();
   const [isOpen, setIsOpen] = useState(false);
 
-  const update = <K extends keyof AdvancedLearningPreferences>(
-    key: K,
-    val: AdvancedLearningPreferences[K]
-  ) => {
-    onPreferencesChange({
-      ...preferences,
-      [key]: val,
+  // Load persisted open state
+  useEffect(() => {
+    storageAdapter.getDraft<boolean>(ACCORDION_OPEN_KEY).then((state) => {
+      if (typeof state === "boolean") {
+        setIsOpen(state);
+      }
     });
+  }, []);
+
+  const toggleAccordion = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    storageAdapter.saveDraft(ACCORDION_OPEN_KEY, next);
   };
 
-  const updateAccessibility = (
-    field: "closedCaptions" | "highContrastNotes" | "transcriptsRequired",
-    val: boolean
-  ) => {
-    onPreferencesChange({
-      ...preferences,
-      accessibility: {
-        ...preferences.accessibility,
-        [field]: val,
-      },
-    });
-  };
+  const adv = config.advanced;
 
+  // Options
   const learningGoals = [
-    { id: "concept_mastery", label: "Concept Mastery & Theoretical Intuition" },
-    { id: "exam_preparation", label: "Standardized Exam Preparation & High-Yield Strategy" },
-    { id: "career_transition", label: "Career Transition & Production Engineering" },
-    { id: "research_foundation", label: "Academic Research & Literature Survey" },
-    { id: "skill_upskilling", label: "Industry Upskilling & Applied Tools" },
-    { id: "quick_overview", label: "Executive Summary & Fast Overview" },
-    { id: "deep_academic", label: "Deep University Syllabus Coverage" },
-    { id: "project_based", label: "Project-Based Implementation" },
-    { id: "interview_preparation", label: "Interview & Technical Assessment Prep" },
-    { id: "personal_enrichment", label: "Personal Enrichment & Lifelong Curiosity" },
-    { id: "certification", label: "Professional Certification Readiness" },
+    { id: "concept-mastery", label: "Concept Mastery & Theoretical Intuition" },
+    { id: "exam-preparation", label: "Standardized Exam Preparation & High-Yield Strategy" },
+    { id: "assignment-support", label: "Assignment Support & Problem-Solving Drills" },
+    { id: "revision-recap", label: "Revision & Rapid Concept Recap" },
+    { id: "skill-job-readiness", label: "Skill & Production Job Readiness" },
+    { id: "research-foundations", label: "Academic Research Foundations & Literature Survey" },
+    { id: "curiosity", label: "Curiosity & Lifelong Enrichment" },
   ];
 
   const knowledgeLevels = [
-    { id: "complete_beginner" as const, label: "Complete Beginner", desc: "No prior background" },
-    { id: "some_basics" as const, label: "Some Basics", desc: "Familiar with terminology" },
+    { id: "complete-beginner" as const, label: "Complete Beginner", desc: "No prior background" },
+    { id: "some-basics" as const, label: "Some Basics", desc: "Familiar with basic definitions" },
     { id: "intermediate" as const, label: "Intermediate", desc: "Solid conceptual foundation" },
     { id: "advanced" as const, label: "Advanced", desc: "Extensive prior coursework" },
   ];
 
   const masteryLevels = [
-    { id: "familiarity" as const, label: "Familiarity", desc: "High-level understanding" },
-    { id: "working_competence" as const, label: "Working Competence", desc: "Able to apply fundamentals" },
-    { id: "deep_conceptual" as const, label: "Deep Conceptual", desc: "Rigorous proofs & intuition" },
-    { id: "exam_ready" as const, label: "Exam Ready", desc: "Speed & accuracy under pressure" },
-    { id: "mastery" as const, label: "True Mastery", desc: "Frontier synthesis & edge cases" },
+    { id: "familiarity" as const, label: "Familiarity", desc: "Broad intuition" },
+    { id: "working-competence" as const, label: "Working Competence", desc: "Apply formulas & solve problems" },
+    { id: "deep-conceptual" as const, label: "Deep Conceptual", desc: "Rigorous proofs & edge cases" },
+    { id: "exam-ready" as const, label: "Exam Ready", desc: "Speed & accuracy under pressure" },
+    { id: "true-mastery" as const, label: "True Mastery", desc: "Synthesize novel edge scenarios" },
   ];
 
   const explanationStyles = [
-    { id: "simple_intuitive" as const, label: "Simple & Intuitive" },
-    { id: "step_by_step" as const, label: "Step-by-Step Analytical" },
-    { id: "mathematical_rigorous" as const, label: "Mathematical & Rigorous" },
-    { id: "example_driven" as const, label: "Example-Driven" },
-    { id: "visual_diagram" as const, label: "Visual & Diagram-Based" },
+    { id: "step-by-step-analytical" as const, label: "Step-by-Step Analytical" },
+    { id: "simple-intuitive" as const, label: "Simple & Intuitive" },
+    { id: "mathematical-rigorous" as const, label: "Mathematical & Rigorous" },
+    { id: "example-driven" as const, label: "Example-Driven" },
+    { id: "visual-diagram" as const, label: "Visual & Diagram-Based" },
     { id: "socratic" as const, label: "Socratic & Inquiry-Based" },
-    { id: "exam_oriented" as const, label: "Exam-Oriented" },
-    { id: "project_based" as const, label: "Project & Applied" },
-    { id: "research_oriented" as const, label: "Research & Formal Papers" },
+    { id: "exam-oriented" as const, label: "Exam-Oriented" },
+    { id: "project-based" as const, label: "Project & Applied" },
+    { id: "research-oriented" as const, label: "Research & Literature-Grounded" },
   ];
 
-  const availableSources = [
-    "NCERT",
-    "NPTEL",
-    "Khan Academy",
-    "MIT OCW",
-    "Stanford Online",
-    "Official Technical Docs",
-    "SWAYAM",
-    "Peer-Reviewed Papers",
-    "OpenStax",
-    "Harvard Online",
-    "Coursera Open Materials",
+  const availableRepositories = [
+    { name: "NCERT", hasAdapter: true },
+    { name: "NPTEL", hasAdapter: true },
+    { name: "Khan Academy", hasAdapter: true },
+    { name: "MIT OCW", hasAdapter: true },
+    { name: "SWAYAM", hasAdapter: true },
+    { name: "OpenStax", hasAdapter: true },
+    { name: "Stanford Online", hasAdapter: true },
+    { name: "Coursera Open Materials", hasAdapter: true },
   ];
 
-  const toggleSource = (source: string) => {
-    const list = preferences.preferredSources || [];
-    if (list.includes(source)) {
-      update("preferredSources", list.filter((s) => s !== source));
+  const toggleRepository = (name: string) => {
+    const list = adv.repositories || [];
+    if (list.includes(name)) {
+      if (list.length <= 1) return; // At least 1 required
+      updateAdvanced(
+        "repositories",
+        list.filter((r) => r !== name)
+      );
     } else {
-      update("preferredSources", [...list, source]);
+      updateAdvanced("repositories", [...list, name]);
     }
   };
 
+  // Warning calculations
+  const knowledgeHierarchy = {
+    "complete-beginner": 1,
+    "some-basics": 2,
+    intermediate: 3,
+    advanced: 4,
+  };
+  const masteryHierarchy = {
+    familiarity: 1,
+    "working-competence": 2,
+    "deep-conceptual": 3,
+    "exam-ready": 4,
+    "true-mastery": 5,
+  };
+
+  const isTargetBelowCurrent =
+    masteryHierarchy[adv.targetMastery] < knowledgeHierarchy[adv.currentLevel];
+
+  const isExamReadyWithoutExam =
+    adv.targetMastery === "exam-ready" && !config.examAlign.enabled;
+
+  // Session length calculation
+  const sessionMinutes = adv.cadence.sessionMinutes || 45;
+  const sessionsPerWeek = Math.round((config.weeklyHours * 60) / sessionMinutes);
+
+  // Curator notes keyword parsing
+  const parsedKeywords = React.useMemo(() => {
+    const notes = adv.curatorNotes.toLowerCase();
+    const tags: string[] = [];
+    if (notes.includes("mit")) tags.push("Prioritize MIT OCW");
+    if (notes.includes("nptel")) tags.push("Prioritize NPTEL");
+    if (notes.includes("ncert")) tags.push("Prioritize NCERT");
+    if (notes.includes("skip proof") || notes.includes("no proof")) tags.push("Exclude Formal Proofs");
+    if (notes.includes("calculus")) tags.push("Require Calculus Pre-requisites");
+    if (notes.includes("pyq")) tags.push("Boost Previous Exam Questions");
+    return tags;
+  }, [adv.curatorNotes]);
+
   return (
-    <div className="rounded-xl border border-surface-container-high/60 bg-surface-container-low/40 overflow-hidden transition-all">
-      {/* Header toggle */}
+    <div className="rounded-xl border border-surface-container-high/60 overflow-hidden bg-surface-container-low/30">
+      {/* Accordion Trigger */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors"
+        aria-expanded={isOpen}
+        onClick={toggleAccordion}
+        className="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-xl">tune</span>
-          <div className="flex flex-col">
-            <span className="font-label-lg text-label-lg text-on-surface font-semibold">
-              Advanced Learning Customization
-            </span>
-            <span className="text-xs text-on-surface-variant">
-              Fine-tune explanation style, verified source priorities, and module constraints (20 criteria).
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-secondary font-medium font-mono hidden sm:inline">
-            {isOpen ? "COLLAPSE" : "EXPAND"}
+          <span className="material-symbols-outlined text-primary text-lg">tune</span>
+          <span className="font-headline-sm text-headline-sm text-on-surface font-sans text-sm font-semibold">
+            Advanced Learning Customization
           </span>
-          <span
-            className={`material-symbols-outlined text-lg text-on-surface-variant transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          >
-            expand_more
+          <span className="font-label-sm text-secondary bg-secondary-container/40 px-2 py-0.5 rounded-full text-xs font-medium">
+            (20 criteria)
           </span>
         </div>
+        <span className="material-symbols-outlined text-on-surface-variant transition-transform duration-200">
+          {isOpen ? "expand_less" : "expand_more"}
+        </span>
       </button>
 
-      {/* Accordion Content */}
+      {/* Accordion Body */}
       {isOpen && (
-        <div className="p-4 pt-2 border-t border-surface-container-high/40 flex flex-col gap-space-lg">
-          {/* 1. Specific Learning Goal & Objective */}
-          <div>
-            <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1">
-              Specific Learning Goal &amp; Objective
-            </label>
+        <div className="p-space-lg pt-0 flex flex-col gap-space-lg border-t border-surface-container-high/40 animate-in fade-in duration-150">
+          {/* 1. Primary Academic Goal */}
+          <div className="flex flex-col gap-1.5 pt-space-md">
+            <label className="text-xs font-semibold text-on-surface">1. Primary Academic Goal:</label>
             <select
-              value={preferences.learningGoal || "concept_mastery"}
-              onChange={(e) => update("learningGoal", e.target.value)}
-              className="w-full bg-surface-container-lowest px-3 py-2 rounded-lg text-xs font-medium text-on-surface border border-surface-container-high/60 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={adv.goal}
+              onChange={(e) => updateAdvanced("goal", e.target.value as any)}
+              className="bg-surface-container-lowest text-xs text-on-surface p-2 rounded-lg border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"
             >
               {learningGoals.map((g) => (
                 <option key={g.id} value={g.id}>
@@ -155,32 +169,27 @@ export default function AdvancedPreferencesAccordion({
             </select>
           </div>
 
-          {/* 2. Knowledge Level & Mastery Standard */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1">
-                Current Knowledge Level
-              </label>
+          {/* 2 & 3. Knowledge & Desired Mastery */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+            {/* Current Knowledge */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-on-surface">2. Current Knowledge Level:</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {knowledgeLevels.map((lvl) => {
-                  const isSelected = preferences.currentKnowledgeLevel === lvl.id;
+                  const isSelected = adv.currentLevel === lvl.id;
                   return (
                     <button
                       key={lvl.id}
                       type="button"
-                      onClick={() => update("currentKnowledgeLevel", lvl.id)}
-                      className={`p-2 rounded-md text-left text-xs border transition-all ${
+                      onClick={() => updateAdvanced("currentLevel", lvl.id)}
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors ${
                         isSelected
-                          ? "bg-primary text-on-primary border-primary font-semibold"
-                          : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant border-surface-container-high/40"
+                          ? "bg-primary text-on-primary border-primary font-semibold shadow-xs"
+                          : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/50"
                       }`}
                     >
-                      <span className="block truncate font-medium">{lvl.label}</span>
-                      <span
-                        className={`text-[10px] block truncate ${
-                          isSelected ? "text-primary-fixed-dim" : "opacity-80"
-                        }`}
-                      >
+                      <span className="block font-semibold">{lvl.label}</span>
+                      <span className={`text-[10px] block leading-tight ${isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"}`}>
                         {lvl.desc}
                       </span>
                     </button>
@@ -189,30 +198,25 @@ export default function AdvancedPreferencesAccordion({
               </div>
             </div>
 
-            <div>
-              <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1">
-                Desired Target Mastery
-              </label>
-              <div className="grid grid-cols-2 gap-1.5">
+            {/* Target Mastery */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-on-surface">3. Target Desired Mastery:</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                 {masteryLevels.map((lvl) => {
-                  const isSelected = preferences.desiredMastery === lvl.id;
+                  const isSelected = adv.targetMastery === lvl.id;
                   return (
                     <button
                       key={lvl.id}
                       type="button"
-                      onClick={() => update("desiredMastery", lvl.id)}
-                      className={`p-2 rounded-md text-left text-xs border transition-all ${
+                      onClick={() => updateAdvanced("targetMastery", lvl.id)}
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors ${
                         isSelected
-                          ? "bg-primary text-on-primary border-primary font-semibold"
-                          : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant border-surface-container-high/40"
+                          ? "bg-primary text-on-primary border-primary font-semibold shadow-xs"
+                          : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/50"
                       }`}
                     >
-                      <span className="block truncate font-medium">{lvl.label}</span>
-                      <span
-                        className={`text-[10px] block truncate ${
-                          isSelected ? "text-primary-fixed-dim" : "opacity-80"
-                        }`}
-                      >
+                      <span className="block font-semibold truncate">{lvl.label}</span>
+                      <span className={`text-[10px] block truncate leading-tight ${isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"}`}>
                         {lvl.desc}
                       </span>
                     </button>
@@ -222,23 +226,47 @@ export default function AdvancedPreferencesAccordion({
             </div>
           </div>
 
-          {/* 3. Preferred Pedagogical Explanation Style */}
-          <div>
-            <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1.5">
-              Preferred Pedagogical Explanation Style
-            </label>
-            <div className="flex flex-wrap gap-1.5">
+          {/* Warnings */}
+          {isTargetBelowCurrent && (
+            <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-600 text-base">warning</span>
+              <span>
+                Target mastery ({adv.targetMastery}) is lower than current knowledge level ({adv.currentLevel}). Consider selecting a higher mastery tier.
+              </span>
+            </div>
+          )}
+
+          {isExamReadyWithoutExam && (
+            <div className="p-2.5 rounded-lg bg-secondary-container/50 border border-secondary/30 text-secondary text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-base">school</span>
+                <span>Target is &quot;Exam Ready&quot; but no standardized exam is selected.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateConfig((prev) => ({ ...prev, examAlign: { enabled: true } }))}
+                className="font-bold underline shrink-0 hover:text-primary"
+              >
+                Align exam now
+              </button>
+            </div>
+          )}
+
+          {/* 4. Explanation Style */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-on-surface">4. Primary Explanation Style (9 Styles):</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {explanationStyles.map((style) => {
-                const isSelected = preferences.explanationStyle === style.id;
+                const isSelected = adv.explanationStyle === style.id;
                 return (
                   <button
                     key={style.id}
                     type="button"
-                    onClick={() => update("explanationStyle", style.id)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
+                    onClick={() => updateAdvanced("explanationStyle", style.id)}
+                    className={`p-2 rounded-lg border text-left text-xs transition-colors truncate ${
                       isSelected
-                        ? "bg-primary text-on-primary border-primary font-semibold shadow-2xs"
-                        : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant border-surface-container-high/40"
+                        ? "bg-primary text-on-primary border-primary font-semibold shadow-xs"
+                        : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/50"
                     }`}
                   >
                     {style.label}
@@ -248,292 +276,373 @@ export default function AdvancedPreferencesAccordion({
             </div>
           </div>
 
-          {/* 4. Preferred Academic Repositories */}
-          <div>
-            <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1.5">
-              Prioritize Verified Academic Repositories
-            </label>
+          {/* 5. Repositories Selection */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-on-surface">5. Verified Public Repositories (At least 1 required):</label>
+              <span className="text-[11px] font-mono text-secondary">
+                {adv.repositories.length} Active
+              </span>
+            </div>
             <div className="flex flex-wrap gap-1.5">
-              {availableSources.map((source) => {
-                const isSelected = preferences.preferredSources?.includes(source);
+              {availableRepositories.map((repo) => {
+                const isSelected = adv.repositories.includes(repo.name);
                 return (
                   <button
-                    key={source}
+                    key={repo.name}
                     type="button"
-                    onClick={() => toggleSource(source)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all flex items-center gap-1 ${
+                    onClick={() => toggleRepository(repo.name)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
                       isSelected
-                        ? "bg-secondary text-on-secondary border-secondary shadow-2xs"
-                        : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant border-surface-container-high/40"
+                        ? "bg-primary text-on-primary border-primary"
+                        : "bg-surface-container-lowest hover:bg-surface-container text-on-surface border-surface-container-high/50"
                     }`}
                   >
-                    <span>{source}</span>
-                    {isSelected && <span className="material-symbols-outlined text-xs">check</span>}
+                    {isSelected ? `✓ ${repo.name}` : `+ ${repo.name}`}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* 5. Module Resource Densities & Checkpoint Cadences */}
-          <div className="pt-2 border-t border-surface-container-high/40">
-            <h4 className="text-xs font-semibold text-on-surface mb-2 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary">analytics</span>
-              Module Resource Density &amp; Practice Checkpoints
-            </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Max Videos / Module
-                </label>
+          {/* 6-13. 8 Density Dropdowns */}
+          <div className="flex flex-col gap-2 pt-1 border-t border-surface-container-high/40">
+            <span className="text-xs font-semibold text-on-surface">
+              Curriculum Density &amp; Evaluation Cadence (8 Criteria):
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* Max Videos */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Max Lectures/Module</span>
                 <select
-                  value={preferences.maxVideosPerModule ?? 2}
-                  onChange={(e) => update("maxVideosPerModule", Number(e.target.value))}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.maxVideos}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      maxVideos: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value={1}>1 Comprehensive Video</option>
-                  <option value={2}>2 Curated Lectures</option>
-                  <option value={3}>3 Lectures Max</option>
-                  <option value={4}>4 In-Depth Lectures</option>
+                  <option value={1}>1 Core Lecture</option>
+                  <option value={2}>2 Lectures (Default)</option>
+                  <option value={3}>3 Lectures</option>
+                  <option value={4}>4 Lectures (Intensive)</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Max Reading Notes / Module
-                </label>
+              {/* Max Readings */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Max Readings/Module</span>
                 <select
-                  value={preferences.maxReadingPerModule ?? 3}
-                  onChange={(e) => update("maxReadingPerModule", Number(e.target.value))}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.maxReadings}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      maxReadings: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value={1}>1 Core Monograph</option>
-                  <option value={2}>2 Academic Readings</option>
-                  <option value={3}>3 Reading References</option>
-                  <option value={5}>5 Deep Literature Notes</option>
+                  <option value={1}>1 Monograph Extract</option>
+                  <option value={2}>2 Extracts</option>
+                  <option value={3}>3 Extracts (Default)</option>
+                  <option value={5}>5 Rigorous Chapters</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Practice Questions / Module
-                </label>
+              {/* Practice Questions */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Practice Qs/Module</span>
                 <select
-                  value={preferences.desiredPracticeQuestions ?? 8}
-                  onChange={(e) => update("desiredPracticeQuestions", Number(e.target.value))}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.practiceQs}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      practiceQs: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value={4}>4 Focused Drills</option>
-                  <option value={6}>6 Standard Drills</option>
-                  <option value={8}>8 Comprehensive Problems</option>
-                  <option value={12}>12 Rigorous Problems</option>
-                  <option value={16}>16 Problem Set</option>
-                  <option value={20}>20 Intensive Exercises</option>
+                  <option value={4}>4 Graded Drills</option>
+                  <option value={8}>8 Standard (Default)</option>
+                  <option value={12}>12 Problems</option>
+                  <option value={20}>20 Intense Sheet</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Quiz Checkpoint Cadence
-                </label>
+              {/* Quiz Cadence */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Quiz Cadence</span>
                 <select
-                  value={preferences.quizFrequency || "every_module"}
-                  onChange={(e) => update("quizFrequency", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.quizCadence}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      quizCadence: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="every_module">Every Module</option>
-                  <option value="milestone_only">Major Milestones Only</option>
-                  <option value="end_of_path">End of Path Only</option>
+                  <option value="every-module">Every Module (Default)</option>
+                  <option value="milestone-only">Major Milestones Only</option>
+                  <option value="end-of-path">End of Path Only</option>
                 </select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-2.5">
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Formula Deck Density
-                </label>
+              {/* Formula Deck */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Formula Flashcards</span>
                 <select
-                  value={preferences.flashcardFrequency || "standard"}
-                  onChange={(e) => update("flashcardFrequency", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.formulaDeck}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      formulaDeck: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="high">High (All Formulae)</option>
-                  <option value="standard">Standard Core Formulae</option>
-                  <option value="minimal">Minimal / Essential</option>
+                  <option value="standard">Standard (Default)</option>
+                  <option value="high">High Density</option>
+                  <option value="minimal">Minimal Anchors</option>
                   <option value="disabled">Disabled</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Spaced Revision Cadence
-                </label>
+              {/* Revision Cadence */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Spaced Revision</span>
                 <select
-                  value={preferences.revisionFrequency || "every_module"}
-                  onChange={(e) => update("revisionFrequency", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.revisionCadence}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      revisionCadence: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="every_module">Every Module Review</option>
-                  <option value="alternate_modules">Alternate Modules</option>
-                  <option value="end_of_path">End of Curriculum</option>
+                  <option value="every-module">Every Module (Default)</option>
+                  <option value="alternate-modules">Alternate Modules</option>
+                  <option value="end-of-path">End of Path</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Mock Exam Simulation
-                </label>
+              {/* Mock Exams */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Mock Exams</span>
                 <select
-                  value={preferences.mockExamFrequency || "mid_and_final"}
-                  onChange={(e) => update("mockExamFrequency", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.mockExams}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      mockExams: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="none">No Timed Mocks</option>
-                  <option value="mid_and_final">Mid &amp; Final Mock Exams</option>
-                  <option value="weekly">Weekly Full Mock Tests</option>
+                  <option value="none">None</option>
+                  <option value="mid-and-final">Mid &amp; Final (Default)</option>
+                  <option value="weekly">Weekly Full Mock</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Practical Applied Projects
-                </label>
+              {/* Practical Projects */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Practical Projects</span>
                 <select
-                  value={preferences.practicalProjects || "capstone_only"}
-                  onChange={(e) => update("practicalProjects", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.density.projects}
+                  onChange={(e) =>
+                    updateAdvanced("density", {
+                      ...adv.density,
+                      projects: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="none">None (Theory Only)</option>
-                  <option value="capstone_only">Capstone Project</option>
-                  <option value="hands_on_per_module">Mini-Project Per Module</option>
+                  <option value="capstone">Capstone Only (Default)</option>
+                  <option value="per-module">Hands-on Per Module</option>
+                  <option value="none">None</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* 6. Study Cadence, Session Length & Citations */}
-          <div className="pt-2 border-t border-surface-container-high/40">
-            <h4 className="text-xs font-semibold text-on-surface mb-2 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary">schedule</span>
-              Study Cadence, Session Length &amp; Resource Vintage
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Daily Study Schedule Rhythm
-                </label>
-                <input
-                  type="text"
-                  value={preferences.dailyAvailability || "Flexible Daily"}
-                  onChange={(e) => update("dailyAvailability", e.target.value)}
-                  placeholder="e.g. Weekdays 1-2 hrs, Weekends Intensive"
-                  className="w-full bg-surface-container px-2.5 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40 focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Preferred Session Length
-                </label>
+          {/* 14-17. 4 Cadence & Citation Dropdowns */}
+          <div className="flex flex-col gap-2 pt-1 border-t border-surface-container-high/40">
+            <span className="text-xs font-semibold text-on-surface">
+              Cadence &amp; Citation Standards (4 Criteria):
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* Rhythm */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Study Rhythm</span>
                 <select
-                  value={preferences.preferredSessionLengthMinutes ?? 45}
-                  onChange={(e) => update("preferredSessionLengthMinutes", Number(e.target.value))}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.cadence.rhythm}
+                  onChange={(e) =>
+                    updateAdvanced("cadence", {
+                      ...adv.cadence,
+                      rhythm: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value={25}>25 min (Pomodoro)</option>
-                  <option value={45}>45 min (Standard Academic)</option>
-                  <option value={60}>60 min (In-Depth Block)</option>
-                  <option value={90}>90 min (Deep Work Seminar)</option>
+                  <option value="flexible-daily">Flexible Daily (Default)</option>
+                  <option value="weekday-intensive">Weekday Intensive</option>
+                  <option value="weekend-immersion">Weekend Immersion</option>
+                  <option value="self-paced">Pure Self-Paced</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                  Resource Vintage / Freshness
-                </label>
+              {/* Session Length */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Session Length</span>
                 <select
-                  value={preferences.resourceFreshness || "any_verified"}
-                  onChange={(e) => update("resourceFreshness", e.target.value as any)}
-                  className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
+                  value={adv.cadence.sessionMinutes}
+                  onChange={(e) =>
+                    updateAdvanced("cadence", {
+                      ...adv.cadence,
+                      sessionMinutes: parseInt(e.target.value, 10),
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
                 >
-                  <option value="any_verified">Any Authoritative Verified Source</option>
-                  <option value="recent_years">Recent Publications (Last 2-3 Years)</option>
-                  <option value="seminal_classic">Seminal &amp; Foundational Classics</option>
+                  <option value={30}>30 mins</option>
+                  <option value={45}>45 mins (Default)</option>
+                  <option value={60}>60 mins</option>
+                  <option value={90}>90 mins (Intense)</option>
+                </select>
+              </div>
+
+              {/* Vintage */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Resource Freshness</span>
+                <select
+                  value={adv.cadence.vintage}
+                  onChange={(e) =>
+                    updateAdvanced("cadence", {
+                      ...adv.cadence,
+                      vintage: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
+                >
+                  <option value="any-verified">Any Verified (Default)</option>
+                  <option value="recent-5-years">Recent 5 Years</option>
+                  <option value="seminal-classic">Seminal Classic</option>
+                </select>
+              </div>
+
+              {/* Citation Std */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] text-on-surface-variant">Citation Standard</span>
+                <select
+                  value={adv.cadence.citationStd}
+                  onChange={(e) =>
+                    updateAdvanced("cadence", {
+                      ...adv.cadence,
+                      citationStd: e.target.value as any,
+                    })
+                  }
+                  className="bg-surface-container-lowest text-xs text-on-surface p-1.5 rounded border border-surface-container-high"
+                >
+                  <option value="open-edu-repos">Open Edu Repos (Default)</option>
+                  <option value="institutional-peer-reviewed">Institutional Peer-Reviewed</option>
                 </select>
               </div>
             </div>
-
-            <div className="mt-2.5">
-              <label className="text-[11px] font-label-sm text-on-surface-variant block mb-1">
-                Citation &amp; Academic Reference Standard
-              </label>
-              <select
-                value={preferences.citationRequirement || "standard_open_educational"}
-                onChange={(e) => update("citationRequirement", e.target.value as any)}
-                className="w-full bg-surface-container px-2 py-1.5 rounded text-on-surface text-xs border border-surface-container-high/40"
-              >
-                <option value="standard_open_educational">
-                  Standard Open Educational Repositories (NCERT, Khan, OpenStax)
-                </option>
-                <option value="institutional_peer_reviewed">
-                  Strict Institutional &amp; Peer-Reviewed Standards (NPTEL, MIT OCW, PubMed, IEEE)
-                </option>
-              </select>
-            </div>
+            <span className="text-[11px] text-secondary font-medium">
+              Calculated schedule: ~{sessionsPerWeek} sessions/week ({sessionMinutes} mins each)
+            </span>
           </div>
 
-          {/* 7. Accessibility Toggles */}
-          <div className="pt-2 border-t border-surface-container-high/40">
-            <h4 className="text-xs font-semibold text-on-surface mb-1.5 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-sm text-primary">accessibility_new</span>
-              Accessibility &amp; Formats
-            </h4>
+          {/* 18-20. Accessibility Preferences */}
+          <div className="flex flex-col gap-2 pt-1 border-t border-surface-container-high/40">
+            <span className="text-xs font-semibold text-on-surface">
+              Accessibility Preferences (3 Criteria):
+            </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <label className="flex items-center gap-2 p-2 rounded bg-surface-container border border-surface-container-high/30 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer bg-surface-container-lowest p-2 rounded-lg border border-surface-container-high/50">
                 <input
                   type="checkbox"
-                  checked={Boolean(preferences.accessibility?.closedCaptions)}
-                  onChange={(e) => updateAccessibility("closedCaptions", e.target.checked)}
-                  className="w-3.5 h-3.5 rounded text-primary accent-primary"
+                  checked={adv.accessibility.captions}
+                  onChange={(e) =>
+                    updateAdvanced("accessibility", {
+                      ...adv.accessibility,
+                      captions: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 rounded text-primary accent-primary"
                 />
                 <span className="text-xs text-on-surface">Closed Captions Required</span>
               </label>
 
-              <label className="flex items-center gap-2 p-2 rounded bg-surface-container border border-surface-container-high/30 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer bg-surface-container-lowest p-2 rounded-lg border border-surface-container-high/50">
                 <input
                   type="checkbox"
-                  checked={Boolean(preferences.accessibility?.highContrastNotes)}
-                  onChange={(e) => updateAccessibility("highContrastNotes", e.target.checked)}
-                  className="w-3.5 h-3.5 rounded text-primary accent-primary"
+                  checked={adv.accessibility.highContrast}
+                  onChange={(e) =>
+                    updateAdvanced("accessibility", {
+                      ...adv.accessibility,
+                      highContrast: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 rounded text-primary accent-primary"
                 />
-                <span className="text-xs text-on-surface">High-Contrast &amp; Printable Notes</span>
+                <span className="text-xs text-on-surface">High-Contrast Notes</span>
               </label>
 
-              <label className="flex items-center gap-2 p-2 rounded bg-surface-container border border-surface-container-high/30 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer bg-surface-container-lowest p-2 rounded-lg border border-surface-container-high/50">
                 <input
                   type="checkbox"
-                  checked={Boolean(preferences.accessibility?.transcriptsRequired)}
-                  onChange={(e) => updateAccessibility("transcriptsRequired", e.target.checked)}
-                  className="w-3.5 h-3.5 rounded text-primary accent-primary"
+                  checked={adv.accessibility.transcripts}
+                  onChange={(e) =>
+                    updateAdvanced("accessibility", {
+                      ...adv.accessibility,
+                      transcripts: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 rounded text-primary accent-primary"
                 />
-                <span className="text-xs text-on-surface">Full Video Transcripts</span>
+                <span className="text-xs text-on-surface">Transcripts Required</span>
               </label>
             </div>
           </div>
 
-          {/* 8. Custom Instructions for Curator */}
-          <div className="pt-2 border-t border-surface-container-high/40">
-            <label className="text-xs font-label-sm text-on-surface font-semibold block mb-1">
-              Custom Curator Guidance &amp; Syllabus Notes (Optional)
-            </label>
+          {/* 21. Curator Notes & Keyword Parser */}
+          <div className="flex flex-col gap-1.5 pt-1 border-t border-surface-container-high/40">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-on-surface">
+                Curator Instructions &amp; Custom Exclusions:
+              </label>
+              <span className="text-[11px] font-mono text-on-surface-variant">
+                {adv.curatorNotes.length}/1000 characters
+              </span>
+            </div>
             <textarea
-              rows={2}
-              value={preferences.customInstructions || ""}
-              onChange={(e) => update("customInstructions", e.target.value)}
-              placeholder="e.g. Focus specifically on calculus-based derivations, emphasize NPTEL lecture series by Prof. Verma, or skip general introductory history..."
-              className="w-full bg-surface-container-lowest px-3 py-2 rounded-lg text-on-surface font-body-sm text-xs border border-surface-container-high/60 focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/60"
+              maxLength={1000}
+              rows={3}
+              value={adv.curatorNotes}
+              onChange={(e) => updateAdvanced("curatorNotes", e.target.value)}
+              placeholder="e.g. Prioritize MIT OCW, skip formal proofs, require calculus prerequisites..."
+              className="bg-surface-container-lowest text-xs text-on-surface p-2.5 rounded-lg border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
             />
+            {parsedKeywords.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                <span className="text-[10px] font-semibold text-secondary">
+                  Detected directives:
+                </span>
+                {parsedKeywords.map((k, i) => (
+                  <span
+                    key={i}
+                    className="text-[10px] bg-secondary-fixed/50 text-secondary px-2 py-0.5 rounded font-mono"
+                  >
+                    {k}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

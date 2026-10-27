@@ -22,6 +22,9 @@ import { executeWithRetry } from '../resilience/retry-policy';
 import { parseIsoDurationToSeconds } from '../normalization/duration-parser';
 import { buildYouTubeVideoUrl, buildYouTubePlaylistUrl } from '../normalization/url-normalizer';
 import { normalizeCandidate, deduplicateCandidates } from '../normalization/normalizer';
+import { educatorRegistry } from '../educators/educator-registry';
+import { ChannelVerifier } from '../educators/channel-verifier';
+import type { MasterEducatorRecord } from '../educators/types';
 
 const YOUTUBE_SEARCH_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search';
 const YOUTUBE_VIDEOS_ENDPOINT = 'https://www.googleapis.com/youtube/v3/videos';
@@ -252,6 +255,36 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
           continue;
         }
 
+        const channelId = details.snippet?.channelId;
+        const channelTitle = details.snippet?.channelTitle;
+        let matchedEdu: MasterEducatorRecord | undefined;
+        let isVerified = false;
+
+        if (channelId) {
+          matchedEdu = educatorRegistry.getByChannelId(channelId);
+        }
+        if (!matchedEdu && channelTitle && channelTitle.startsWith('@')) {
+          matchedEdu = educatorRegistry.getByHandle(channelTitle);
+        }
+
+        if (matchedEdu) {
+          const verification = ChannelVerifier.verifyChannelIdentity(
+            {
+              channelId,
+              channelTitle,
+              videoTitle: details.snippet?.title,
+              videoUrl: buildYouTubeVideoUrl(videoId),
+              description: details.snippet?.description,
+            },
+            matchedEdu
+          );
+          if (verification.isVerifiedEducator) {
+            isVerified = true;
+          } else {
+            matchedEdu = undefined;
+          }
+        }
+
         const durationSeconds = parseIsoDurationToSeconds(details.contentDetails?.duration);
         const norm = normalizeCandidate({
           provider: 'youtube',
@@ -260,14 +293,19 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
           description: details.snippet?.description,
           rawUrl: buildYouTubeVideoUrl(videoId),
           modality: 'video',
-          creator: details.snippet?.channelTitle
-            ? { name: details.snippet.channelTitle, channelId: details.snippet.channelId }
+          creator: details.snippet?.channelTitle || matchedEdu?.Educator_Name
+            ? {
+                name: details.snippet?.channelTitle || matchedEdu!.Educator_Name,
+                channelId: channelId || matchedEdu?.YouTube_Channel_ID,
+                authorId: isVerified && matchedEdu ? matchedEdu.Educator_ID : undefined,
+                url: matchedEdu?.Official_Channel_URL || undefined,
+              }
             : undefined,
           publishedAt: details.snippet?.publishedAt,
           durationSeconds,
           thumbnailUrl: details.snippet?.thumbnails?.high?.url || details.snippet?.thumbnails?.medium?.url,
           isEmbeddable: details.status?.embeddable ?? true,
-          verificationStatus: 'unverified_candidate',
+          verificationStatus: isVerified ? 'verified_channel' : 'unverified_candidate',
           provenance: {
             queryId: query.id,
             queryString: query.queryString,
@@ -276,6 +314,15 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
           rawMetadata: {
             definition: details.contentDetails?.definition,
             tags: details.snippet?.tags,
+            isVerifiedEducator: isVerified,
+            educatorId: matchedEdu?.Educator_ID,
+            educatorName: matchedEdu?.Educator_Name,
+            channelId: matchedEdu?.YouTube_Channel_ID || channelId,
+            channelName: matchedEdu?.YouTube_Channel_Name || channelTitle,
+            discoverySource: isVerified ? 'master_youtube_directory' : 'youtube',
+            selectionExplanation: isVerified && matchedEdu
+              ? `Verified content from directory educator ${matchedEdu.Educator_Name} (${matchedEdu.YouTube_Channel_Name || channelTitle})`
+              : undefined,
           },
         });
 
@@ -283,6 +330,88 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
           candidates.push(norm.candidate);
         } else if (norm.error) {
           partialFailures.push(`Video ${videoId}: ${norm.error}`);
+        }
+      }
+
+      // Normalize playlist candidates if not expanding, or expand when requested
+      if (!options.expandPlaylists && playlistItems.length > 0) {
+        for (const plItem of playlistItems) {
+          const playlistId = plItem.id?.playlistId;
+          if (!playlistId) continue;
+          const plChannelId = plItem.snippet?.channelId;
+          const plChannelTitle = plItem.snippet?.channelTitle;
+
+          let matchedPlEdu = plChannelId ? educatorRegistry.getByChannelId(plChannelId) : undefined;
+          if (!matchedPlEdu && plChannelTitle) {
+            matchedPlEdu = educatorRegistry.getByName(plChannelTitle) || educatorRegistry.getByHandle(plChannelTitle);
+          }
+
+          let isPlVerified = false;
+          if (matchedPlEdu) {
+            const ver = ChannelVerifier.verifyChannelIdentity(
+              {
+                channelId: plChannelId,
+                channelTitle: plChannelTitle,
+                videoTitle: plItem.snippet?.title,
+                description: plItem.snippet?.description,
+              },
+              matchedPlEdu
+            );
+            if (ver.isVerifiedEducator) {
+              isPlVerified = true;
+            } else {
+              matchedPlEdu = undefined;
+            }
+          }
+
+          const plNorm = normalizeCandidate({
+            provider: 'youtube',
+            externalId: playlistId,
+            title: plItem.snippet?.title || 'Course Playlist',
+            description: plItem.snippet?.description,
+            rawUrl: buildYouTubePlaylistUrl(playlistId),
+            modality: 'video',
+            creator: isPlVerified && matchedPlEdu
+              ? {
+                  name: matchedPlEdu.Educator_Name,
+                  channelId: matchedPlEdu.YouTube_Channel_ID || plChannelId,
+                  authorId: matchedPlEdu.Educator_ID,
+                  url: matchedPlEdu.Official_Channel_URL || undefined,
+                }
+              : plChannelTitle
+              ? { name: plChannelTitle, channelId: plChannelId }
+              : undefined,
+            publishedAt: plItem.snippet?.publishedAt,
+            durationSeconds: 3600 * 2,
+            thumbnailUrl: plItem.snippet?.thumbnails?.high?.url || plItem.snippet?.thumbnails?.medium?.url,
+            isEmbeddable: true,
+            verificationStatus: isPlVerified ? 'verified_channel' : 'unverified_candidate',
+            playlist: {
+              isPlaylist: true,
+              playlistId,
+            },
+            provenance: {
+              queryId: query.id,
+              queryString: query.queryString,
+              intent: query.intent,
+            },
+            rawMetadata: {
+              isVerifiedEducator: isPlVerified,
+              educatorId: matchedPlEdu?.Educator_ID,
+              educatorName: matchedPlEdu?.Educator_Name,
+              channelId: matchedPlEdu?.YouTube_Channel_ID || plChannelId,
+              channelName: matchedPlEdu?.YouTube_Channel_Name || plChannelTitle,
+              playlistUrl: buildYouTubePlaylistUrl(playlistId),
+              discoverySource: isPlVerified ? 'master_youtube_directory' : 'youtube',
+              selectionExplanation: isPlVerified && matchedPlEdu
+                ? `Verified course playlist from directory educator ${matchedPlEdu.Educator_Name}`
+                : undefined,
+            },
+          });
+
+          if (plNorm.candidate) {
+            candidates.push(plNorm.candidate);
+          }
         }
       }
 
@@ -352,6 +481,21 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
     url.searchParams.set('maxResults', String(Math.min(options.limit ?? 10, 25)));
     url.searchParams.set('safeSearch', 'moderate');
     url.searchParams.set('key', this.apiKey!);
+
+    if (query.channelOrSourceHint) {
+      let targetChannelId = query.channelOrSourceHint.trim();
+      if (!targetChannelId.startsWith('UC')) {
+        const edu = educatorRegistry.getByHandle(targetChannelId) ||
+                    educatorRegistry.getByName(targetChannelId) ||
+                    educatorRegistry.getById(targetChannelId);
+        if (edu?.YouTube_Channel_ID) {
+          targetChannelId = edu.YouTube_Channel_ID;
+        }
+      }
+      if (targetChannelId.startsWith('UC')) {
+        url.searchParams.set('channelId', targetChannelId);
+      }
+    }
 
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
@@ -509,6 +653,33 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
         const details = videoDetailsMap.get(vid);
         if (!details) continue;
 
+        const plItemChannelId = details.snippet?.channelId || playlistSearchItem.snippet?.channelId;
+        const plItemChannelTitle = details.snippet?.channelTitle || playlistSearchItem.snippet?.channelTitle;
+
+        let matchedPlEdu = plItemChannelId ? educatorRegistry.getByChannelId(plItemChannelId) : undefined;
+        if (!matchedPlEdu && plItemChannelTitle) {
+          matchedPlEdu = educatorRegistry.getByName(plItemChannelTitle) || educatorRegistry.getByHandle(plItemChannelTitle);
+        }
+
+        let isPlItemVerified = false;
+        if (matchedPlEdu) {
+          const ver = ChannelVerifier.verifyChannelIdentity(
+            {
+              channelId: plItemChannelId,
+              channelTitle: plItemChannelTitle,
+              videoTitle: details.snippet?.title,
+              videoUrl: buildYouTubeVideoUrl(vid),
+              description: details.snippet?.description,
+            },
+            matchedPlEdu
+          );
+          if (ver.isVerifiedEducator) {
+            isPlItemVerified = true;
+          } else {
+            matchedPlEdu = undefined;
+          }
+        }
+
         const durationSeconds = parseIsoDurationToSeconds(details.contentDetails?.duration);
         const norm = normalizeCandidate({
           provider: 'youtube',
@@ -517,8 +688,13 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
           description: details.snippet?.description,
           rawUrl: buildYouTubeVideoUrl(vid),
           modality: 'video',
-          creator: details.snippet?.channelTitle
-            ? { name: details.snippet.channelTitle, channelId: details.snippet.channelId }
+          creator: details.snippet?.channelTitle || matchedPlEdu?.Educator_Name
+            ? {
+                name: details.snippet?.channelTitle || matchedPlEdu!.Educator_Name,
+                channelId: plItemChannelId || matchedPlEdu?.YouTube_Channel_ID,
+                authorId: isPlItemVerified && matchedPlEdu ? matchedPlEdu.Educator_ID : undefined,
+                url: matchedPlEdu?.Official_Channel_URL || undefined,
+              }
             : undefined,
           publishedAt: details.snippet?.publishedAt,
           durationSeconds,
@@ -532,11 +708,24 @@ export class YouTubeAdapterV2 implements ResourceProviderAdapter {
             incompleteExpansion,
             inaccessibleCount,
           },
-          verificationStatus: 'unverified_candidate',
+          verificationStatus: isPlItemVerified ? 'verified_channel' : 'unverified_candidate',
           provenance: {
             queryId: query.id,
             queryString: query.queryString,
             intent: query.intent,
+          },
+          rawMetadata: {
+            isVerifiedEducator: isPlItemVerified,
+            educatorId: matchedPlEdu?.Educator_ID,
+            educatorName: matchedPlEdu?.Educator_Name,
+            channelId: matchedPlEdu?.YouTube_Channel_ID || plItemChannelId,
+            channelName: matchedPlEdu?.YouTube_Channel_Name || plItemChannelTitle,
+            playlistId,
+            playlistUrl: buildYouTubePlaylistUrl(playlistId),
+            discoverySource: isPlItemVerified ? 'master_youtube_directory' : 'youtube',
+            selectionExplanation: isPlItemVerified && matchedPlEdu
+              ? `Verified lesson from ${matchedPlEdu.Educator_Name} course playlist`
+              : undefined,
           },
         });
 

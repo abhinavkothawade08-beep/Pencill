@@ -196,6 +196,13 @@ export class ResourceModuleDistributor {
           ? item.detectedCategory.replace(/_/g, ' ')
           : role;
 
+        const rawMeta = item.candidate.rawMetadata || {};
+        const educatorId = (rawMeta.educatorId as string | undefined) || item.candidate.creator?.authorId;
+        const educatorName = (rawMeta.educatorName as string | undefined) || (item.candidate.verificationStatus === 'verified_channel' ? item.candidate.creator?.name : undefined);
+        const channelId = (rawMeta.channelId as string | undefined) || item.candidate.creator?.channelId;
+        const discoverySource = (rawMeta.discoverySource as string | undefined) || item.candidate.retrievalProvenance.provider;
+        const selectionExplanation = (rawMeta.selectionExplanation as string | undefined) || (educatorName ? `Selected verified educational resource from ${educatorName}` : item.rankingRationale);
+
         selectedForModule.push({
           resourceId: `res-${mod.moduleId}-${selectedForModule.length + 1}`,
           candidateId: item.candidate.id,
@@ -219,7 +226,11 @@ export class ResourceModuleDistributor {
           creator: item.candidate.creator,
           sourceName: item.candidate.creator?.name || item.candidate.provider,
           isVerified: item.candidate.verificationStatus !== 'unverified_candidate',
-          discoverySource: item.candidate.retrievalProvenance.provider,
+          discoverySource,
+          educatorId,
+          educatorName,
+          channelId,
+          selectionExplanation,
         });
 
         assignedRolesInModule.add(role);

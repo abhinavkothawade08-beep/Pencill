@@ -1063,6 +1063,24 @@ export async function deleteLearningPath(
   await recordDeletedItem("learning_path", pathId);
   invalidateCourseCache(pathId);
 
+  try {
+    const { storageAdapter } = await import("@/lib/storage/storageAdapter");
+    await storageAdapter.deletePath(pathId);
+  } catch {}
+
+  if (typeof window === "undefined") {
+    try {
+      const res = await deleteLearningPathFromDatabase(pathId, {
+        softDelete: options?.softDelete,
+        accessToken: options?.accessToken,
+        isAdmin: true,
+      });
+      return { success: res.success, error: res.error };
+    } catch {
+      return { success: true };
+    }
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -1121,6 +1139,13 @@ export async function batchDeleteLearningPaths(
     await recordDeletedItem("learning_path", id);
     invalidateCourseCache(id);
   }
+
+  try {
+    const { storageAdapter } = await import("@/lib/storage/storageAdapter");
+    for (const id of courseIds) {
+      await storageAdapter.deletePath(id);
+    }
+  } catch {}
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

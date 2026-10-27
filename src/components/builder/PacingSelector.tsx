@@ -1,150 +1,203 @@
 "use client";
 
-import React from "react";
-import { PacingStrategy } from "@/lib/types/builder";
+import React, { useMemo } from "react";
+import { useBuilderStore } from "@/lib/store/builderStore";
 
 interface PacingSelectorProps {
-  weeklyHours: number;
-  pacingStrategy: PacingStrategy;
-  targetCompletionDate?: string;
-  feasibilityWarning?: string;
-  suggestedWeeklyHours?: number;
-  onWeeklyHoursChange: (hours: number) => void;
-  onPacingStrategyChange: (strategy: PacingStrategy) => void;
-  onTargetCompletionDateChange: (date: string) => void;
+  estimatedTotalHours?: number;
 }
 
-export default function PacingSelector({
-  weeklyHours,
-  pacingStrategy,
-  targetCompletionDate,
-  feasibilityWarning,
-  suggestedWeeklyHours,
-  onWeeklyHoursChange,
-  onPacingStrategyChange,
-  onTargetCompletionDateChange,
-}: PacingSelectorProps) {
-  const pacingStrategies: Array<{ id: PacingStrategy; label: string; desc: string }> = [
-    { id: "casual", label: "Casual", desc: "2–4 hrs/wk · Relaxed exploration" },
-    { id: "balanced", label: "Balanced", desc: "6–8 hrs/wk · Standard academic cadence" },
-    { id: "intensive", label: "Intensive", desc: "10–16 hrs/wk · Dedicated mastery" },
-    { id: "sprint", label: "Sprint", desc: "20+ hrs/wk · Rapid deadline cram" },
+export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelectorProps) {
+  const { config, updateConfig } = useBuilderStore();
+
+  const weeklyHours = config.weeklyHours;
+
+  // Preset definitions
+  const presets = [
+    { id: "casual", label: "Casual", min: 2, max: 4, desc: "2–4 hrs/wk · Relaxed exploration", setVal: 3 },
+    { id: "balanced", label: "Balanced", min: 5, max: 9, desc: "6–8 hrs/wk · Steady Cadence", setVal: 6 },
+    { id: "intensive", label: "Intensive", min: 10, max: 18, desc: "10–16 hrs/wk · Dedicated Exam Prep", setVal: 12 },
+    { id: "sprint", label: "Sprint", min: 19, max: 30, desc: "20+ hrs/wk · Rapid Immersion Cram", setVal: 20 },
   ];
 
-  const handleStrategyClick = (strat: PacingStrategy) => {
-    onPacingStrategyChange(strat);
-    if (strat === "casual") onWeeklyHoursChange(3);
-    else if (strat === "balanced") onWeeklyHoursChange(6);
-    else if (strat === "intensive") onWeeklyHoursChange(12);
-    else if (strat === "sprint") onWeeklyHoursChange(20);
+  // Active preset highlight
+  const activePreset = presets.find((p) => weeklyHours >= p.min && weeklyHours <= p.max) || presets[1];
+
+  // Tomorrow date for min attribute
+  const tomorrowStr = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  }, []);
+
+  // Feasibility math
+  const feasibility = useMemo(() => {
+    if (!config.deadline) {
+      // Projected completion date
+      const weeksNeeded = Math.max(1, Math.ceil(estimatedTotalHours / Math.max(1, weeklyHours)));
+      const projected = new Date();
+      projected.setDate(projected.getDate() + weeksNeeded * 7);
+      const projFormatted = projected.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+      return {
+        status: "no_deadline" as const,
+        weeksNeeded,
+        projectedDate: projFormatted,
+      };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadlineDate = new Date(config.deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+
+    const diffMs = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) {
+      return {
+        status: "impossible" as const,
+        error: "Deadline cannot be in the past or today. Please select a future date.",
+      };
+    }
+
+    const availableWeeks = Math.max(0.2, diffDays / 7);
+    const requiredHoursPerWeek = Math.ceil(estimatedTotalHours / availableWeeks);
+
+    if (requiredHoursPerWeek > 30) {
+      return {
+        status: "impossible" as const,
+        error: `Impossible timeline: requires ${requiredHoursPerWeek} hrs/week (exceeds 30h limit for ${diffDays} days). Please extend the target deadline.`,
+      };
+    }
+
+    if (requiredHoursPerWeek > weeklyHours) {
+      return {
+        status: "tight" as const,
+        requiredHoursPerWeek,
+        diffDays,
+        message: `Tight schedule: requires ≥ ${requiredHoursPerWeek} hrs/week to complete ${estimatedTotalHours}h curriculum by deadline.`,
+      };
+    }
+
+    return {
+      status: "ok" as const,
+      diffDays,
+      message: `Feasible schedule: ${weeklyHours} hrs/week comfortably completes the ${estimatedTotalHours}h curriculum within ${diffDays} days.`,
+    };
+  }, [config.deadline, estimatedTotalHours, weeklyHours]);
+
+  const handleSliderChange = (val: number) => {
+    updateConfig({ weeklyHours: val });
+  };
+
+  const handleHoursPillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(e.target.value, 10);
+    if (!isNaN(parsed)) {
+      const clamped = Math.max(2, Math.min(30, parsed));
+      updateConfig({ weeklyHours: clamped });
+    }
+  };
+
+  const applyRecommendedHours = (hrs: number) => {
+    updateConfig({ weeklyHours: Math.min(30, Math.max(2, hrs)) });
   };
 
   return (
     <div className="flex flex-col gap-space-xs">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <label htmlFor="time-range-slider" className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
+        <label htmlFor="pacing-slider" className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
             5
           </span>
-          Weekly Commitment &amp; Timeline
+          Weekly Commitment
         </label>
-        <div className="flex items-center gap-1 bg-secondary-fixed/30 px-2.5 py-0.5 rounded-full border border-secondary/20">
+        {/* Editable Pill */}
+        <div className="flex items-center gap-1 bg-secondary-fixed/30 px-space-sm py-0.5 rounded border border-secondary/20">
           <input
             id="weekly-hours-input"
             type="number"
-            min="1"
-            max="60"
+            min={2}
+            max={30}
             value={weeklyHours}
-            onChange={(e) => {
-              const val = Math.max(1, Math.min(60, Number(e.target.value) || 1));
-              onWeeklyHoursChange(val);
-              if (val <= 4) onPacingStrategyChange("casual");
-              else if (val <= 9) onPacingStrategyChange("balanced");
-              else if (val <= 18) onPacingStrategyChange("intensive");
-              else onPacingStrategyChange("sprint");
-            }}
-            className="w-8 bg-transparent text-center font-label-md text-label-md font-bold text-secondary focus:outline-none"
+            onChange={handleHoursPillChange}
+            className="w-7 bg-transparent text-center font-label-lg text-label-lg text-secondary font-semibold focus:outline-none"
+            aria-label="Weekly study hours"
           />
-          <span className="font-label-sm text-label-sm text-secondary font-medium">
+          <span className="font-label-lg text-label-lg text-secondary font-semibold">
             hours / week
           </span>
         </div>
       </div>
 
-      {/* Pacing Strategy Pills */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-1">
-        {pacingStrategies.map((strat) => {
-          const isSelected = pacingStrategy === strat.id;
-          return (
-            <button
-              key={strat.id}
-              type="button"
-              onClick={() => handleStrategyClick(strat.id)}
-              className={`p-2 rounded-lg border text-left transition-all ${
-                isSelected
-                  ? "bg-primary text-on-primary border-primary shadow-xs font-semibold"
-                  : "bg-surface-container-low hover:bg-surface-container text-on-surface border-surface-container-high/40"
-              }`}
-            >
-              <span className="font-label-sm text-label-sm block">{strat.label}</span>
-              <span className={`text-[10px] block leading-tight ${isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"}`}>
-                {strat.desc.split("·")[0]}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <p className="font-body-sm text-body-sm text-on-surface-variant">
+        Pacing strategy:{" "}
+        <span className="text-on-surface font-medium">
+          {activePreset.label} Pace · ~{Math.max(2, Math.round(estimatedTotalHours / weeklyHours))} Weeks Total Duration
+        </span>
+      </p>
 
-      {/* Slider */}
-      <div className="pt-space-sm pb-1">
+      {/* Slider (2 to 30) */}
+      <div className="pt-space-sm pb-space-xs">
         <input
-          id="time-range-slider"
+          id="pacing-slider"
           type="range"
-          min="2"
-          max="30"
-          step="1"
+          min={2}
+          max={30}
+          step={1}
           value={weeklyHours}
-          onChange={(e) => {
-            const h = Number(e.target.value);
-            onWeeklyHoursChange(h);
-            if (h <= 4) onPacingStrategyChange("casual");
-            else if (h <= 9) onPacingStrategyChange("balanced");
-            else if (h <= 18) onPacingStrategyChange("intensive");
-            else onPacingStrategyChange("sprint");
-          }}
+          onChange={(e) => handleSliderChange(parseInt(e.target.value, 10))}
           className="w-full accent-primary h-2 bg-surface-container rounded-lg cursor-pointer"
         />
+
+        {/* Preset Range Indicators */}
         <div className="flex justify-between text-on-surface-variant font-label-sm text-label-sm mt-1">
-          <span>Casual (2h)</span>
-          <span className="font-semibold text-primary">Balanced (6h)</span>
-          <span>Intensive (15h)</span>
-          <span>Sprint (30h)</span>
+          {presets.map((p) => {
+            const isHighlighted = activePreset.id === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => updateConfig({ weeklyHours: p.setVal })}
+                className={`transition-colors ${
+                  isHighlighted ? "font-semibold text-primary underline underline-offset-4" : "hover:text-primary"
+                }`}
+              >
+                {p.label} ({p.min === 2 ? "2 hrs" : p.min === 5 ? "6 hrs" : p.min === 10 ? "12 hrs" : "20 hrs"})
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Optional Target Completion Date */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-surface-container-high/40">
-        <div>
-          <span className="font-label-sm text-label-sm text-on-surface font-semibold block">
-            Target Completion Deadline (Optional)
-          </span>
+      {/* Target Deadline Date Picker */}
+      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-surface-container-low/60 rounded-xl border border-surface-container-high/60">
+        <div className="flex flex-col">
+          <span className="text-xs font-semibold text-on-surface">Target Completion Deadline:</span>
           <span className="text-[11px] text-on-surface-variant">
-            Pencill evaluates curriculum feasibility and warns if schedule is too compressed.
+            {config.deadline
+              ? `Due: ${new Date(config.deadline).toLocaleDateString("en-GB")}`
+              : `Projected completion: ~${feasibility.projectedDate || "4 weeks"}`}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <input
             type="date"
-            value={targetCompletionDate || ""}
-            onChange={(e) => onTargetCompletionDateChange(e.target.value)}
-            className="bg-surface-container-low px-2.5 py-1.5 rounded-lg text-on-surface font-body-sm text-body-sm border border-surface-container-high/40 focus:outline-none focus:ring-1 focus:ring-primary"
+            min={tomorrowStr}
+            value={config.deadline || ""}
+            onChange={(e) => updateConfig({ deadline: e.target.value || null })}
+            className="bg-surface-container-lowest text-xs text-on-surface px-2.5 py-1.5 rounded-lg border border-surface-container-high focus:outline-none focus:ring-1 focus:ring-primary"
           />
-          {targetCompletionDate && (
+          {config.deadline && (
             <button
               type="button"
-              onClick={() => onTargetCompletionDateChange("")}
-              className="text-xs text-on-surface-variant hover:text-error"
-              title="Clear date"
+              onClick={() => updateConfig({ deadline: null })}
+              className="text-[11px] text-on-surface-variant hover:text-error"
+              title="Clear deadline"
             >
               Clear
             </button>
@@ -152,29 +205,34 @@ export default function PacingSelector({
         </div>
       </div>
 
-      {/* Schedule Feasibility Warning */}
-      {feasibilityWarning && (
-        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-on-surface flex items-start gap-2.5 text-xs mt-1">
-          <span className="material-symbols-outlined text-amber-600 text-lg shrink-0 mt-0.5">
-            warning
-          </span>
-          <div className="flex flex-col gap-1">
-            <span className="font-semibold text-amber-900 dark:text-amber-300">
-              Schedule Compression Notice
-            </span>
-            <p className="text-amber-800 dark:text-amber-200 leading-relaxed">
-              {feasibilityWarning}
-            </p>
-            {suggestedWeeklyHours && (
-              <button
-                type="button"
-                onClick={() => onWeeklyHoursChange(suggestedWeeklyHours)}
-                className="self-start underline font-semibold text-amber-900 dark:text-amber-100 hover:text-primary mt-0.5"
-              >
-                Apply recommended {suggestedWeeklyHours} hours/week
-              </button>
-            )}
+      {/* Feasibility Alert Status */}
+      {feasibility.status === "ok" && config.deadline && (
+        <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
+          <span className="material-symbols-outlined text-emerald-600 text-base">check_circle</span>
+          <span>{feasibility.message}</span>
+        </div>
+      )}
+
+      {feasibility.status === "tight" && (
+        <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-300 text-xs flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-600 text-base shrink-0">warning</span>
+            <span>{feasibility.message}</span>
           </div>
+          <button
+            type="button"
+            onClick={() => applyRecommendedHours(feasibility.requiredHoursPerWeek)}
+            className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded text-xs shrink-0"
+          >
+            Apply ({feasibility.requiredHoursPerWeek} h/wk)
+          </button>
+        </div>
+      )}
+
+      {feasibility.status === "impossible" && (
+        <div className="p-2.5 rounded-lg bg-error-container/60 border border-error/50 text-error text-xs flex items-center gap-2">
+          <span className="material-symbols-outlined text-base shrink-0">cancel</span>
+          <span className="font-semibold">{feasibility.error}</span>
         </div>
       )}
     </div>

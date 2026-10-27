@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid_view" },
@@ -18,10 +19,15 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user, profile, signOut } = useAuth();
 
-  const avatarUrl = profile?.avatarUrl || "/avatars/default-avatar.svg";
-  const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Guest Scholar";
-  const userGrade = profile?.grade || (user ? "Scholar" : "Session Mode");
-  const userTier = profile?.tier || (user ? "Pro Path" : "Guest");
+  const avatarUrl = profile?.avatarUrl || "/avatars/aanya-patel.png";
+  const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Aanya Patel";
+  const userGrade = profile?.grade || "Class 11 · JEE Aspirant";
+  const userTier = profile?.tier || "Pro Path";
+
+  const handleSignOut = async () => {
+    await storageAdapter.clearSession();
+    await signOut();
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-50 flex flex-col justify-between pt-space-lg pb-space-md border-r border-surface-container-high/40">
@@ -39,7 +45,7 @@ export default function Sidebar() {
         </Link>
 
         {/* Navigation Items */}
-        <nav className="px-space-sm space-y-1">
+        <nav className="px-space-sm space-y-1" aria-label="Main navigation">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (
@@ -51,6 +57,7 @@ export default function Sidebar() {
                     ? "bg-surface-container-high text-primary font-semibold shadow-sm"
                     : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                 }`}
+                aria-current={isActive ? "page" : undefined}
               >
                 <span
                   className={`material-symbols-outlined text-lg ${
@@ -87,24 +94,15 @@ export default function Sidebar() {
             </div>
           </div>
           <div className="pt-space-xs mt-space-xs border-t border-surface-variant/40 flex items-center justify-between">
-            {user ? (
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="font-label-sm text-label-sm text-on-surface-variant hover:text-error flex items-center gap-1 transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm">logout</span>
-                <span>Sign Out</span>
-              </button>
-            ) : (
-              <Link
-                href="/login"
-                className="font-label-sm text-label-sm text-primary font-semibold hover:underline flex items-center gap-1"
-              >
-                <span className="material-symbols-outlined text-sm">login</span>
-                <span>Sign In</span>
-              </Link>
-            )}
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="font-label-sm text-label-sm text-on-surface-variant hover:text-error flex items-center gap-1 transition-colors"
+              title="Sign Out"
+            >
+              <span className="material-symbols-outlined text-sm">logout</span>
+              <span>Sign Out</span>
+            </button>
             <span className="font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2 py-0.5 rounded-full">
               {userTier}
             </span>

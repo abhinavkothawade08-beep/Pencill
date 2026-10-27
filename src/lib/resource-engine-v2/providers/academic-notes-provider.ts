@@ -678,6 +678,13 @@ export class AcademicNotesProvider implements ResourceProvider {
         publisher: 'Python.org',
       },
       {
+        matchTokens: ['loop', 'for loop', 'while loop', 'iterator', 'iteration', 'control flow'],
+        title: 'Python 3 Standard Library Documentation: More Control Flow Tools',
+        url: 'https://docs.python.org/3/tutorial/controlflow.html',
+        sourceName: 'Python Software Foundation',
+        publisher: 'Python.org',
+      },
+      {
         matchTokens: ['javascript', 'js', 'dom', 'async/await', 'closure', 'prototype'],
         title: 'MDN Web Docs: JavaScript Reference and Language Guide',
         url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide',
