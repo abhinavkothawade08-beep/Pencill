@@ -7,7 +7,6 @@
  */
 
 import { GeneratedLearningPath, GeneratedModuleOutline, GeneratedLessonSummaryOutline } from './types';
-import type { EngineResource } from '@/lib/resource-engine-v2';
 
 export interface TopicComplexityAnalysis {
   complexityTier: 'narrow_focused' | 'foundational_compact' | 'intermediate_core' | 'advanced_frontier' | 'comprehensive_mastery';
@@ -44,7 +43,26 @@ export function inferDomain(topic: string, explicitDomain?: string): string {
     t.includes('transformer') ||
     t.includes('database') ||
     t.includes('frontend') ||
-    t.includes('backend')
+    t.includes('backend') ||
+    t.includes('rag') ||
+    t.includes('retrieval-augmented') ||
+    t.includes('retrieval augmented') ||
+    t.includes('vector search') ||
+    t.includes('vector database') ||
+    t.includes('embeddings') ||
+    t.includes('semantic search') ||
+    t.includes('llamaindex') ||
+    t.includes('langchain') ||
+    t.includes('nlp') ||
+    t.includes('natural language') ||
+    t.includes('prompt engineering') ||
+    t.includes('generative ai') ||
+    t.includes('genai') ||
+    t.includes('agentic') ||
+    t.includes('computer vision') ||
+    t.includes('operating system') ||
+    t.includes('computer network') ||
+    t.includes('system design')
   ) {
     return 'Computer Science';
   }
@@ -56,7 +74,16 @@ export function inferDomain(topic: string, explicitDomain?: string): string {
     t.includes('probability') ||
     t.includes('statistics') ||
     t.includes('linear algebra') ||
-    t.includes('differential')
+    t.includes('differential') ||
+    t.includes('complex analysis') ||
+    t.includes('real analysis') ||
+    t.includes('functional analysis') ||
+    t.includes('numerical analysis') ||
+    t.includes('topology') ||
+    t.includes('number theory') ||
+    t.includes('discrete math') ||
+    t.includes('trigonometry') ||
+    t.includes('combinatorics')
   ) {
     return 'Mathematics';
   }
@@ -152,6 +179,7 @@ export function analyzeTopicComplexity(
     };
   }
 
+
   // 2. Broad / Frontier / Multi-Stage Engineering (5-6 cohesive modules)
   const isDeepFrontier =
     t.includes('fine-tuning') ||
@@ -229,6 +257,10 @@ export function analyzeTopicComplexity(
     const maxModules = durationHours && durationHours >= 36 ? 6 : 5;
     const isChem = domain === 'Chemistry';
     const isPhys = domain === 'Physics';
+    const isDSA =
+      t.includes('data structure') ||
+      t.includes('algorithm') ||
+      t.includes('dsa');
 
     const intermediateSubtopics = isChem
       ? [
@@ -246,12 +278,19 @@ export function analyzeTopicComplexity(
           'Advanced Field Equations & Analytical Derivations',
           'Comprehensive Problem-Solving & Quantitative Synthesis',
         ]
-      : [
+      : isDSA
+      ? [
           'Axiomatic Foundations & Linear Structures',
           'Hierarchical & Tree-Based Representations',
           'Graph Algorithms & Traversals',
           'Dynamic Programming & Optimization Paradigms',
           'Advanced Problem-Solving & Applied Synthesis',
+        ]
+      : [
+          'Core Principles, Foundations & Primitives',
+          'Architecture, Key Methods & Implementation',
+          'Advanced Techniques, Optimization & Edge Cases',
+          'Applied Workflows, Evaluation & Production Synthesis',
         ];
 
     return {
@@ -266,6 +305,7 @@ export function analyzeTopicComplexity(
 
   // 4. Focused / Foundational / Single-Concept Topics (3-4 cohesive modules)
   const isChemFoundational = domain === 'Chemistry';
+  const isPythonFoundational = t.includes('python') || t.includes('code') || t.includes('program');
   const foundationalSubtopics = isChemFoundational
     ? [
         'Core Chemical Nomenclature, Formulas & Atomic Models',
@@ -273,11 +313,18 @@ export function analyzeTopicComplexity(
         'Thermodynamics, Equilibrium & Reaction Kinetics',
         'Applied Chemical Drills & Diagnostic Synthesis',
       ]
-    : [
+    : isPythonFoundational
+    ? [
         'Core Terminology, Environment Setup & Conceptual Primitives',
         'Control Flow, Logic & Functions',
         'Composite Data Structures & File Operations',
         'Applied Workflows, Debugging & Practical Mini-Project',
+      ]
+    : [
+        'Foundational Concepts, Architecture & Setup',
+        'Core Mechanics, Techniques & Operations',
+        'Applied Workflows & Hands-on Implementation',
+        'Synthesis, Diagnostics & Capstone Review',
       ];
 
   return {
@@ -477,7 +524,7 @@ export function createTopicAdaptiveCurriculum(
   topic: string,
   level: string = 'intermediate',
   weeklyHours: number = 6,
-  resources: EngineResource[] = [],
+  resources: any[] = [],
   options?: AdaptiveCurriculumOptions
 ): GeneratedLearningPath {
   const cleanTopic = topic.trim();
@@ -698,6 +745,7 @@ export function createTopicAdaptiveCurriculum(
         quizConcepts: ['PagedAttention Memory Footprint', 'Quantization Trade-offs'],
       },
     ];
+
   } else if (t.includes('machine learning') && !t.includes('basics')) {
     // 5 Cohesive Modules for Comprehensive Machine Learning
     moduleTemplates = [

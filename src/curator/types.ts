@@ -19,6 +19,14 @@ export interface StageProgressUpdate {
   warning?: string;
 }
 
+export interface CuratorAuditSummary {
+  totalEvaluated?: number;
+  passedCount?: number;
+  droppedLowQuality?: number;
+  accessibilityViolations?: number;
+  averageScore?: number;
+}
+
 export interface CuratorTelemetry {
   resourcesIndexed: number;
   modulesSynthesized: number;
@@ -51,8 +59,11 @@ export interface CuratorCheckpointQuizQuestion {
   id: string;
   questionNumber: number;
   prompt: string;
-  options: Array<{ id: string; text: string }>;
+  questionText?: string;
+  options: Array<{ id: string; text: string }> | string[];
+  optionsList?: string[];
   correctOptionId: string;
+  correctOptionIndex?: number;
   explanation: string;
   difficulty: 'foundation' | 'intermediate' | 'advanced';
   topic: string;

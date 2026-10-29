@@ -6,12 +6,28 @@ import {
   isItemDeleted,
   recordDeletedItem,
 } from "./deletionRegistry";
-import { educatorRegistry } from "@/lib/resource-engine-v2/educators/educator-registry";
-import {
-  extractYouTubeVideoId,
-  formatYouTubeTimestampUrl,
-  parseTimestampToSeconds,
-} from "@/lib/resource-engine-v2/utils/url-utils";
+import { unenrollUserFromCourse } from "./enrollmentService";
+function extractYouTubeVideoId(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/i);
+  return match ? match[1] : null;
+}
+
+function parseTimestampToSeconds(ts: string): number {
+  if (!ts) return 0;
+  if (/^\d+$/.test(ts)) return parseInt(ts, 10);
+  const parts = ts.split(':').map((p) => parseInt(p, 10));
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parseInt(ts, 10) || 0;
+}
+
+function formatYouTubeTimestampUrl(url: string, seconds: number): string {
+  if (!url || seconds <= 0) return url;
+  const clean = url.replace(/[?&](?:t|start)=[^&#]*/gi, '');
+  const sep = clean.includes('?') ? '&' : '?';
+  return `${clean}${sep}t=${seconds}`;
+}
 
 export interface CreateFullLearningPathInput {
   id?: string;
@@ -197,8 +213,6 @@ export function repairCourseVideoDuplicates(course: LearningPath): { path: Learn
   // Map of canonical video ID -> { moduleIdx, lessonIdx, sourceUrl, startSeconds }
   const seenVideos = new Map<string, { moduleIdx: number; lessonIdx: number; sourceUrl: string; startSeconds: number | null }>();
 
-  const verifiedList = educatorRegistry.getVerifiedLearningResources ? educatorRegistry.getVerifiedLearningResources() : [];
-
   for (let mIdx = 0; mIdx < course.modules.length; mIdx++) {
     const mod = course.modules[mIdx];
     if (!mod.lessons) continue;
@@ -216,6 +230,18 @@ export function repairCourseVideoDuplicates(course: LearningPath): { path: Learn
       const prior = seenVideos.get(vidId);
       if (!prior) {
         seenVideos.set(vidId, { moduleIdx: mIdx, lessonIdx: lIdx, sourceUrl: lesson.sourceUrl, startSeconds: existingSeconds });
+        continue;
+      }
+
+      // If duplicate belongs to the SAME module
+      if (prior.moduleIdx === mIdx) {
+        if (existingSeconds !== null && prior.startSeconds !== null && existingSeconds !== prior.startSeconds) {
+          continue; // Distinct timestamped chapters of the same lecture
+        }
+        // Prune the redundant duplicate video entry from this module
+        mod.lessons.splice(lIdx, 1);
+        lIdx--;
+        repaired = true;
         continue;
       }
 
@@ -255,37 +281,7 @@ export function repairCourseVideoDuplicates(course: LearningPath): { path: Learn
           }
         }
 
-        // 2. Check for an unused verified directory resource
-        const modTitleNorm = (mod.title + ' ' + (course.title || '') + ' ' + (course.domain || '')).toLowerCase();
-        const replacement = verifiedList.find((vr) => {
-          const rVid = vr.YouTube_Video_ID_or_Playlist_ID;
-          if (!rVid || seenVideos.has(rVid) || rVid === vidId) return false;
-          const rText = (vr.Resource_Title + ' ' + vr.Subject + ' ' + vr.Covered_Topics).toLowerCase();
-          return rText.split(' ').some((word) => word.length >= 4 && modTitleNorm.includes(word));
-        });
-
-        if (replacement) {
-          const repVid = replacement.YouTube_Video_ID_or_Playlist_ID;
-          const educator = educatorRegistry.getEducatorById(replacement.Educator_ID);
-          const educatorName = (replacement as any).Educator_Name || educator?.Educator_Name || educator?.YouTube_Channel_Name || replacement.Subject;
-          const isPlaylist = replacement.Resource_Type.toLowerCase().includes('playlist') || repVid.startsWith('PL');
-          const canonicalUrl = isPlaylist
-            ? `https://www.youtube.com/playlist?list=${repVid}`
-            : `https://www.youtube.com/watch?v=${repVid}`;
-          lesson.sourceUrl = canonicalUrl;
-          lesson.sourceName = educatorName;
-          lesson.selectionReason = `Curated topical lecture from ${educatorName} covering ${mod.title}.`;
-          seenVideos.set(repVid, {
-            moduleIdx: mIdx,
-            lessonIdx: lIdx,
-            sourceUrl: lesson.sourceUrl,
-            startSeconds: null,
-          });
-          repaired = true;
-          continue;
-        }
-
-        // 3. Fallback: Progressive chapter offset so modules don't repeat blindly from 0:00
+        // 2. Fallback: Progressive chapter offset so modules don't repeat blindly from 0:00
         const estimatedOffsetSeconds = mIdx * 900;
         lesson.sourceUrl = formatYouTubeTimestampUrl(lesson.sourceUrl, estimatedOffsetSeconds);
         lesson.selectionReason = `Course lecture series (Part/Module ${mIdx + 1} at ${Math.floor(estimatedOffsetSeconds / 60)}m) covering ${mod.title} concepts.`;
@@ -484,7 +480,7 @@ export async function createPersonalPath(
 }
 
 /**
- * End-to-end atomic persistence of an AI/Resource-Engine generated learning path
+ * End-to-end atomic persistence of an AI generated learning path
  * Persists:
  *  1. learning_paths
  *  2. modules
@@ -578,6 +574,9 @@ export async function createFullLearningPath(
   }
 
   try {
+    const isUuid = Boolean(userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId));
+    const validUserId = isUuid ? userId : null;
+
     // 1. Persist learning_paths
     const { error: lpError } = await supabase.from("learning_paths").insert({
       id: pathId,
@@ -585,11 +584,11 @@ export async function createFullLearningPath(
       description: pathData.description || "",
       domain: pathData.domain || "General",
       level: pathData.level || "intermediate",
-      duration_hours: pathData.durationHours || 12,
+      duration_hours: Math.max(1, Math.round(pathData.durationHours || 12)),
       module_count: pathData.modules.length,
       verified: false,
       is_published: true,
-      author_user_id: userId,
+      author_user_id: validUserId,
       tags: pathData.tags || [pathData.domain || "General"],
       syllabus_note: pathData.syllabusNote || null,
       weekly_checkpoint: (pathData.weeklyCheckpoint as unknown as Json) || {},
@@ -750,24 +749,28 @@ export async function createFullLearningPath(
     }
 
     // 5. Log AI Provenance audit record
-    try {
-      await supabase.from("ai_generation_records").insert({
-        user_id: userId,
-        prompt_input: `Topic: ${pathData.title}, Domain: ${pathData.domain}, Level: ${pathData.level}`,
-        raw_output: pathData as unknown as Json,
-        model_version: "gemini-3.8-flash",
-        status: "published",
-      });
-    } catch (auditErr) {
-      console.warn("[createFullLearningPath] AI generation record audit notice:", auditErr);
+    if (validUserId) {
+      try {
+        await supabase.from("ai_generation_records").insert({
+          user_id: validUserId,
+          prompt_input: `Topic: ${pathData.title}, Domain: ${pathData.domain}, Level: ${pathData.level}`,
+          raw_output: pathData as unknown as Json,
+          model_version: "gemini-3.8-flash",
+          status: "published",
+        });
+      } catch (auditErr) {
+        console.warn("[createFullLearningPath] AI generation record audit notice:", auditErr);
+      }
     }
 
     // 6. Automatically enroll author in the newly generated course
-    try {
-      const { enrollUserInCourse } = await import("./enrollmentService");
-      await enrollUserInCourse(userId, pathId);
-    } catch (enrollErr) {
-      console.warn("[createFullLearningPath] Initial author enrollment notice:", enrollErr);
+    if (validUserId) {
+      try {
+        const { enrollUserInCourse } = await import("./enrollmentService");
+        await enrollUserInCourse(validUserId, pathId);
+      } catch (enrollErr) {
+        console.warn("[createFullLearningPath] Initial author enrollment notice:", enrollErr);
+      }
     }
 
     return pathId;
@@ -1057,11 +1060,21 @@ export async function deleteLearningPath(
   options?: {
     softDelete?: boolean;
     accessToken?: string;
+    userId?: string | null;
   }
 ): Promise<{ success: boolean; error?: string }> {
   // Record immediately in client-side persistent deletion registry
   await recordDeletedItem("learning_path", pathId);
   invalidateCourseCache(pathId);
+
+  // Unenroll user/guest so course never resurfaces in active pathways
+  try {
+    await unenrollUserFromCourse(options?.userId || null, pathId, {
+      accessToken: options?.accessToken,
+    });
+  } catch (unenrollErr) {
+    console.warn("[deleteLearningPath] Unenrollment cleanup notice:", unenrollErr);
+  }
 
   try {
     const { storageAdapter } = await import("@/lib/storage/storageAdapter");
@@ -1073,6 +1086,7 @@ export async function deleteLearningPath(
       const res = await deleteLearningPathFromDatabase(pathId, {
         softDelete: options?.softDelete,
         accessToken: options?.accessToken,
+        userId: options?.userId || undefined,
         isAdmin: true,
       });
       return { success: res.success, error: res.error };
@@ -1081,12 +1095,15 @@ export async function deleteLearningPath(
     }
   }
 
+  // In browser: if no access token is available, local guest deletion and unenrollment are complete
+  if (!options?.accessToken) {
+    return { success: true };
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${options.accessToken}`,
   };
-  if (options?.accessToken) {
-    headers["Authorization"] = `Bearer ${options.accessToken}`;
-  }
 
   const query = options?.softDelete ? "?soft=true" : "";
 
@@ -1098,7 +1115,7 @@ export async function deleteLearningPath(
 
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok || !data.success) {
+    if (!res.ok && res.status !== 404) {
       return {
         success: false,
         error: data.error || `Deletion failed with status ${res.status}`,
@@ -1128,16 +1145,22 @@ export async function batchDeleteLearningPaths(
   options?: {
     softDelete?: boolean;
     accessToken?: string;
+    userId?: string | null;
   }
 ): Promise<BatchDeletePathsResult> {
   if (!courseIds || courseIds.length === 0) {
     return { success: true, deletedCount: 0, failedCount: 0, deletedIds: [] };
   }
 
-  // Record immediately in local persistent registry & invalidate memory caches
+  // Record immediately in local persistent registry & invalidate memory caches & unenroll
   for (const id of courseIds) {
     await recordDeletedItem("learning_path", id);
     invalidateCourseCache(id);
+    try {
+      await unenrollUserFromCourse(options?.userId || null, id, {
+        accessToken: options?.accessToken,
+      });
+    } catch {}
   }
 
   try {
@@ -1146,6 +1169,15 @@ export async function batchDeleteLearningPaths(
       await storageAdapter.deletePath(id);
     }
   } catch {}
+
+  if (typeof window !== "undefined" && !options?.accessToken) {
+    return {
+      success: true,
+      deletedCount: courseIds.length,
+      failedCount: 0,
+      deletedIds: courseIds,
+    };
+  }
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",

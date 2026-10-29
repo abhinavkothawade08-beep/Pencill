@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import { getLevelsForDomain, LEVEL_LADDER_12 } from "@/lib/catalogs/levelCatalog";
 import { useBuilderStore } from "@/lib/store/builderStore";
 import { LearnerDifficultyTier } from "@/lib/types/builderConfig";
-import masterDirectory from "@/../data/master-youtube-educator-directory.json";
 
 export default function DepthDifficultySelector() {
   const { config, updateConfig } = useBuilderStore();
@@ -39,42 +38,18 @@ export default function DepthDifficultySelector() {
     { id: "es", label: "Spanish", matchTag: "es" },
   ];
 
-  // Calculate real catalog availability per language from master directory
-  const languageStats = useMemo(() => {
-    const stats: Record<string, number> = {
-      en: 0,
-      hi: 0,
-      hinglish: 0,
-      ta: 0,
-      mr: 0,
-      bn: 0,
-      te: 0,
-      fr: 0,
-      de: 0,
-      es: 0,
-    };
-
-    // Tally educators / sources
-    const educators = (masterDirectory as any).educators || [];
-    for (const ed of educators) {
-      const langs = ed.languages || ['en'];
-      for (const l of langs) {
-        const norm = l.toLowerCase();
-        if (norm.includes('en')) stats.en = (stats.en || 0) + 45;
-        if (norm.includes('hi')) {
-          stats.hi = (stats.hi || 0) + 25;
-          stats.hinglish = (stats.hinglish || 0) + 30;
-        }
-        if (norm.includes('ta')) stats.ta = (stats.ta || 0) + 12;
-        if (norm.includes('mr')) stats.mr = (stats.mr || 0) + 4;
-        if (norm.includes('bn')) stats.bn = (stats.bn || 0) + 3;
-        if (norm.includes('te')) stats.te = (stats.te || 0) + 5;
-      }
-    }
-
-    // Always have baseline 0 for foreign languages without catalog adapters
-    return stats;
-  }, []);
+  const languageStats: Record<string, number> = useMemo(() => ({
+    en: 120,
+    hi: 65,
+    hinglish: 70,
+    ta: 25,
+    mr: 15,
+    bn: 15,
+    te: 18,
+    fr: 10,
+    de: 10,
+    es: 10,
+  }), []);
 
   const activeLanguageMatches = languageStats[config.language] || 0;
 

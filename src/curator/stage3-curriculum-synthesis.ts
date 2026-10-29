@@ -8,7 +8,7 @@
 import { BuilderConfig } from '@/lib/types/builderConfig';
 import { PrerequisiteMappingResult } from './stage2-prerequisite-mapping';
 import { CuratorModule } from './types';
-import { analyzeTopicComplexity, inferDomain } from '@/services/ai/curriculum-adaptive-engine';
+import { analyzeTopicComplexity, inferDomain, createTopicAdaptiveCurriculum } from '@/services/ai/curriculum-adaptive-engine';
 
 export interface CurriculumSynthesisResult {
   modules: CuratorModule[];
@@ -25,9 +25,14 @@ export async function runStage3Synthesis(
 
   // 1. Topic Domain Checks
   const isSchoolPhysics =
-    config.domainId.includes("school") ||
-    primaryTopicLower.includes("mechanics") ||
-    primaryTopicLower.includes("physics");
+    (config.domainId.includes("physics") ||
+      primaryTopicLower.includes("physics") ||
+      (config.domainId.includes("school") && primaryTopicLower.includes("physic")) ||
+      primaryTopicLower === "mechanics" ||
+      primaryTopicLower.includes("classical mechanics") ||
+      primaryTopicLower.includes("kinematics")) &&
+    !primaryTopicLower.includes("quantum") &&
+    !primaryTopicLower.includes("statistical");
 
   const isPython =
     primaryTopicLower.includes("python") ||
@@ -221,27 +226,56 @@ export async function runStage3Synthesis(
       },
     ];
   } else {
-    // Topic-adaptive fallback synthesizing from detected complexity
-    const complexity = analyzeTopicComplexity(primaryTopic, config.depthLevelId, 24);
-    const subtopics = complexity.detectedSubtopics && complexity.detectedSubtopics.length >= 3
-      ? complexity.detectedSubtopics
-      : [
-          `${primaryTopic} Foundations & Core Terminology`,
-          `${primaryTopic} Analytical Workflows & Principles`,
-          `${primaryTopic} Advanced Techniques & Problem Solving`,
-          `${primaryTopic} Applied Synthesis & Mastery Review`,
-        ];
+    // Topic-adaptive synthesis dynamically scaled to subject scope and depth
+    const synthPath = createTopicAdaptiveCurriculum(primaryTopic, config.depthLevelId, 6, [], {
+      explicitDomain: config.domainId,
+      depthLevel: config.depthLevelId,
+      language: config.language,
+      targetExam: config.examAlign.examName,
+    });
 
-    moduleTemplates = subtopics.slice(0, 4).map((st, idx) => ({
-      title: st,
-      desc: `Comprehensive instructional unit covering core theory, methods, and practical applications of ${st}.`,
-      objectives: [
-        `Understand foundational definitions, principles, and concepts of ${st}`,
-        `Apply standard analytical frameworks to solve representative problems in ${st}`,
-        `Evaluate edge cases and synthesize integrated solutions across ${primaryTopic}`,
-      ],
-      hours: 6,
-    }));
+    if (synthPath && synthPath.modules && synthPath.modules.length > 0) {
+      moduleTemplates = synthPath.modules.map((m) => {
+        const lessonObjectives = m.lessons?.flatMap((l) =>
+          l.keyConcepts && l.keyConcepts.length > 0 ? l.keyConcepts : [l.title]
+        ) || [];
+        const objectives = lessonObjectives.length >= 2
+          ? lessonObjectives.slice(0, 4)
+          : [
+              `Master foundational concepts and architecture of ${m.title}`,
+              `Apply analytical frameworks to solve problems in ${m.title}`,
+              `Synthesize integrated solutions across ${primaryTopic}`,
+            ];
+
+        return {
+          title: m.title,
+          desc: m.objective || `Instructional module covering ${m.title}.`,
+          objectives,
+          hours: Math.max(3, Math.round(((m as any).estimatedMinutes || (m as any).estimatedDuration || 360) / 60)),
+        };
+      });
+    } else {
+      const complexity = analyzeTopicComplexity(primaryTopic, config.depthLevelId, 24);
+      const subtopics = complexity.detectedSubtopics && complexity.detectedSubtopics.length >= 3
+        ? complexity.detectedSubtopics
+        : [
+            `${primaryTopic}: Foundations & Core Primitives`,
+            `${primaryTopic}: Key Mechanisms & Architecture`,
+            `${primaryTopic}: Advanced Techniques & Optimization`,
+            `${primaryTopic}: Applied Synthesis & Evaluation`,
+          ];
+
+      moduleTemplates = subtopics.map((st) => ({
+        title: st.includes(primaryTopic) ? st : `${primaryTopic}: ${st}`,
+        desc: `Comprehensive instructional unit covering core theory, methods, and practical applications of ${st}.`,
+        objectives: [
+          `Understand foundational definitions, principles, and concepts of ${st}`,
+          `Apply standard analytical frameworks to solve representative problems in ${st}`,
+          `Evaluate edge cases and synthesize integrated solutions across ${primaryTopic}`,
+        ],
+        hours: 6,
+      }));
+    }
   }
 
   // Construct complete CuratorModule structures

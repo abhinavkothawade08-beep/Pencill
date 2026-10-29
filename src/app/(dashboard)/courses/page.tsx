@@ -174,15 +174,19 @@ export default function CoursesPage() {
     setIsDeleting(true);
 
     try {
-      // 1. Delete from storageAdapter
-      await storageAdapter.deletePath(targetCourse.id);
+      // 1. Delete and unenroll via pathService helper
+      await deleteLearningPath(targetCourse.id, {
+        accessToken: session?.access_token,
+        userId: user?.id || null,
+      });
 
-      // 2. Try remote delete
-      if (session?.access_token) {
-        try {
-          await deleteLearningPath(targetCourse.id, { accessToken: session.access_token });
-        } catch {}
-      }
+      // 2. Unenroll user/guest so active enrollment cache purges
+      await unenrollUserFromCourse(user?.id || null, targetCourse.id, {
+        accessToken: session?.access_token,
+      });
+
+      // 3. Delete from storageAdapter
+      await storageAdapter.deletePath(targetCourse.id);
 
       setCourses((prev) => prev.filter((c) => c.id !== targetCourse.id));
       setToastIcon("check_circle");

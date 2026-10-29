@@ -13,12 +13,6 @@ const domainCatalogContent = fs.readFileSync(domainCatalogPath, 'utf8');
 
 // We can extract EDUCATIONAL_DOMAINS using node require or tsx
 const { EDUCATIONAL_DOMAINS } = require('../src/lib/catalogs/domainCatalog.ts');
-let masterData = {};
-try {
-  masterData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/master-youtube-educator-directory.json'), 'utf8'));
-} catch (e) {
-  console.warn('Could not read master-youtube-educator-directory.json:', e.message);
-}
 
 // Generate topic synonyms based on topic label, domain, and subject
 function generateSynonyms(label, domainName, subjectName) {

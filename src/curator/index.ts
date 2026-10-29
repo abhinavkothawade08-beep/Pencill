@@ -1,7 +1,7 @@
 /**
  * Curator Engine Orchestrator
  * 
- * Manages the 7-stage state machine:
+ * Manages the 5-stage curriculum synthesis pipeline:
  * STANDBY -> RUNNING -> COMPLETE | PARTIAL | FAILED
  * Provides cancel token, per-stage retry, and live telemetry updates.
  */
@@ -12,13 +12,10 @@ import {
   CuratorTelemetry,
   StageProgressUpdate,
   SynthesizedPathResult,
-  CuratorModule,
 } from './types';
 import { runStage1Deconstruction, DeconstructionResult } from './stage1-domain-deconstruction';
 import { runStage2PrerequisiteMapping, PrerequisiteMappingResult } from './stage2-prerequisite-mapping';
 import { runStage3Synthesis, CurriculumSynthesisResult } from './stage3-curriculum-synthesis';
-import { runStage4Discovery, DiscoveryResult } from './stage4-resource-discovery';
-import { runStage5Audit, AuditResult } from './stage5-quality-audit';
 import { runStage6Checkpoints, CheckpointsResult } from './stage6-checkpoints-flashcards';
 import { runStage7AssemblyAndPersistence } from './stage7-assembly-persistence';
 
@@ -31,7 +28,6 @@ export interface CuratorEngineListener {
 export class CuratorEngine {
   private state: CuratorEngineState = 'STANDBY';
   private abortRequested = false;
-  private currentStep = 1;
   private telemetry: CuratorTelemetry = {
     resourcesIndexed: 0,
     modulesSynthesized: 0,
@@ -40,7 +36,7 @@ export class CuratorEngine {
     unverifiedCount: 0,
     repoBreakdown: {},
     activeStep: 0,
-    totalSteps: 7,
+    totalSteps: 5,
     elapsedMs: 0,
   };
 
@@ -48,8 +44,6 @@ export class CuratorEngine {
   private cachedDeconstruction?: DeconstructionResult;
   private cachedMapping?: PrerequisiteMappingResult;
   private cachedSynthesis?: CurriculumSynthesisResult;
-  private cachedDiscovery?: DiscoveryResult;
-  private cachedAudit?: AuditResult;
   private cachedCheckpoints?: CheckpointsResult;
 
   constructor(private listeners: CuratorEngineListener = {}) {}
@@ -92,7 +86,7 @@ export class CuratorEngine {
     this.listeners.onTelemetryUpdate?.({ ...this.telemetry });
   }
 
-  async run(config: BuilderConfig): Promise<SynthesizedPathResult> {
+  async run(config: BuilderConfig, userId?: string | null): Promise<SynthesizedPathResult> {
     this.state = 'RUNNING';
     this.abortRequested = false;
     this.listeners.onStateChange?.('RUNNING');
@@ -131,47 +125,29 @@ export class CuratorEngine {
       this.emitStage(3, 'Topic-Adaptive Curriculum Synthesis', 'done', s3Duration, this.cachedSynthesis.summary);
 
       // ----------------------------------------------------------------------
-      // STAGE 4: Verified Resource Discovery
+      // STAGE 4: Diagnostic Checkpoints & Flashcards
       // ----------------------------------------------------------------------
       if (this.abortRequested) throw new Error('Synthesis cancelled by user.');
-      this.emitStage(4, 'Verified Resource Discovery', 'running', 0, 'Querying verified open repositories (NCERT, NPTEL, MIT OCW, Khan)...');
+      this.emitStage(4, 'Diagnostic Checkpoints & Flashcards', 'running', 0, 'Compiling objective-grounded checkpoints and formula cards...');
       const s4Start = Date.now();
-      this.cachedDiscovery = await runStage4Discovery(config, this.cachedSynthesis.modules);
+      this.cachedCheckpoints = await runStage6Checkpoints(config, this.cachedSynthesis.modules);
       const s4Duration = Date.now() - s4Start;
-      this.telemetry.resourcesIndexed = this.cachedDiscovery.totalFound;
-      this.telemetry.repoBreakdown = this.cachedDiscovery.perRepoCounts;
-      this.emitStage(4, 'Verified Resource Discovery', 'done', s4Duration, this.cachedDiscovery.summary);
+      this.emitStage(4, 'Diagnostic Checkpoints & Flashcards', 'done', s4Duration, this.cachedCheckpoints.summary);
 
       // ----------------------------------------------------------------------
-      // STAGE 5: Quality, Audio & Syllabus Audit (Metadata Audit)
+      // STAGE 5: Assembly & Registry Persistence
       // ----------------------------------------------------------------------
       if (this.abortRequested) throw new Error('Synthesis cancelled by user.');
-      this.emitStage(5, 'Quality, Audio & Syllabus Audit', 'running', 0, 'Auditing metadata: language, captions, freshness, and syllabus coverage...');
+      this.emitStage(5, 'Assembly & Registry Persistence', 'running', 0, 'Persisting learning path and registering learner in local store...');
       const s5Start = Date.now();
-      this.cachedAudit = await runStage5Audit(config, this.cachedSynthesis.modules, this.cachedDiscovery);
+      const finalPath = await runStage7AssemblyAndPersistence(
+        config,
+        this.cachedCheckpoints.completedModules,
+        undefined,
+        userId
+      );
       const s5Duration = Date.now() - s5Start;
-      this.telemetry.verifiedCount = this.cachedAudit.passedCount;
-      this.emitStage(5, 'Quality, Audio & Syllabus Audit', 'done', s5Duration, this.cachedAudit.summary);
-
-      // ----------------------------------------------------------------------
-      // STAGE 6: Diagnostic Checkpoints & Flashcards
-      // ----------------------------------------------------------------------
-      if (this.abortRequested) throw new Error('Synthesis cancelled by user.');
-      this.emitStage(6, 'Diagnostic Checkpoints & Flashcards', 'running', 0, 'Compiling objective-grounded checkpoints and formula cards...');
-      const s6Start = Date.now();
-      this.cachedCheckpoints = await runStage6Checkpoints(config, this.cachedAudit.auditedModules);
-      const s6Duration = Date.now() - s6Start;
-      this.emitStage(6, 'Diagnostic Checkpoints & Flashcards', 'done', s6Duration, this.cachedCheckpoints.summary);
-
-      // ----------------------------------------------------------------------
-      // STAGE 7: Assembly & Registry Persistence
-      // ----------------------------------------------------------------------
-      if (this.abortRequested) throw new Error('Synthesis cancelled by user.');
-      this.emitStage(7, 'Assembly & Registry Persistence', 'running', 0, 'Persisting learning path and registering learner in local store...');
-      const s7Start = Date.now();
-      const finalPath = await runStage7AssemblyAndPersistence(config, this.cachedCheckpoints.completedModules, this.cachedAudit);
-      const s7Duration = Date.now() - s7Start;
-      this.emitStage(7, 'Assembly & Registry Persistence', 'done', s7Duration, `Successfully registered "${finalPath.title}" to local course store.`);
+      this.emitStage(5, 'Assembly & Registry Persistence', 'done', s5Duration, `Successfully registered "${finalPath.title}" to local course store.`);
 
       this.telemetry.elapsedMs = Date.now() - startTime;
 

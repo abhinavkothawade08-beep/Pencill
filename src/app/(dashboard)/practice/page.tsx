@@ -11,6 +11,7 @@ import DeleteAllModal from "@/components/ui/DeleteAllModal";
 import Toast from "@/components/ui/Toast";
 import { getAllQuizzes, deleteQuiz, batchDeleteQuizzes } from "@/services/supabase/quizService";
 import { addBookmark } from "@/services/supabase/bookmarkService";
+import { getVerifiedResources, searchResourcesInDatabase } from "@/services/supabase/resourceService";
 import { storageAdapter } from "@/lib/storage/storageAdapter";
 import { useAuth } from "@/context/AuthContext";
 
@@ -128,25 +129,28 @@ export default function PracticeQuizzesPage() {
     async (topicOverride?: string) => {
       setLoadingPractice(true);
       try {
-        const queryTopic = topicOverride ?? practiceSearchTopic.trim();
-        const params = new URLSearchParams();
-        if (queryTopic) params.set("topic", queryTopic);
-        if (selectedDifficulty !== "all") params.set("difficulty", selectedDifficulty);
-        if (selectedExam !== "all") params.set("examTarget", selectedExam);
-        params.set("limit", "12");
-
-        const res = await fetch(`/api/resources/practice?${params.toString()}`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.resources)) {
-          setPracticeResources(data.resources);
+        const queryTopic = (topicOverride ?? practiceSearchTopic).trim();
+        let results: import("@/services/supabase/resourceService").DatabaseResource[] = [];
+        if (queryTopic) {
+          results = await searchResourcesInDatabase(queryTopic, { type: "practice", limit: 12 });
         }
+        if (results.length === 0) {
+          results = await getVerifiedResources({ type: "practice", limit: 12 });
+        }
+        setPracticeResources(
+          results.map((r) => ({
+            ...r,
+            description: r.description ?? undefined,
+            externalId: r.externalId ?? undefined,
+          }))
+        );
       } catch (err) {
         console.error("Failed to load practice resources:", err);
       } finally {
         setLoadingPractice(false);
       }
     },
-    [practiceSearchTopic, selectedDifficulty, selectedExam]
+    [practiceSearchTopic]
   );
 
   useEffect(() => {

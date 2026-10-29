@@ -14,13 +14,10 @@ import {
   GeneratedLessonSummary,
   GenerateQuizInput,
   GeneratedQuiz,
-  AnalyzeResourcesInput,
-  OrganizedResources,
   RecommendationsInput,
   GeneratedRecommendations,
 } from '../types';
 import { callGemini, GeminiClientError } from './client';
-import { extractJsonFromText } from '@/lib/resource-engine-v2/utils/text-utils';
 import {
   analyzeTopicComplexity,
   validateAndSanitizeCurriculum,
@@ -28,20 +25,31 @@ import {
 } from '../curriculum-adaptive-engine';
 
 function extractJson<T>(rawText: string, fallbackDesc: string): T {
-  // First attempt using robust text-utils extractor (handles LaTeX unescaped slashes, code fences, truncation)
-  const extracted = extractJsonFromText<T>(rawText);
-  if (extracted) {
-    return extracted;
-  }
-
   try {
-    // Secondary fallback cleanup
     let clean = rawText.trim();
     if (clean.startsWith('```')) {
       const firstNewline = clean.indexOf('\n');
       const lastFence = clean.lastIndexOf('```');
       if (firstNewline !== -1 && lastFence > firstNewline) {
         clean = clean.substring(firstNewline + 1, lastFence).trim();
+      }
+    }
+    const firstBrace = clean.indexOf('{');
+    const firstBracket = clean.indexOf('[');
+    let startIdx = -1;
+    if (firstBrace !== -1 && firstBracket !== -1) {
+      startIdx = Math.min(firstBrace, firstBracket);
+    } else if (firstBrace !== -1) {
+      startIdx = firstBrace;
+    } else {
+      startIdx = firstBracket;
+    }
+    if (startIdx !== -1) {
+      const isObject = clean[startIdx] === '{';
+      const endChar = isObject ? '}' : ']';
+      const endIdx = clean.lastIndexOf(endChar);
+      if (endIdx > startIdx) {
+        clean = clean.substring(startIdx, endIdx + 1);
       }
     }
     return JSON.parse(clean) as T;
@@ -556,46 +564,6 @@ JSON Structure to return:
     };
   }
 
-  /**
-   * 5. Analyze and organize discovered web/video resources into pedagogical order
-   */
-  async analyzeResources(input: AnalyzeResourcesInput): Promise<OrganizedResources> {
-    const systemInstruction = `
-You are an editorial resource evaluator at Pencill.
-Critique and sequence raw crawled educational materials, assigning quality scores (0-100) based on conceptual clarity, absence of commercial fluff, and rigor.
-Always return pure valid JSON.
-`.trim();
-
-    const resourcesJson = JSON.stringify(input.resources.slice(0, 10), null, 2);
-
-    const prompt = `
-Evaluate and pedagogically order the following raw resources discovered for "${input.topic}" (${input.domain}):
-${resourcesJson}
-
-Output JSON with this structure:
-{
-  "topic": "${input.topic}",
-  "evaluatedResources": [
-    {
-      "title": "Clean academic title",
-      "sourceUrl": "The exact sourceUrl provided",
-      "sourceName": "Publisher or institution name",
-      "recommendedCategory": "core_lecture",
-      "qualityScore": 88,
-      "pedagogicalSequenceOrder": 1,
-      "evaluationRationale": "Explains why this fits early in the student journey"
-    }
-  ],
-  "synthesizedStudySequence": [
-    "Step 1: Understand intuition through resource X",
-    "Step 2: Formalize mathematical rigor with resource Y"
-  ]
-}
-`.trim();
-
-    const raw = await callGemini(prompt, systemInstruction, { jsonMode: true });
-    return extractJson<OrganizedResources>(raw, `Resource Analysis for ${input.topic}`);
-  }
 
   /**
    * 6. Generate adaptive study recommendations based on student progress

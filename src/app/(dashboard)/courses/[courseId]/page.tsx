@@ -341,12 +341,19 @@ export default function CourseDetailsPage() {
     setIsDeleting(true);
 
     try {
+      // 1. Delete and unenroll via pathService helper
+      await deleteLearningPath(course.id, {
+        accessToken: session?.access_token,
+        userId: user?.id || null,
+      });
+
+      // 2. Explicitly ensure unenrollment
+      await unenrollUserFromCourse(user?.id || null, course.id, {
+        accessToken: session?.access_token,
+      });
+
+      // 3. Remove from storageAdapter
       await storageAdapter.deletePath(course.id);
-      if (session?.access_token) {
-        try {
-          await deleteLearningPath(course.id, { accessToken: session.access_token });
-        } catch {}
-      }
 
       setToastIcon("check_circle");
       setToastMessage(`Curriculum "${course.title}" was permanently deleted.`);
@@ -374,7 +381,10 @@ export default function CourseDetailsPage() {
     const questions = activeQuizModule.checkpointQuestions || [];
     let correct = 0;
     questions.forEach((q: any, idx: number) => {
-      if (quizAnswers[idx] === q.correctOptionIndex) {
+      const targetIndex = typeof q.correctOptionIndex === 'number'
+        ? q.correctOptionIndex
+        : (q.correctOptionId ? (q.correctOptionId.charCodeAt(0) - 65) : 0);
+      if (quizAnswers[idx] === targetIndex) {
         correct++;
       }
     });
@@ -442,57 +452,61 @@ export default function CourseDetailsPage() {
   return (
     <div className="flex flex-col gap-space-xl pb-space-xl max-w-5xl mx-auto print:max-w-none print:p-0">
       {/* 1. Course Header Section */}
-      <section className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm border border-surface-container-high/60 print:border-none print:shadow-none print:p-0">
-        <div className="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-space-xs print:hidden">
+      <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm border border-surface-container-high/60 print:border-none print:shadow-none print:p-0 relative overflow-hidden">
+        {/* Breadcrumb */}
+        <div className="flex flex-wrap items-center gap-space-xs text-on-surface-variant font-label-md text-label-md mb-space-sm print:hidden">
           <Link href="/courses" className="hover:text-primary transition-colors">
-            Courses
+            My Courses
           </Link>
-          <span>/</span>
-          <span className="text-secondary font-semibold">{course.domain || course.domainId || "Academic Track"}</span>
-          <span>/</span>
-          <span className="capitalize">{course.level || course.depthLevel || "Standard"}</span>
+          <span className="material-symbols-outlined text-xs">chevron_right</span>
+          <span className="text-primary font-semibold">{course.title}</span>
+          <span className="mx-space-xs text-outline-variant">•</span>
+          <span className="bg-secondary-container/50 text-on-secondary-fixed-variant px-2 py-0.5 rounded font-label-sm text-label-sm font-semibold">
+            Curated Pathway
+          </span>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mt-1">
+        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-space-sm">
           <div>
             <h1 className="font-display-lg text-display-lg text-primary tracking-tight font-serif">
               {course.title}
             </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-2 leading-relaxed max-w-3xl">
-              {course.description ||
-                "Synthesized multi-stage curriculum sequenced from verified open academic repositories."}
+            <p className="font-body-md text-body-md text-on-surface-variant mt-1 leading-relaxed max-w-3xl">
+              {course.level || "Class 11"} · {course.language || "English Medium"} · {course.description || "Rigorous academic pathway curated from verified open access repositories."}
             </p>
           </div>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold self-start md:self-auto shrink-0 print:hidden">
+            <span className="w-2 h-2 rounded-full bg-secondary"></span>
+            Advanced Syllabus
+          </span>
+        </div>
 
-          {/* Print & Export Actions */}
-          <div className="flex items-center gap-2 shrink-0 print:hidden">
-            <button
-              type="button"
-              onClick={handleExportJson}
-              className="px-3 py-1.5 rounded-lg border border-surface-container-high/60 text-xs font-semibold text-primary hover:bg-surface-container transition-colors flex items-center gap-1.5"
-              title="Export complete curriculum JSON"
-            >
-              <span className="material-symbols-outlined text-sm">download</span>
-              <span>Export JSON</span>
-            </button>
-            <button
-              type="button"
-              onClick={handlePrintSyllabus}
-              className="px-3 py-1.5 rounded-lg border border-surface-container-high/60 text-xs font-semibold text-primary hover:bg-surface-container transition-colors flex items-center gap-1.5"
-              title="Print syllabus or save to PDF"
-            >
-              <span className="material-symbols-outlined text-sm">print</span>
-              <span>Print</span>
-            </button>
+        {/* Academic Metadata Array */}
+        <div className="flex flex-wrap items-center gap-space-sm mt-space-md pt-space-md border-t border-surface-container-low print:hidden">
+          <div className="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+            <span className="material-symbols-outlined text-base text-on-surface-variant">auto_stories</span>
+            <span>{totalLessonsCount} Resources</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+            <span className="material-symbols-outlined text-base text-on-surface-variant">category</span>
+            <span>{course.modules?.length || 4} Core Modules</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-on-surface font-label-md text-label-md bg-surface-container-low px-2.5 py-1 rounded">
+            <span className="material-symbols-outlined text-base text-on-surface-variant">schedule</span>
+            <span>{course.durationHours || 18} Hours Total</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-on-secondary-fixed-variant font-label-md text-label-md bg-secondary-fixed/40 px-2.5 py-1 rounded">
+            <span className="material-symbols-outlined text-base">psychology</span>
+            <span>Prerequisites: {course.domain || "Standard Syllabus"}</span>
           </div>
         </div>
 
-        {/* Progress summary */}
-        <div className="mt-space-lg pt-space-md border-t border-surface-container-high/40 print:hidden">
-          <div className="flex items-center justify-between font-label-sm text-label-sm mb-2">
-            <span className="font-semibold text-primary">Mastery Progress</span>
-            <span className="text-on-surface-variant">
-              {progressPercent}% Completed · {completedCount} of {totalLessonsCount} Lessons Cleared
+        {/* Course Progress Ribbon */}
+        <div className="mt-space-lg bg-surface-container-low p-space-md rounded-lg border border-surface-container-high/40 print:hidden">
+          <div className="flex items-center justify-between font-label-md text-label-md mb-2">
+            <span className="text-on-surface font-semibold">Curriculum Progression</span>
+            <span className="text-primary font-bold">
+              {progressPercent}% Complete <span className="font-normal text-on-surface-variant">({completedCount} of {totalLessonsCount} items)</span>
             </span>
           </div>
           <div className="w-full h-2.5 bg-surface-variant rounded-full overflow-hidden flex">
@@ -503,30 +517,17 @@ export default function CourseDetailsPage() {
           </div>
         </div>
 
-        {/* Action Launch Bar */}
+        {/* Quick Launch Bar */}
         <div className="flex flex-wrap items-center justify-between gap-space-md mt-space-lg pt-space-sm print:hidden">
-          <div className="flex items-center gap-3">
-            {firstLesson?.url || firstLesson?.sourceUrl ? (
-              <a
-                href={firstLesson.url || firstLesson.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+          <div className="flex flex-wrap items-center gap-3">
+            {firstLesson && (
+              <Link
+                href={`/learn/${course.id}/${firstLesson.id}`}
                 className="bg-primary text-on-primary hover:bg-primary-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-all shadow-sm flex items-center gap-2 active:scale-95"
               >
                 <span className="material-symbols-outlined text-lg">play_circle</span>
-                <span>Launch First Lesson</span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={handleToggleEnroll}
-                className="bg-primary text-on-primary hover:bg-primary-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-all shadow-sm flex items-center gap-2 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-lg">
-                  {isEnrolled ? "check_circle" : "school"}
-                </span>
-                <span>{isEnrolled ? "Enrolled in Track" : "Enroll Now (Free)"}</span>
-              </button>
+                <span>Resume Next: {firstLesson.title}</span>
+              </Link>
             )}
 
             <button
@@ -542,9 +543,29 @@ export default function CourseDetailsPage() {
               <span className="material-symbols-outlined text-base">
                 {isEnrolled ? "check" : "add"}
               </span>
-              <span>{isEnrolled ? "Enrolled" : "Enroll"}</span>
+              <span>{isEnrolled ? "Enrolled" : "Enroll Free"}</span>
             </button>
 
+            <button
+              type="button"
+              onClick={handlePrintSyllabus}
+              className="bg-surface-container-lowest text-primary hover:bg-surface-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-colors flex items-center gap-1.5 border border-surface-container-high/60"
+            >
+              <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+              <span>Syllabus (Print/PDF)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="bg-surface-container-lowest text-primary hover:bg-surface-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-colors flex items-center gap-1.5 border border-surface-container-high/60"
+            >
+              <span className="material-symbols-outlined text-lg">download</span>
+              <span>JSON</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleToggleBookmark}
@@ -559,19 +580,61 @@ export default function CourseDetailsPage() {
                 {isBookmarked ? "bookmark_added" : "bookmark_border"}
               </span>
             </button>
-          </div>
 
-          <div className="flex items-center gap-2">
             {canDelete && (
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="text-error hover:bg-error/10 px-3 py-2 rounded-lg font-label-md text-label-md transition-colors flex items-center gap-1.5"
+                className="text-error hover:bg-error/10 px-3 py-2 rounded-lg font-label-md text-label-md transition-colors flex items-center gap-1.5 border border-transparent hover:border-error/20"
+                title="Delete Course Track"
               >
                 <span className="material-symbols-outlined text-base">delete</span>
                 <span className="hidden sm:inline">Delete Track</span>
               </button>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Pedagogical Statement & Visual Spark Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-space-md items-stretch print:hidden">
+        <div className="md:col-span-2 bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/60 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm tracking-wider uppercase mb-1 font-semibold">
+              <span className="material-symbols-outlined text-sm text-secondary">verified_user</span>
+              <span>Curator&apos;s Syllabus Note</span>
+            </div>
+            <p className="font-body-md text-body-md text-on-surface leading-relaxed">
+              A structured mastery pathway spanning analytical theory, rigorous concept mapping, and graded practice problem sets. Designed for deep conceptual intuition, moving deliberately from intuitive physical models to calculus-based derivations.
+            </p>
+          </div>
+          <div className="flex items-center gap-space-md pt-space-sm mt-space-sm border-t border-surface-container-low text-on-surface-variant font-label-sm text-label-sm">
+            <span className="flex items-center gap-1 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {totalLessonsCount} Verified Resources
+            </span>
+            <span className="flex items-center gap-1 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> Continuous Diagnostic Checkpoints
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-primary text-on-primary rounded-xl p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm">
+          <div className="absolute -right-6 -bottom-6 opacity-10 text-on-primary pointer-events-none">
+            <span className="material-symbols-outlined text-9xl">functions</span>
+          </div>
+          <div className="relative z-10">
+            <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary-fixed font-semibold">Weekly Target</span>
+            <h3 className="font-headline-md text-headline-md mt-1 font-serif">Curriculum Sprint</h3>
+            <p className="font-body-sm text-body-sm text-primary-fixed-dim mt-1">Projected mastery checkpoint this week.</p>
+          </div>
+          <div className="relative z-10 pt-space-md">
+            <div className="flex justify-between items-end mb-1 text-on-primary font-label-sm text-label-sm">
+              <span>Target Completion</span>
+              <span className="font-bold">{progressPercent}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-primary-container rounded-full overflow-hidden">
+              <div className="h-full bg-secondary-fixed transition-all" style={{ width: `${progressPercent}%` }}></div>
+            </div>
           </div>
         </div>
       </section>
@@ -779,26 +842,34 @@ export default function CourseDetailsPage() {
                                 )}
                               </div>
 
-                              <p
-                                className={`font-label-lg text-label-lg truncate mt-0.5 ${
-                                  isDone ? "line-through text-on-surface-variant" : "text-primary"
+                              <Link
+                                href={`/learn/${course.id}/${item.id}`}
+                                className={`font-label-lg text-label-lg truncate mt-0.5 block hover:underline ${
+                                  isDone ? "line-through text-on-surface-variant" : "text-primary font-medium"
                                 }`}
                               >
                                 {item.title}
-                              </p>
+                              </Link>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0 print:hidden">
+                            <Link
+                              href={`/learn/${course.id}/${item.id}`}
+                              className="px-3 py-1 rounded text-xs font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-1 shadow-xs"
+                            >
+                              <span>Study</span>
+                              <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                            </Link>
                             {(item.url || item.sourceUrl) && (
                               <a
                                 href={item.url || item.sourceUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-3 py-1 rounded text-xs font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-1"
+                                className="p-1 rounded text-on-surface-variant hover:text-primary transition-colors"
+                                title="Open Original Source Repository"
                               >
-                                <span>Open</span>
-                                <span className="material-symbols-outlined text-xs">open_in_new</span>
+                                <span className="material-symbols-outlined text-base">open_in_new</span>
                               </a>
                             )}
                           </div>
@@ -841,7 +912,14 @@ export default function CourseDetailsPage() {
               <div className="py-4 space-y-6">
                 {activeQuizModule.checkpointQuestions.map((q: any, qIdx: number) => {
                   const selected = quizAnswers[qIdx];
-                  const isCorrect = selected === q.correctOptionIndex;
+                  const correctIdx = typeof q.correctOptionIndex === 'number'
+                    ? q.correctOptionIndex
+                    : (q.correctOptionId ? (q.correctOptionId.charCodeAt(0) - 65) : 0);
+                  const isCorrect = selected === correctIdx;
+                  const questionPrompt = q.questionText || q.prompt || `Question ${qIdx + 1}`;
+                  const optionsList = Array.isArray(q.options)
+                    ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt?.text || opt?.label || String(opt)))
+                    : (q.optionsList || []);
 
                   return (
                     <div
@@ -854,14 +932,14 @@ export default function CourseDetailsPage() {
                           {q.difficulty || "medium"}
                         </span>
                       </div>
-                      <p className="font-semibold text-primary mb-3 text-sm">{q.questionText}</p>
+                      <p className="font-semibold text-primary mb-3 text-sm">{questionPrompt}</p>
 
                       <div className="space-y-2">
-                        {q.options?.map((opt: string, optIdx: number) => {
+                        {optionsList.map((opt: string, optIdx: number) => {
                           const isOptionSelected = selected === optIdx;
                           let optionClass = "bg-surface-container-lowest border-surface-container-high/60 text-on-surface";
                           if (quizSubmitted) {
-                            if (optIdx === q.correctOptionIndex) {
+                            if (optIdx === correctIdx) {
                               optionClass = "bg-emerald-500/15 border-emerald-500/50 text-emerald-800 dark:text-emerald-300 font-bold";
                             } else if (isOptionSelected) {
                               optionClass = "bg-rose-500/15 border-rose-500/50 text-rose-800 dark:text-rose-300 line-through";
@@ -878,7 +956,7 @@ export default function CourseDetailsPage() {
                               className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all flex items-center justify-between ${optionClass}`}
                             >
                               <span>{opt}</span>
-                              {quizSubmitted && optIdx === q.correctOptionIndex && (
+                              {quizSubmitted && optIdx === correctIdx && (
                                 <span className="material-symbols-outlined text-sm text-emerald-600">check</span>
                               )}
                             </button>

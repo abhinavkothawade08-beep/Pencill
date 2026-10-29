@@ -165,35 +165,6 @@ export interface GeneratedQuiz {
   questions: GeneratedQuizQuestion[];
 }
 
-export interface RawResourceItem {
-  title: string;
-  sourceUrl: string;
-  sourceName?: string;
-  rawSnippet?: string;
-}
-
-export interface AnalyzeResourcesInput {
-  topic: string;
-  domain: string;
-  resources: RawResourceItem[];
-}
-
-export interface EvaluatedResource {
-  title: string;
-  sourceUrl: string;
-  sourceName: string;
-  recommendedCategory: 'core_lecture' | 'supplementary_monograph' | 'problem_set' | 'reference';
-  qualityScore: number; // 0 - 100
-  pedagogicalSequenceOrder: number;
-  evaluationRationale: string;
-}
-
-export interface OrganizedResources {
-  topic: string;
-  evaluatedResources: EvaluatedResource[];
-  synthesizedStudySequence: string[];
-}
-
 export interface RecommendationsInput {
   userCurrentLevel: string;
   completedTopics: string[];
@@ -222,6 +193,5 @@ export interface AIProvider {
   generateModuleAndLessons(input: GenerateModuleInput): Promise<GeneratedModule>;
   generateLessonSummary(input: GenerateSummaryInput): Promise<GeneratedLessonSummary>;
   generateQuizQuestions(input: GenerateQuizInput): Promise<GeneratedQuiz>;
-  analyzeResources(input: AnalyzeResourcesInput): Promise<OrganizedResources>;
   generateRecommendations(input: RecommendationsInput): Promise<GeneratedRecommendations>;
 }

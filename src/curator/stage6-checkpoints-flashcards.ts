@@ -52,12 +52,12 @@ export async function runStage6Checkpoints(
       let explanation = `Mastery of "${m.title}" requires rigorously satisfying the objective: ${obj}.`;
 
       if (isProgramming) {
-        prompt = `When implementing "${obj}" in ${m.title}, what is the correct control flow principle?`;
-        optionA = `Ensure loop termination conditions are rigorously bounded and state invariants are preserved.`;
+        prompt = `When implementing "${obj}" in ${m.title}, what is the key architectural or algorithmic principle?`;
+        optionA = `Establish deterministic state transitions, enforce explicit boundary and type invariants, and handle edge cases safely.`;
         optionB = `Execute unbounded iteration without checking termination or collection bounds.`;
-        optionC = `Suppress runtime exceptions without inspecting loop counter variables.`;
-        optionD = `Mutate the collection in-place during iteration without an iterator snapshot.`;
-        explanation = `Proper programming methodology for "${obj}" mandates explicit bounds checking, deterministic state transitions, and safe iteration.`;
+        optionC = `Suppress runtime exceptions without inspecting loop counter variables or logging root causes.`;
+        optionD = `Mutate state globally without isolation, encapsulation, or idempotency checks.`;
+        explanation = `Proper programming methodology for "${obj}" mandates explicit bounds checking, deterministic state transitions, and safe error handling.`;
       } else if (isMath) {
         prompt = `For the objective "${obj}" in ${m.title}, which analytical method applies?`;
         optionA = `Apply verified integration/differentiation rules and satisfy specified initial or boundary conditions.`;
@@ -78,13 +78,16 @@ export async function runStage6Checkpoints(
         id: qId,
         questionNumber: qIdx + 1,
         prompt,
+        questionText: prompt,
         options: [
           { id: 'A', text: optionA },
           { id: 'B', text: optionB },
           { id: 'C', text: optionC },
           { id: 'D', text: optionD },
         ],
+        optionsList: [optionA, optionB, optionC, optionD],
         correctOptionId: 'A',
+        correctOptionIndex: 0,
         explanation,
         difficulty: qIdx === 0 ? 'foundation' : qIdx === 1 ? 'intermediate' : 'advanced',
         topic: m.title,
@@ -96,17 +99,22 @@ export async function runStage6Checkpoints(
     // 2. PYQ question handling: honest ground rules
     if (hasPYQ) {
       if (isPhysics && examName && (examName.includes('JEE') || examName.includes('NEET') || examName.includes('CBSE'))) {
+        const pyqPrompt = `[${examName} Physics Archive] A particle moves in 1D such that its position satisfies x(t) = at^2 - bt^3. What is the particle's instantaneous velocity at time t = a/(3b)?`;
+        const pyqOptions = [
+          { id: 'A', text: `v = a^2 / (3b)` },
+          { id: 'B', text: `v = 0` },
+          { id: 'C', text: `v = a^2 / (9b)` },
+          { id: 'D', text: `v = 2a / (3b)` },
+        ];
         questions.push({
           id: `pyq-${m.id}`,
           questionNumber: questions.length + 1,
-          prompt: `[${examName} Physics Archive] A particle moves in 1D such that its position satisfies x(t) = at^2 - bt^3. What is the particle's instantaneous velocity at time t = a/(3b)?`,
-          options: [
-            { id: 'A', text: `v = a^2 / (3b)` },
-            { id: 'B', text: `v = 0` },
-            { id: 'C', text: `v = a^2 / (9b)` },
-            { id: 'D', text: `v = 2a / (3b)` },
-          ],
+          prompt: pyqPrompt,
+          questionText: pyqPrompt,
+          options: pyqOptions,
+          optionsList: pyqOptions.map((o) => o.text),
           correctOptionId: 'A',
+          correctOptionIndex: 0,
           explanation: `Velocity is the first derivative v(t) = dx/dt = 2at - 3bt^2. Substituting t = a/(3b) yields v = 2a(a/(3b)) - 3b(a^2/(9b^2)) = 2a^2/(3b) - a^2/(3b) = a^2/(3b).`,
           difficulty: 'advanced',
           topic: m.title,

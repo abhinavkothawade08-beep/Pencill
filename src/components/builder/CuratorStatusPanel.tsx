@@ -32,10 +32,8 @@ export default function CuratorStatusPanel({
     { step: 1, title: "Domain & Syllabus Deconstruction", defaultDesc: "Classifying core concepts and scope from standard curricula." },
     { step: 2, title: "Prerequisite Hierarchy Mapping", defaultDesc: "Sequencing foundational axioms ahead of advanced applications." },
     { step: 3, title: "Topic-Adaptive Curriculum Synthesis", defaultDesc: "Determining optimal cohesive module count without arbitrary bloat." },
-    { step: 4, title: "Verified Resource Discovery", defaultDesc: "Searching open academic repositories, NPTEL, NCERT & top channels." },
-    { step: 5, title: "Quality, Audio & Syllabus Audit", defaultDesc: "Evaluating video clarity, chapters, and conceptual relevance." },
-    { step: 6, title: "Diagnostic Checkpoints & Flashcards", defaultDesc: "Synthesizing formative unit quizzes and formula memory decks." },
-    { step: 7, title: "Curriculum Assembly & Registry Persistence", defaultDesc: "Validating learning path and enrolling learner in active course." },
+    { step: 4, title: "Diagnostic Checkpoints & Flashcards", defaultDesc: "Synthesizing formative unit quizzes and formula memory decks." },
+    { step: 5, title: "Curriculum Assembly & Registry Persistence", defaultDesc: "Validating learning path and enrolling learner in active course." },
   ];
 
   return (

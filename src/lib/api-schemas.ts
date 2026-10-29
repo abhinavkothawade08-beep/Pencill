@@ -102,28 +102,6 @@ export const QuizSubmitRequestSchema = z.object({
   timeSpentSeconds: z.coerce.number().min(0).default(0),
 });
 
-export const ResourceSearchRequestSchema = z.object({
-  query: z.string().min(1, 'Search query is required and cannot be empty'),
-  limit: z.coerce.number().min(1).max(30).default(10),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'competitive']).optional(),
-  examContext: z.string().optional(),
-  providers: z.array(z.enum(['google', 'youtube', 'web', 'practice', 'quiz'])).optional(),
-  resourceTypes: z.array(z.any()).optional(),
-});
-
-export const ResourceEvaluateRequestSchema = z.object({
-  resources: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-      description: z.string().optional(),
-      type: z.string(),
-      sourceUrl: z.string().url(),
-      sourceName: z.string(),
-    })
-  ).min(1, 'At least one resource must be provided for evaluation'),
-});
-
 export const DeleteCourseParamsSchema = z.object({
   id: z
     .string()
@@ -138,16 +116,6 @@ export const DeleteCourseQuerySchema = z.object({
     .enum(['true', 'false', '1', '0'])
     .optional()
     .transform((val) => val === 'true' || val === '1'),
-});
-
-export const NotesDiscoverRequestSchema = z.object({
-  topic: z.string().trim().min(1, 'Topic parameter is required and cannot be empty'),
-  lessonTitle: z.string().optional(),
-  domain: z.string().optional(),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'competitive']).optional(),
-  examContext: z.string().optional(),
-  limit: z.coerce.number().min(1).max(20).default(6),
-  minQualityScore: z.coerce.number().min(0).max(100).optional(),
 });
 
 export const DeleteQuizParamsSchema = z.object({

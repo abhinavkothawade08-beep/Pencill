@@ -1,5 +1,203 @@
 [
   {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt6dcpb",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvt6dcpb",
+    "enrolledAt": "2026-10-29T06:41:22.333Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T06:41:22.333Z"
+  },
+  {
+    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
+    "userId": "test-learner-alice-uuid-001",
+    "courseId": "oops-in-python-programming-langu-mv9rshpy",
+    "enrolledAt": "2026-10-29T06:41:12.183Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T06:41:12.183Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt5wn0e",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvt5wn0e",
+    "enrolledAt": "2026-10-29T06:28:22.543Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T06:28:22.543Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvsefybf",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvsefybf",
+    "enrolledAt": "2026-10-28T17:39:34.458Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-28T17:39:34.458Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqulna4",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqulna4",
+    "enrolledAt": "2026-10-27T15:36:21.544Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T15:36:21.544Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqtsosa",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqtsosa",
+    "enrolledAt": "2026-10-27T15:13:50.475Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T15:13:50.475Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqr1494",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqr1494",
+    "enrolledAt": "2026-10-27T13:56:24.917Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T13:56:24.917Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqqeekv",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqqeekv",
+    "enrolledAt": "2026-10-27T13:38:45.216Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T13:38:45.216Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqq9a5a",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqq9a5a",
+    "enrolledAt": "2026-10-27T13:34:46.190Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T13:34:46.190Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqpyqsy",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqpyqsy",
+    "enrolledAt": "2026-10-27T13:26:34.560Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T13:26:34.560Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqp8bw4",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqp8bw4",
+    "enrolledAt": "2026-10-27T13:06:02.177Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T13:06:02.177Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqlfa94",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqlfa94",
+    "enrolledAt": "2026-10-27T11:19:28.181Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T11:19:28.181Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqleksy",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqleksy",
+    "enrolledAt": "2026-10-27T11:18:55.201Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T11:18:55.201Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqldlhi",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqldlhi",
+    "enrolledAt": "2026-10-27T11:18:09.434Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T11:18:09.434Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvql9rs5",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvql9rs5",
+    "enrolledAt": "2026-10-27T11:15:10.969Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T11:15:10.969Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqk1aow",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqk1aow",
+    "enrolledAt": "2026-10-27T10:40:35.958Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T10:40:35.958Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-1793097349484-enicx",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-1793097349484-enicx",
+    "enrolledAt": "2026-10-27T10:35:54.270Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T10:35:54.270Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqjkgo0",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqjkgo0",
+    "enrolledAt": "2026-10-27T10:27:30.549Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T10:27:30.549Z"
+  },
+  {
+    "id": "enrollment-00000000-0000-0000-0000-000000000001-retrieval-augmented-generation-r-mvqez4gm",
+    "userId": "00000000-0000-0000-0000-000000000001",
+    "courseId": "retrieval-augmented-generation-r-mvqez4gm",
+    "enrolledAt": "2026-10-27T08:18:59.916Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T08:18:59.916Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqetifp",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvqetifp",
+    "enrolledAt": "2026-10-27T08:14:34.669Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T08:14:34.669Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-1793086890377-03nei",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-1793086890377-03nei",
+    "enrolledAt": "2026-10-27T07:41:34.051Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T07:41:34.051Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-1793086756639-q4k64",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-1793086756639-q4k64",
+    "enrolledAt": "2026-10-27T07:39:21.077Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-27T07:39:21.077Z"
+  },
+  {
     "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqanx88",
     "userId": "test-student-charlie-uuid",
     "courseId": "fine-tuning-of-ai-models-compreh-mvqanx88",
@@ -7,15 +205,6 @@
     "completionStatus": "in_progress",
     "progressPercent": 0,
     "lastAccessedAt": "2026-10-27T06:18:15.434Z"
-  },
-  {
-    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
-    "userId": "test-learner-alice-uuid-001",
-    "courseId": "oops-in-python-programming-langu-mv9rshpy",
-    "enrolledAt": "2026-10-27T06:18:09.666Z",
-    "completionStatus": "in_progress",
-    "progressPercent": 0,
-    "lastAccessedAt": "2026-10-27T06:18:09.666Z"
   },
   {
     "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvqakijj",

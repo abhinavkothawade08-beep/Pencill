@@ -1,5 +1,4 @@
-import { supabase, isSupabaseConfigured, getAuthenticatedSupabaseClient } from "./client";
-import { EngineResource, toCoreResourceType } from "@/lib/resource-engine-v2";
+import { supabase, isSupabaseConfigured } from "./client";
 import { ResourceType } from "@/types";
 
 export interface DatabaseResource {
@@ -17,111 +16,6 @@ export interface DatabaseResource {
   educatorId?: string | null;
   discoverySource?: string | null;
   createdAt: string;
-}
-
-export interface SaveResourcesResult {
-  success: boolean;
-  jobId?: string;
-  savedCount: number;
-  error?: string;
-}
-
-/**
- * Persist discovered resources and associated discovery job into Supabase.
- * Uses authenticated client when user token is present, and handles RLS/guest mode safely.
- */
-export async function saveDiscoveredResources(
-  topic: string,
-  resources: EngineResource[],
-  accessToken?: string
-): Promise<SaveResourcesResult> {
-  if (!isSupabaseConfigured || resources.length === 0) {
-    return { success: false, savedCount: 0, error: 'Database not configured or no resources provided' };
-  }
-
-  const client = getAuthenticatedSupabaseClient(accessToken);
-  let createdJobId: string | undefined;
-
-  // 1. Attempt to log discovery job (optional, fails gracefully under guest RLS)
-  try {
-    const { data: jobData, error: jobError } = await client
-      .from('discovery_jobs')
-      .insert({
-        topic,
-        source_platform: 'Pencill Native Resource Engine',
-        status: 'completed',
-        found_count: resources.length,
-        completed_at: new Date().toISOString(),
-      })
-      .select('id')
-      .maybeSingle();
-
-    if (!jobError && jobData) {
-      createdJobId = jobData.id;
-    }
-  } catch (err) {
-    // Non-fatal; discovery jobs are audit logs
-    console.warn('[resourceService] Non-fatal discovery_jobs insert notice:', err);
-  }
-
-  // 2. Format resource records adhering to PostgreSQL schema:
-  // - type IN ('video', 'monograph', 'practice', 'quiz', 'paper', 'formulae')
-  // - quality_score NUMERIC(3, 2) -> clamped 0.00 to 1.00
-  // - source_url NOT NULL
-  const rows = resources.map((r) => {
-    const rawScore = r.score?.overall ?? r.finalScore ?? 75;
-    // Map 0-100 scale to 0.00-1.00 for numeric(3, 2)
-    const normalizedScore = Math.min(1.0, Math.max(0.05, Number((rawScore / 100).toFixed(2))));
-    const verified = rawScore >= 75 || Boolean(r.metadata?.isVerified) || r.discoverySource === 'curated_directory';
-
-    return {
-      id: r.id,
-      title: r.title.slice(0, 500),
-      type: toCoreResourceType(r.type),
-      duration_minutes: Math.max(0, Math.round(r.durationMinutes || 0)),
-      source_name: (r.sourceName || 'Curated Resource').slice(0, 255),
-      source_url: r.canonicalUrl || r.sourceUrl,
-      description: r.description ? r.description.slice(0, 2000) : null,
-      external_id: r.externalId || null,
-      quality_score: normalizedScore,
-      is_verified: verified,
-      last_verified_at: new Date().toISOString(),
-      educator_id: r.educatorId || null,
-      discovery_source: r.discoverySource || (r.educatorId ? 'curated_directory' : 'open_discovery'),
-    };
-  });
-
-  try {
-    const { data, error } = await client
-      .from('resources')
-      .upsert(rows, { onConflict: 'id' })
-      .select('id');
-
-    if (error) {
-      console.warn('[resourceService] Upsert resources warning:', error.message);
-      return {
-        success: false,
-        jobId: createdJobId,
-        savedCount: 0,
-        error: error.message,
-      };
-    }
-
-    return {
-      success: true,
-      jobId: createdJobId,
-      savedCount: data?.length || rows.length,
-    };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error('[resourceService] Unexpected error saving resources:', msg);
-    return {
-      success: false,
-      jobId: createdJobId,
-      savedCount: 0,
-      error: msg,
-    };
-  }
 }
 
 /**

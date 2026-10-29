@@ -75,9 +75,9 @@ export default function Header({ onSearch }: HeaderProps) {
               readOnly
               value={searchVal}
               placeholder="Search topics, courses, notes... (Ctrl+K)"
-              className="w-full pl-9 pr-14 py-2 bg-surface-container-lowest rounded-lg border border-surface-container-high/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-container"
+              className="w-full pl-9 pr-14 py-2 bg-surface-container-lowest hover:bg-white rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-container transition-all"
             />
-            <kbd className="absolute right-3 hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-on-surface-variant bg-surface-container rounded border border-surface-container-high/80">
+            <kbd className="absolute right-3 hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-on-surface-variant bg-surface-container rounded border border-outline-variant/30">
               ⌘K
             </kbd>
           </div>
@@ -96,7 +96,7 @@ export default function Header({ onSearch }: HeaderProps) {
             >
               <span className="material-symbols-outlined text-xl">notifications</span>
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary" />
               )}
             </button>
 
@@ -121,7 +121,7 @@ export default function Header({ onSearch }: HeaderProps) {
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-primary/20 transition-all focus:outline-none"
+              className="flex items-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-primary-container/20 transition-all focus:outline-none ml-1"
               aria-label="User profile menu"
             >
               <Image
@@ -129,7 +129,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 alt={displayName}
                 width={32}
                 height={32}
-                className="w-8 h-8 rounded-full object-cover ring-1 ring-secondary/40"
+                className="w-8 h-8 rounded-full object-cover ring-1 ring-surface-variant"
               />
               <span className="material-symbols-outlined text-xs text-on-surface-variant hidden sm:inline">
                 expand_more
@@ -137,15 +137,15 @@ export default function Header({ onSearch }: HeaderProps) {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-surface-container-lowest rounded-xl shadow-lg border border-surface-container-high/60 py-2 z-50 text-left animate-in fade-in slide-in-from-top-1">
+              <div className="absolute right-0 mt-2 w-60 bg-surface-container-lowest rounded-xl shadow-lg border border-surface-container-high py-2 z-50 text-left animate-in fade-in slide-in-from-top-1">
                 <div className="px-4 py-2 border-b border-surface-container-high/40">
-                  <p className="font-label-md text-label-md font-semibold text-primary truncate">
+                  <p className="font-semibold text-sm text-on-surface truncate">
                     {displayName}
                   </p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
+                  <p className="text-xs text-on-surface-variant truncate">
                     {displayGrade}
                   </p>
-                  <span className="inline-block mt-1 font-label-sm text-label-sm text-secondary bg-secondary-container/30 px-2 py-0.5 rounded-full">
+                  <span className="inline-block mt-1 text-[11px] font-medium text-secondary bg-secondary-container/40 px-2 py-0.5 rounded-full">
                     {profile?.tier || "Pro Path"}
                   </span>
                 </div>
@@ -154,33 +154,33 @@ export default function Header({ onSearch }: HeaderProps) {
                   <Link
                     href="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container hover:text-primary transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">dashboard</span>
+                    <span className="material-symbols-outlined text-base text-on-surface-variant">dashboard</span>
                     <span>Dashboard</span>
                   </Link>
                   <Link
                     href="/courses"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container hover:text-primary transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">menu_book</span>
+                    <span className="material-symbols-outlined text-base text-on-surface-variant">menu_book</span>
                     <span>My Courses</span>
                   </Link>
                   <Link
                     href="/progress"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container hover:text-primary transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">bar_chart</span>
+                    <span className="material-symbols-outlined text-base text-on-surface-variant">bar_chart</span>
                     <span>Learning Progress</span>
                   </Link>
                   <Link
                     href="/bookmarks"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container hover:text-primary transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">bookmark</span>
+                    <span className="material-symbols-outlined text-base text-on-surface-variant">bookmark</span>
                     <span>Saved Bookmarks</span>
                   </Link>
                 </div>
@@ -189,9 +189,9 @@ export default function Header({ onSearch }: HeaderProps) {
                   <button
                     type="button"
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-2 px-4 py-2 font-label-md text-label-md text-error hover:bg-error-container/20 transition-colors text-left"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-error hover:bg-error-container/30 transition-colors text-left"
                   >
-                    <span className="material-symbols-outlined text-base">logout</span>
+                    <span className="material-symbols-outlined text-base text-error">logout</span>
                     <span>Sign Out</span>
                   </button>
                 </div>

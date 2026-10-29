@@ -1282,12 +1282,15 @@ export async function deleteQuiz(
     }
   }
 
+  // In browser: if no access token is available, local guest deletion is complete
+  if (!options?.accessToken) {
+    return { success: true };
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${options.accessToken}`,
   };
-  if (options?.accessToken) {
-    headers["Authorization"] = `Bearer ${options.accessToken}`;
-  }
 
   try {
     const res = await fetch(`/api/quizzes/${encodeURIComponent(quizId)}`, {
@@ -1297,7 +1300,7 @@ export async function deleteQuiz(
 
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok || !data.success) {
+    if (!res.ok && res.status !== 404) {
       return {
         success: false,
         error: data.error || `Deletion failed with status ${res.status}`,
@@ -1344,6 +1347,15 @@ export async function batchDeleteQuizzes(
       const stored = getStoredGuestQuizzes().filter((q) => !quizIds.includes(q.id));
       localStorage.setItem(GUEST_QUIZZES_KEY, JSON.stringify(stored));
     } catch {}
+
+    if (!options?.accessToken) {
+      return {
+        success: true,
+        deletedCount: quizIds.length,
+        failedCount: 0,
+        deletedIds: quizIds,
+      };
+    }
   }
 
   const headers: Record<string, string> = {

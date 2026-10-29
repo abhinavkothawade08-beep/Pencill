@@ -174,31 +174,14 @@ export default function LearningWorkspacePage() {
   }, [courseId, lessonId, currentUser]);
 
   const fetchNotesForLesson = useCallback(
-    async (targetLessonTitle?: string, targetTopic?: string, targetDomain?: string) => {
+    async (_targetLessonTitle?: string, _targetTopic?: string, _targetDomain?: string) => {
       setIsLoadingNotes(true);
       setNotesError(null);
       try {
-        const lessonTitle = targetLessonTitle || workspace?.lesson?.title || "";
-        const topic = targetTopic || workspace?.course?.title || lessonTitle;
-        const domain = targetDomain || workspace?.course?.domain;
-
-        const res = await fetch("/api/resources/notes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            topic,
-            lessonTitle,
-            domain,
-            examContext: workspace?.course?.level?.includes("JEE") ? "JEE" : undefined,
-            limit: 6,
-          }),
-        });
-
-        const data = await res.json();
-        if (data.success && Array.isArray(data.notes)) {
-          setStudyNotes(data.notes);
+        if (workspace?.lesson?.studyNotes && workspace.lesson.studyNotes.length > 0) {
+          setStudyNotes(workspace.lesson.studyNotes);
         } else {
-          setNotesError(data.error || "No study notes found for this lesson.");
+          setStudyNotes([]);
         }
       } catch (err: unknown) {
         setNotesError(err instanceof Error ? err.message : "Failed to load study notes.");
@@ -209,16 +192,12 @@ export default function LearningWorkspacePage() {
     [workspace]
   );
 
-  // If the lesson loads with no study notes, automatically discover them
+  // Load lesson study notes when workspace updates
   useEffect(() => {
     if (!workspace?.lesson || !workspace?.course) return;
-    if (workspace.lesson.studyNotes && workspace.lesson.studyNotes.length > 0) {
-      setStudyNotes(workspace.lesson.studyNotes);
-    } else {
-      fetchNotesForLesson(workspace.lesson.title, workspace.course.title, workspace.course.domain);
-    }
+    setStudyNotes(workspace.lesson.studyNotes || []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workspace?.lesson?.id, fetchNotesForLesson]);
+  }, [workspace?.lesson?.id, workspace?.lesson?.studyNotes]);
 
   const handleCopyFormula = (latex: string, name: string) => {
     navigator.clipboard?.writeText(latex);
@@ -460,8 +439,41 @@ export default function LearningWorkspacePage() {
         </div>
       </header>
 
-      {/* 3-Pane Learning Workspace Grid */}
-      <div className="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-gutter grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
+      {/* Workspace Inner Container */}
+      <div className="flex-1 max-w-[1560px] w-full mx-auto p-3 sm:p-gutter flex flex-col gap-space-md">
+        {/* Top Breadcrumb & Quick Status Banner (Stitch) */}
+        <div className="flex flex-wrap items-center justify-between gap-space-sm">
+          <div className="flex items-center gap-space-sm flex-wrap text-xs">
+            <Link
+              href={`/courses/${course.id}`}
+              className="inline-flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors bg-surface-container-lowest px-space-sm py-1.5 rounded-lg shadow-sm border border-surface-container-high/60"
+            >
+              <span className="material-symbols-outlined text-sm">arrow_back</span>
+              <span>Back to Course Outline</span>
+            </Link>
+            <span className="text-outline-variant font-label-sm">/</span>
+            <span className="font-label-md text-label-md text-on-surface-variant">
+              {activeModule ? `Module ${activeModule.moduleNumber}` : "Module"}
+            </span>
+            <span className="text-outline-variant font-label-sm">/</span>
+            <span className="font-label-md text-label-md text-primary font-semibold truncate max-w-xs">
+              {lesson.title}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-space-sm flex-wrap text-xs">
+            <span className="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-medium bg-secondary-container/40 px-2.5 py-1 rounded-full border border-secondary/20">
+              <span className="material-symbols-outlined text-xs">bolt</span>
+              <span>High Yield Topic · {(course as any).targetExam ? `Target: ${(course as any).targetExam}` : course.domain}</span>
+            </span>
+            <span className="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm border border-surface-container-high/60">
+              Duration: {lesson.durationMinutes || 25}m
+            </span>
+          </div>
+        </div>
+
+        {/* 3-PANE ACADEMIC STUDY ENVIRONMENT */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
         {/* PANE 1: Left Module Navigation Tree (lg:col-span-3) */}
         <aside className="lg:col-span-3 flex flex-col gap-space-md order-2 lg:order-1">
           {/* Unit Header Card */}
@@ -1432,5 +1444,6 @@ export default function LearningWorkspacePage() {
         </aside>
       </div>
     </div>
-  );
+  </div>
+);
 }

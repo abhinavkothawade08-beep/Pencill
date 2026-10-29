@@ -5,10 +5,12 @@
  */
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const DEFAULT_TIMEOUT_MS = 45000;
+const DEFAULT_TIMEOUT_MS = 25000;
 const CANDIDATE_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
   'gemini-3.8-flash',
-  'gemini-3.5-flash',
   'gemini-flash-latest',
 ];
 const PRIMARY_MODEL = CANDIDATE_MODELS[0];
