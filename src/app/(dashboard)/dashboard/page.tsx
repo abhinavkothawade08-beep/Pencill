@@ -54,6 +54,8 @@ export default function StudentDashboardPage() {
     return () => window.removeEventListener("pencill:auth-state-reset", handleAuthReset);
   }, []);
 
+  const userDomain = (profile as any)?.domain;
+
   useEffect(() => {
     let mounted = true;
 
@@ -127,7 +129,7 @@ export default function StudentDashboardPage() {
 
         try {
           const catalog = await getLearningPaths({
-            domain: (profile as any)?.domain || undefined,
+            domain: userDomain || undefined,
           });
           const enrolledIds = new Set(finalCourses.map((c: any) => c.id));
           const unEnrolled = catalog.filter((c) => !enrolledIds.has(c.id));
@@ -162,7 +164,7 @@ export default function StudentDashboardPage() {
         window.removeEventListener("pencill:enrollment-changed", handleEnrollmentChanged);
       }
     };
-  }, [user?.id, session?.access_token]);
+  }, [user?.id, session?.access_token, userDomain]);
 
   const activeCourse = activeCourseDetails || paths[0] || null;
 

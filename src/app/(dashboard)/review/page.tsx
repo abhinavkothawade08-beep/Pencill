@@ -67,7 +67,7 @@ export default function SmartReviewDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     loadMemoryCards();
