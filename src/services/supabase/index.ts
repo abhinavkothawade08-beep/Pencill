@@ -11,3 +11,5 @@ export * from "./migrationService";
 export * from "./enrollmentService";
 export * from "./resourceService";
 export * from "./deletionRegistry";
+export * from "./communityService";
+export * from "./readingService";

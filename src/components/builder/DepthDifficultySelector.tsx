@@ -3,12 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { getLevelsForDomain, LEVEL_LADDER_12 } from "@/lib/catalogs/levelCatalog";
 import { useBuilderStore } from "@/lib/store/builderStore";
-import { LearnerDifficultyTier } from "@/lib/types/builderConfig";
+import { LearnerDifficultyTier, DifficultyPreferenceType } from "@/lib/types/builderConfig";
 
 export default function DepthDifficultySelector() {
-  const { config, updateConfig } = useBuilderStore();
+  const { config, updateConfig, setDifficultyPreference } = useBuilderStore();
   const [showAllDepths, setShowAllDepths] = useState(false);
-  const [fallbackToEnglish, setFallbackToEnglish] = useState(true);
 
   // Filter levels for active domain
   const availableLevels = useMemo(() => {
@@ -25,46 +24,35 @@ export default function DepthDifficultySelector() {
     { id: "expert", label: "Expert", sub: "Mathematical proofs & edge rigor" },
   ];
 
-  const languages = [
-    { id: "en", label: "English", matchTag: "en" },
-    { id: "hi", label: "Hindi", matchTag: "hi" },
-    { id: "hinglish", label: "Hinglish (Bilingual)", matchTag: "hi" },
-    { id: "ta", label: "Tamil", matchTag: "ta" },
-    { id: "mr", label: "Marathi", matchTag: "mr" },
-    { id: "bn", label: "Bengali", matchTag: "bn" },
-    { id: "te", label: "Telugu", matchTag: "te" },
-    { id: "fr", label: "French", matchTag: "fr" },
-    { id: "de", label: "German", matchTag: "de" },
-    { id: "es", label: "Spanish", matchTag: "es" },
+  const difficultyPreferences: Array<{ id: DifficultyPreferenceType; label: string; desc: string; icon: string }> = [
+    { id: "easy", label: "Easy / Gentle", desc: "Intuitive explanations, minimal algebraic friction, guided examples", icon: "filter_vintage" },
+    { id: "moderate", label: "Moderate / Standard", desc: "Standard classroom rigor, analytical definitions, mixed problems", icon: "equalizer" },
+    { id: "challenging", label: "Challenging", desc: "Rigorous proofs, non-trivial edge cases, complex multi-step numericals", icon: "fitness_center" },
+    { id: "progressive", label: "Progressive Ladder", desc: "Starts foundational, escalates to advanced Olympiad/exam standard", icon: "trending_up" },
   ];
 
-  const languageStats: Record<string, number> = useMemo(() => ({
-    en: 120,
-    hi: 65,
-    hinglish: 70,
-    ta: 25,
-    mr: 15,
-    bn: 15,
-    te: 18,
-    fr: 10,
-    de: 10,
-    es: 10,
-  }), []);
-
-  const activeLanguageMatches = languageStats[config.language] || 0;
-
   return (
-    <div className="flex flex-col gap-space-lg">
+    <div className="flex flex-col gap-space-md" id="section-depth-difficulty">
       {/* 2. Target Academic Depth */}
       <div className="flex flex-col gap-space-xs">
         <div className="flex items-center justify-between">
           <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
             <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
-              2
+              3
             </span>
-            Target Depth &amp; Difficulty
+            Target Depth &amp; Difficulty Preference
           </label>
-          <span className="font-label-sm text-label-sm text-secondary font-medium">Step 2 of 5</span>
+          <span className="font-label-sm text-label-sm text-secondary font-medium">Domain-Calibrated</span>
+        </div>
+
+        {/* Pedagogical Distinction Callout */}
+        <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/40 text-xs text-on-surface-variant flex items-start gap-2 leading-relaxed">
+          <span className="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">info</span>
+          <div>
+            <strong className="text-on-surface font-semibold">Depth vs. Difficulty:</strong>{" "}
+            <strong>Depth</strong> controls syllabus scope (how extensively a subject is mapped);{" "}
+            <strong>Difficulty</strong> governs problem complexity, mathematical rigor, and quiz scoring thresholds.
+          </div>
         </div>
 
         {/* Level Cards Grid */}
@@ -99,10 +87,9 @@ export default function DepthDifficultySelector() {
                   )}
                 </span>
                 <span
-                  className={`font-label-sm text-label-sm truncate max-w-full ${
+                  className={`font-label-sm text-label-sm ${
                     isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"
                   }`}
-                  title={lvl.description}
                 >
                   {lvl.description}
                 </span>
@@ -111,140 +98,55 @@ export default function DepthDifficultySelector() {
           })}
         </div>
 
-        {/* Show all 12 toggle */}
+        {/* Show all depth tiers toggle */}
         {availableLevels.length > 6 && (
-          <div className="flex justify-end pt-1">
+          <div className="flex justify-end pt-0.5">
             <button
               type="button"
-              onClick={() => setShowAllDepths(!showAllDepths)}
-              className="text-xs text-secondary hover:text-primary font-semibold flex items-center gap-1 transition-colors"
+              onClick={() => setShowAllDepths((prev) => !prev)}
+              className="text-xs text-primary hover:underline font-semibold flex items-center gap-0.5"
             >
-              <span>{showAllDepths ? "Show Fewer Levels" : `Show All ${availableLevels.length} Levels`}</span>
+              <span>{showAllDepths ? "Show fewer levels" : `Show all ${availableLevels.length} depth levels`}</span>
               <span className="material-symbols-outlined text-sm">
                 {showAllDepths ? "expand_less" : "expand_more"}
               </span>
             </button>
           </div>
         )}
-
-        {/* Difficulty 5-Option Radio Group */}
-        <div className="pt-2">
-          <span className="text-xs font-semibold text-on-surface block mb-1.5">
-            Learner Difficulty Tier (affects problem complexity and evaluation thresholds):
-          </span>
-          <div
-            role="radiogroup"
-            aria-label="Learner Difficulty"
-            className="grid grid-cols-2 sm:grid-cols-5 gap-1.5"
-          >
-            {difficultyLevels.map((diff) => {
-              const isSelected = config.difficulty === diff.id;
-              return (
-                <button
-                  key={diff.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  onClick={() => updateConfig({ difficulty: diff.id })}
-                  className={`p-2 rounded-lg border text-left transition-all ${
-                    isSelected
-                      ? "bg-primary text-on-primary border-primary font-semibold shadow-xs"
-                      : "bg-surface-container-low hover:bg-surface-container text-on-surface border-surface-container-high/40"
-                  }`}
-                >
-                  <span className="font-label-sm text-label-sm block">{diff.label}</span>
-                  <span
-                    className={`text-[10px] block truncate leading-tight ${
-                      isSelected ? "text-primary-fixed-dim" : "text-on-surface-variant"
-                    }`}
-                    title={diff.sub}
-                  >
-                    {diff.sub}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* 3. Instruction Language */}
-      <div className="flex flex-col gap-space-xs">
-        <div className="flex items-center justify-between">
-          <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
-              3
-            </span>
-            Instruction Language
-          </label>
-          <span className="font-label-sm text-label-sm text-secondary font-medium">Step 3 of 5</span>
-        </div>
-
-        {/* Language Selection Chips */}
-        <div className="flex flex-wrap gap-space-xs mt-space-xs">
-          {languages.map((lang) => {
-            const isSelected = config.language === lang.id;
-            const count = languageStats[lang.id] || 0;
+      {/* Difficulty Preference Selector */}
+      <div className="pt-2 border-t border-surface-container-high/40">
+        <label className="text-xs font-semibold text-on-surface flex items-center gap-1.5 mb-1.5">
+          <span className="material-symbols-outlined text-sm text-primary">speed</span>
+          Problem Complexity &amp; Assessment Difficulty Preference
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          {difficultyPreferences.map((pref) => {
+            const isSelected = (config.difficultyPreference || "moderate") === pref.id;
             return (
               <button
-                key={lang.id}
+                key={pref.id}
                 type="button"
-                onClick={() => updateConfig({ language: lang.id })}
-                className={`lang-pill px-space-md py-space-xs rounded-full font-label-md text-label-md font-semibold transition-all flex items-center gap-1.5 ${
+                onClick={() => setDifficultyPreference(pref.id)}
+                className={`p-2 rounded-lg text-left border text-xs transition-all flex flex-col justify-between ${
                   isSelected
-                    ? "bg-primary text-on-primary shadow-xs"
-                    : "bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface"
+                    ? "bg-secondary-container/40 text-on-secondary-container border-secondary font-semibold shadow-xs"
+                    : "bg-surface-container-low hover:bg-surface-container text-on-surface border-surface-container-high/40"
                 }`}
               >
-                <span>{lang.label}</span>
-                <span
-                  className={`text-[10px] font-mono px-1 rounded ${
-                    isSelected
-                      ? "bg-primary-container text-primary-fixed"
-                      : "bg-surface-container text-on-surface-variant"
-                  }`}
-                >
-                  {count > 0 ? `${count}+` : "0"}
-                </span>
+                <div>
+                  <div className="flex items-center gap-1 font-bold mb-1">
+                    <span className="material-symbols-outlined text-sm text-primary">{pref.icon}</span>
+                    <span>{pref.label}</span>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant leading-tight">
+                    {pref.desc}
+                  </p>
+                </div>
               </button>
             );
           })}
-        </div>
-
-        {/* Language Availability & Fallback Banner */}
-        {activeLanguageMatches === 0 && config.language !== "en" && (
-          <div className="mt-2 p-3 bg-secondary-container/40 border border-secondary/30 rounded-xl flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary text-base">info</span>
-              <span>
-                Verified catalog has 0 native resources in selected language for this topic.
-              </span>
-            </div>
-            <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-primary">
-              <input
-                type="checkbox"
-                checked={fallbackToEnglish}
-                onChange={(e) => setFallbackToEnglish(e.target.checked)}
-                className="w-3.5 h-3.5 accent-primary rounded"
-              />
-              <span>Fall back to English if unindexed</span>
-            </label>
-          </div>
-        )}
-
-        {/* Preserve Technical Terms Toggle */}
-        <div className="pt-2">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={config.preserveTechnicalTerms}
-              onChange={(e) => updateConfig({ preserveTechnicalTerms: e.target.checked })}
-              className="w-4 h-4 rounded text-primary accent-primary cursor-pointer"
-            />
-            <span className="text-xs font-semibold text-on-surface">
-              Preserve Technical Terms in English (recommended for standard physics, engineering &amp; medical nomenclature)
-            </span>
-          </label>
         </div>
       </div>
     </div>

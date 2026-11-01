@@ -33,12 +33,22 @@ export default function ProgressAnalyticsPage() {
           let completedLessons = 0;
           let totalLessons = 0;
           let clearedMods = 0;
+          let totalQuizPoints = 0;
+          let totalPossiblePoints = 0;
+          let totalQuizzesAttempted = 0;
 
           for (const p of saved) {
             const prog = await storageAdapter.getProgress(p.id);
             if (prog) {
               totalHours += prog.hoursLogged || 0;
               completedLessons += (prog.completedLessonIds || []).length;
+              if (prog.quizScores) {
+                Object.values(prog.quizScores).forEach((qs) => {
+                  totalQuizzesAttempted++;
+                  totalQuizPoints += qs.score;
+                  totalPossiblePoints += qs.total;
+                });
+              }
             }
             if (p.modules) {
               for (const m of p.modules) {
@@ -51,22 +61,28 @@ export default function ProgressAnalyticsPage() {
             }
           }
 
-          const overallPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : (saved.length > 0 ? 25 : 0);
+          const overallPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+          const realAccuracy = totalPossiblePoints > 0 ? Math.round((totalQuizPoints / totalPossiblePoints) * 100) : 0;
+          const accuracyTier = realAccuracy >= 85 ? "High Rigor" : realAccuracy >= 70 ? "Proficient" : realAccuracy > 0 ? "Developing" : "Not Assessed";
+
           data = {
             overallPercent: overallPct,
-            totalHoursInvested: totalHours || Math.round(completedLessons * 1.5) || (saved.length > 0 ? 6 : 0),
-            clearedModules: clearedMods || (saved.length > 0 ? 1 : 0),
-            quizAccuracy: 94,
-            quizAccuracyTier: "High Rigor",
-            quizzesTaken: clearedMods || (saved.length > 0 ? 1 : 0),
-            streakDays: profile?.streakDays || 1,
+            totalHoursInvested: totalHours || (completedLessons > 0 ? Math.round(completedLessons * 0.5 * 10) / 10 : 0),
+            clearedModules: clearedMods,
+            quizAccuracy: realAccuracy,
+            quizAccuracyTier: accuracyTier,
+            quizzesTaken: totalQuizzesAttempted,
+            streakDays: profile?.streakDays || 0,
             weeklyTargetHours: 8,
-            weeklyLoggedHours: Math.min(8, totalHours || 6),
-            topicMastery: saved.map((p) => ({
-              topic: p.title.split(":")[0] || p.title,
-              masteryLevel: overallPct > 50 ? "Proficient" : "Foundational",
-              percent: overallPct || 35,
-            })),
+            weeklyLoggedHours: Math.min(8, totalHours || (completedLessons > 0 ? Math.round(completedLessons * 0.5 * 10) / 10 : 0)),
+            topicMastery: saved.map((p) => {
+              const pProg = completedLessons;
+              return {
+                topic: p.title.split(":")[0] || p.title,
+                masteryLevel: overallPct >= 80 ? "Mastered" : overallPct >= 40 ? "Proficient" : "Foundational",
+                percent: overallPct,
+              };
+            }),
             recentActivity: saved.slice(0, 3).map((p) => ({
               id: `act-${p.id}`,
               action: "Synthesized curriculum pathway",
@@ -295,21 +311,27 @@ export default function ProgressAnalyticsPage() {
                 <div className="mt-space-lg">
                   <div className="flex items-baseline gap-2">
                     <span className="font-headline-lg text-headline-lg text-primary font-serif">
-                      {metrics.quizzesTaken > 0 ? `${metrics.quizAccuracy}%` : "92%"}
+                      {metrics.quizzesTaken > 0 ? `${metrics.quizAccuracy}%` : "—"}
                     </span>
-                    <span className="font-label-sm text-label-sm text-on-surface-variant">average accuracy</span>
+                    <span className="font-label-sm text-label-sm text-on-surface-variant">
+                      {metrics.quizzesTaken > 0 ? "average accuracy" : "awaiting first quiz"}
+                    </span>
                   </div>
                   <div className="w-full bg-surface-container-high h-1.5 rounded-full mt-3 overflow-hidden">
                     <div
                       className="bg-primary h-full rounded-full transition-all duration-500"
-                      style={{ width: `${metrics.quizzesTaken > 0 ? metrics.quizAccuracy : 92}%` }}
+                      style={{ width: `${metrics.quizzesTaken > 0 ? metrics.quizAccuracy : 0}%` }}
                     />
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-label-sm text-label-sm text-on-surface-variant">
-                      {metrics.quizzesTaken || 1} checkpoint {metrics.quizzesTaken === 1 ? "quiz" : "quizzes"}
+                      {metrics.quizzesTaken > 0
+                        ? `${metrics.quizzesTaken} checkpoint ${metrics.quizzesTaken === 1 ? "quiz" : "quizzes"}`
+                        : "No quizzes completed"}
                     </span>
-                    <span className="font-label-sm text-label-sm text-primary font-semibold">Tier 1 Bracket</span>
+                    <span className="font-label-sm text-label-sm text-primary font-semibold">
+                      {metrics.quizzesTaken > 0 ? (metrics.quizAccuracyTier || "Evaluated") : "Unranked"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -328,29 +350,32 @@ export default function ProgressAnalyticsPage() {
                 <div className="mt-space-lg">
                   <div className="flex items-baseline gap-2">
                     <span className="font-headline-lg text-headline-lg text-primary font-serif">
-                      {profile?.streakDays || metrics.streakDays || 1} Days
+                      {profile?.streakDays ?? metrics.streakDays ?? 0} Days
                     </span>
                     <span className="font-label-sm text-label-sm text-on-surface-variant">active streak</span>
                   </div>
                   <div className="flex items-center gap-1.5 mt-3">
-                    {Array.from({ length: 7 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          i < Math.min(profile?.streakDays || metrics.streakDays || 1, 6)
-                            ? "bg-primary-container"
-                            : i === 6 && (profile?.streakDays || metrics.streakDays || 1) >= 7
-                            ? "bg-primary-container"
-                            : "bg-surface-variant"
-                        }`}
-                      />
-                    ))}
+                    {Array.from({ length: 7 }).map((_, i) => {
+                      const curStreak = profile?.streakDays ?? metrics.streakDays ?? 0;
+                      return (
+                        <span
+                          key={i}
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            curStreak > 0 && i < Math.min(curStreak, 7)
+                              ? "bg-primary-container"
+                              : "bg-surface-variant"
+                          }`}
+                        />
+                      );
+                    })}
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-label-sm text-label-sm text-on-surface-variant">
                       Target: 7 days/wk
                     </span>
-                    <span className="font-label-sm text-label-sm text-secondary font-medium">Active today</span>
+                    <span className="font-label-sm text-label-sm text-secondary font-medium">
+                      {(profile?.streakDays ?? metrics.streakDays ?? 0) > 0 ? "Active today" : "Log in daily to build streak"}
+                    </span>
                   </div>
                 </div>
               </div>

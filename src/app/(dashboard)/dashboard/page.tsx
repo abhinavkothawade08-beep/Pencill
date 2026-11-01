@@ -7,10 +7,11 @@ import EmptyState from "@/components/ui/EmptyState";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
 import { getUserProgress, getCompletedLessonIds } from "@/services/supabase/progressService";
-import { getLearningPathById } from "@/services/supabase/pathService";
+import { getLearningPathById, getLearningPaths } from "@/services/supabase/pathService";
 import { getUserEnrollments } from "@/services/supabase/enrollmentService";
 import { storageAdapter } from "@/lib/storage/storageAdapter";
 import { LearningPath, ProgressMetrics, Lesson } from "@/types";
+import LearningAutopilotWidget from "@/components/autopilot/LearningAutopilotWidget";
 
 export default function StudentDashboardPage() {
   const router = useRouter();
@@ -22,11 +23,35 @@ export default function StudentDashboardPage() {
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [activeDraft, setActiveDraft] = useState<any | null>(null);
+  const [recommendedCourses, setRecommendedCourses] = useState<LearningPath[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
     storageAdapter.getDraft().then((draft) => {
-      if (draft) setActiveDraft(draft);
+      if (isMounted) {
+        if (draft && (draft as any).domainId) {
+          setActiveDraft(draft);
+        } else {
+          setActiveDraft(null);
+        }
+      }
     });
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    const handleAuthReset = () => {
+      setPaths([]);
+      setMetrics(null);
+      setActiveCourseDetails(null);
+      setCompletedLessonIds([]);
+      setActiveDraft(null);
+      setRecommendedCourses([]);
+    };
+    window.addEventListener("pencill:auth-state-reset", handleAuthReset);
+    return () => window.removeEventListener("pencill:auth-state-reset", handleAuthReset);
   }, []);
 
   useEffect(() => {
@@ -50,16 +75,23 @@ export default function StudentDashboardPage() {
           console.warn("[Dashboard] Supabase progress unavailable, loading from storageAdapter:", e);
         }
 
-        // Merge with local saved paths
-        const localSaved = await storageAdapter.getSavedPaths();
-        const combinedMap = new Map<string, any>();
-        enrolledCourses.forEach((c) => combinedMap.set(c.id, c));
-        localSaved.forEach((c) => {
-          if (!combinedMap.has(c.id)) {
-            combinedMap.set(c.id, c);
-          }
-        });
-        const finalCourses = Array.from(combinedMap.values());
+        // Strict multi-user data isolation:
+        // Authenticated users only see their own verified enrolled courses.
+        let finalCourses: LearningPath[] = [];
+        if (user?.id) {
+          finalCourses = enrolledCourses;
+        } else {
+          // Guest-only fallback to guest-scoped storage
+          const localSaved = await storageAdapter.getSavedPaths();
+          const combinedMap = new Map<string, any>();
+          enrolledCourses.forEach((c) => combinedMap.set(c.id, c));
+          localSaved.forEach((c) => {
+            if (!combinedMap.has(c.id)) {
+              combinedMap.set(c.id, c);
+            }
+          });
+          finalCourses = Array.from(combinedMap.values());
+        }
 
         if (mounted) {
           setPaths(finalCourses);
@@ -91,6 +123,19 @@ export default function StudentDashboardPage() {
             setActiveCourseDetails(null);
             setCompletedLessonIds([]);
           }
+        }
+
+        try {
+          const catalog = await getLearningPaths({
+            domain: (profile as any)?.domain || undefined,
+          });
+          const enrolledIds = new Set(finalCourses.map((c: any) => c.id));
+          const unEnrolled = catalog.filter((c) => !enrolledIds.has(c.id));
+          if (mounted) {
+            setRecommendedCourses(unEnrolled.slice(0, 2));
+          }
+        } catch {
+          // Non-blocking recommended paths retrieval
         }
       } catch (e) {
         console.error("Error loading dashboard data:", e);
@@ -132,11 +177,11 @@ export default function StudentDashboardPage() {
   const courseCompletionPercent =
     totalResourcesCount > 0
       ? Math.round((completedResourcesCount / totalResourcesCount) * 100)
-      : metrics?.overallPercent || 42;
+      : metrics?.overallPercent ?? 0;
 
-  const displayName = profile?.name || user?.user_metadata?.full_name || "Aanya Patel";
-  const userGrade = profile?.grade || "Class 11 · Batch Delta";
-  const streakDays = profile?.streakDays || metrics?.streakDays || 6;
+  const displayName = profile?.name || user?.user_metadata?.full_name || (user?.email ? user.email.split("@")[0] : "Scholar");
+  const userGrade = profile?.grade || "Self-Paced Learner";
+  const streakDays = profile?.streakDays ?? metrics?.streakDays ?? 0;
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,7 +200,7 @@ export default function StudentDashboardPage() {
       activeCourse: activeCourse?.title || "N/A",
       progress: `${courseCompletionPercent}%`,
       completedLessons: completedResourcesCount,
-      weeklyStudyHours: (metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 14.5,
+      weeklyStudyHours: (metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 0,
       exportDate: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(summaryData, null, 2)], { type: "application/json" });
@@ -214,6 +259,9 @@ export default function StudentDashboardPage() {
             </Link>
           </div>
         )}
+
+        {/* AI Learning Autopilot */}
+        <LearningAutopilotWidget />
 
         {/* 1. Top Greeting & Key Callout Area */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-y-space-md">
@@ -480,7 +528,9 @@ export default function StudentDashboardPage() {
                   </span>
                   <span className="font-label-sm text-label-sm text-on-surface-variant">Active modules</span>
                 </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Class 11 Science Stream cohort</p>
+                <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  {activeCourse ? `${activeCourse.domain || "Academic"} pathway` : (userGrade || "Active Study Track")}
+                </p>
               </div>
             </div>
 
@@ -493,9 +543,11 @@ export default function StudentDashboardPage() {
               <div className="mt-space-md">
                 <div className="flex items-baseline gap-2">
                   <span className="font-display-lg text-display-lg text-on-surface font-serif">
-                    {completedResourcesCount || 28}
+                    {completedResourcesCount}
                   </span>
-                  <span className="font-label-sm text-label-sm text-secondary font-semibold">+6 this week</span>
+                  <span className="font-label-sm text-label-sm text-secondary font-semibold">
+                    {completedResourcesCount > 0 ? `${completedResourcesCount} finished` : "Ready to start"}
+                  </span>
                 </div>
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Articles, videos, problem sets</p>
               </div>
@@ -510,15 +562,26 @@ export default function StudentDashboardPage() {
               <div className="mt-space-md">
                 <div className="flex items-baseline gap-2">
                   <span className="font-display-lg text-display-lg text-on-surface font-serif">
-                    {(metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 14.5}
+                    {(metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 0}
                     <span className="font-label-lg text-label-lg text-on-surface-variant font-normal">h</span>
                   </span>
-                  <span className="font-label-sm text-label-sm text-primary font-semibold">Target: 20h</span>
+                  <span className="font-label-sm text-label-sm text-primary font-semibold">
+                    Target: {(metrics as any)?.weeklyTargetHours || 10}h
+                  </span>
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-surface-container mt-2 overflow-hidden">
                   <div
                     className="h-full bg-primary-container rounded-full"
-                    style={{ width: `${Math.min(100, Math.round((((metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 14.5) / 20) * 100))}%` }}
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.round(
+                          ((((metrics as any)?.weeklyLoggedHours ?? metrics?.totalHoursInvested ?? 0) /
+                            ((metrics as any)?.weeklyTargetHours || 10)) *
+                            100)
+                        )
+                      )}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -533,11 +596,21 @@ export default function StudentDashboardPage() {
               <div className="mt-space-md">
                 <div className="flex items-baseline gap-2">
                   <span className="font-display-lg text-display-lg text-on-surface font-serif">
-                    {metrics?.quizAccuracy || 84}%
+                    {metrics?.quizzesTaken && metrics.quizzesTaken > 0 ? `${metrics.quizAccuracy}%` : "—"}
                   </span>
-                  <span className="font-label-sm text-label-sm text-secondary font-semibold">Top 8% percentile</span>
+                  <span className="font-label-sm text-label-sm text-secondary font-semibold">
+                    {metrics?.quizzesTaken && metrics.quizzesTaken > 0
+                      ? metrics?.quizAccuracyTier || "Evaluated"
+                      : "Not yet assessed"}
+                  </span>
                 </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Across 7 self-assessment drills</p>
+                <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  {metrics?.quizzesTaken && metrics.quizzesTaken > 0
+                    ? `Across ${metrics.quizzesTaken} checkpoint ${
+                        metrics.quizzesTaken === 1 ? "drill" : "drills"
+                      }`
+                    : "Complete checkpoint drills to measure accuracy"}
+                </p>
               </div>
             </div>
           </div>
@@ -561,151 +634,213 @@ export default function StudentDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md">
-              {paths.slice(0, 3).map((course, idx) => (
-                <article
-                  key={course.id}
-                  className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="space-y-space-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">
-                        {course.domain || "Academic"}
-                      </span>
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">
-                        {course.level || "Class 11"} · {course.language || "English"}
-                      </span>
-                    </div>
-                    <div className="pt-1">
-                      <Link href={`/courses/${course.id}`}>
-                        <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-1 font-serif hover:text-primary transition-colors">
-                          {course.title}
-                        </h3>
-                      </Link>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2 leading-relaxed">
-                        {course.description || "In-depth academic concepts, theoretical foundations, and problem sets."}
-                      </p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-surface-container-low text-on-surface space-y-1 border border-surface-container-high/40">
-                      <span className="font-label-sm text-label-sm text-secondary font-semibold block">Next Milestone</span>
-                      <p className="font-label-md text-label-md font-medium text-on-surface truncate">
-                        {course.modules?.[0]?.lessons?.[0]?.title || "Fundamental Principles Review"}
-                      </p>
-                    </div>
-                  </div>
+              {paths.slice(0, 3).map((course, idx) => {
+                const cLessons = course.modules?.flatMap((m: any) => m.lessons || m.resources || []) || [];
+                const cCompleted = cLessons.filter((l: any) => completedLessonIds.includes(l.id)).length;
+                const cPct =
+                  cLessons.length > 0
+                    ? Math.round((cCompleted / cLessons.length) * 100)
+                    : idx === 0
+                    ? courseCompletionPercent
+                    : 0;
+                const cHoursLeft = Math.max(1, Math.round((cLessons.length - cCompleted) * 0.75));
+                const nextMilestone =
+                  cLessons.find((l: any) => !completedLessonIds.includes(l.id))?.title ||
+                  course.modules?.[0]?.lessons?.[0]?.title ||
+                  "Fundamental Principles Review";
 
-                  <div className="space-y-space-sm mt-space-lg pt-space-sm">
-                    <div className="flex items-center justify-between font-label-sm text-label-sm">
-                      <span className="font-semibold text-on-surface">
-                        {idx === 0 ? courseCompletionPercent : idx === 1 ? 75 : 20}% completed
-                      </span>
-                      <span className="text-on-surface-variant">{course.durationHours || 18} hrs left</span>
+                return (
+                  <article
+                    key={course.id}
+                    className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col justify-between hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-space-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">
+                          {course.domain || "Academic"}
+                        </span>
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">
+                          {course.level || "Self-Paced"} · {course.language || "English"}
+                        </span>
+                      </div>
+                      <div className="pt-1">
+                        <Link href={`/courses/${course.id}`}>
+                          <h3 className="font-headline-sm text-headline-sm text-on-surface line-clamp-1 font-serif hover:text-primary transition-colors">
+                            {course.title}
+                          </h3>
+                        </Link>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2 leading-relaxed">
+                          {course.description || "In-depth academic concepts, theoretical foundations, and problem sets."}
+                        </p>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-surface-container-low text-on-surface space-y-1 border border-surface-container-high/40">
+                        <span className="font-label-sm text-label-sm text-secondary font-semibold block">Next Milestone</span>
+                        <p className="font-label-md text-label-md font-medium text-on-surface truncate">
+                          {nextMilestone}
+                        </p>
+                      </div>
                     </div>
-                    <div className="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
-                      <div
-                        className="h-full bg-primary-container rounded-full"
-                        style={{ width: `${idx === 0 ? courseCompletionPercent : idx === 1 ? 75 : 20}%` }}
-                      />
+
+                    <div className="space-y-space-sm mt-space-lg pt-space-sm">
+                      <div className="flex items-center justify-between font-label-sm text-label-sm">
+                        <span className="font-semibold text-on-surface">
+                          {cPct}% completed
+                        </span>
+                        <span className="text-on-surface-variant">{course.durationHours || cHoursLeft} hrs left</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+                        <div
+                          className="h-full bg-primary-container rounded-full"
+                          style={{ width: `${cPct}%` }}
+                        />
+                      </div>
+                      <div className="pt-2 flex items-center justify-between">
+                        <Link
+                          href={`/courses/${course.id}`}
+                          className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:bg-primary transition-colors shadow-sm"
+                        >
+                          <span>Continue Path</span>
+                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </Link>
+                      </div>
                     </div>
-                    <div className="pt-2 flex items-center justify-between">
-                      <Link
-                        href={`/courses/${course.id}`}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg hover:bg-primary transition-colors shadow-sm"
-                      >
-                        <span>Continue Path</span>
-                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
         )}
 
-        {/* 6. Recommended Next Pathways (Curated Academic Recommendations) */}
+        {/* 6. Recommended Next Pathways (Dynamic Database & Catalog Recommendations) */}
         <section className="space-y-space-md mb-space-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div>
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Personalized Recommendations</span>
-              <h2 className="font-headline-md text-headline-md text-on-surface font-serif">Recommended for Your JEE Benchmark</h2>
+              <h2 className="font-headline-md text-headline-md text-on-surface font-serif">
+                Recommended for Your {profile?.targetExam || profile?.grade || "Academic Journey"}
+              </h2>
             </div>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Calibrated from recent quiz strengths &amp; gaps</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Calibrated from curriculum catalog and learning goals</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-            {/* Recommended Card 1 */}
-            <div className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row gap-space-md items-start">
-              <div className="w-full sm:w-32 h-28 rounded-lg overflow-hidden shrink-0 bg-primary-container flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-4xl text-secondary-fixed">rotate_right</span>
-              </div>
-              <div className="flex-1 min-w-0 space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-secondary-container/40 text-on-secondary-fixed-variant font-semibold">
-                    High Yield JEE Adv
-                  </span>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant">6 Lectures · 8 Practice Sets</span>
-                </div>
-                <h3 className="font-headline-sm text-headline-sm text-on-surface truncate font-serif">
-                  JEE Advanced Physics: Rotational Dynamics Problem Set
-                </h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed">
-                  Master rolling without slipping, torque balance, and angular momentum conservation with stepped multi-concept problems.
-                </p>
-                <div className="pt-2 flex items-center gap-space-sm">
-                  <Link
-                    href="/new-goal?topic=Rotational+Dynamics"
-                    className="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-label-md font-semibold"
+            {recommendedCourses.length > 0 ? (
+              recommendedCourses.map((course) => {
+                const totalLessons = course.modules?.reduce(
+                  (acc: number, m: any) => acc + (m.lessons?.length || m.resources?.length || 0),
+                  0
+                ) || 0;
+                return (
+                  <div
+                    key={course.id}
+                    className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row gap-space-md items-start"
                   >
-                    <span>Synthesize Pathway</span>
-                    <span className="material-symbols-outlined text-sm">add</span>
-                  </Link>
-                  <span className="text-outline-variant">·</span>
-                  <Link
-                    href="/explore"
-                    className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-                  >
-                    View Details
-                  </Link>
+                    <div className="w-full sm:w-32 h-28 rounded-lg overflow-hidden shrink-0 bg-primary-container flex items-center justify-center text-white">
+                      <span className="material-symbols-outlined text-4xl text-secondary-fixed">
+                        {course.domain?.toLowerCase().includes("math")
+                          ? "calculate"
+                          : course.domain?.toLowerCase().includes("code") || course.domain?.toLowerCase().includes("computer")
+                          ? "terminal"
+                          : course.domain?.toLowerCase().includes("medic") || course.domain?.toLowerCase().includes("bio")
+                          ? "stethoscope"
+                          : "auto_stories"}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-secondary-container/40 text-on-secondary-fixed-variant font-semibold">
+                          {course.domain || "Academic"}
+                        </span>
+                        <span className="font-label-sm text-label-sm text-on-surface-variant">
+                          {course.modules?.length || 0} Modules · {totalLessons} Units
+                        </span>
+                      </div>
+                      <h3 className="font-headline-sm text-headline-sm text-on-surface truncate font-serif">
+                        {course.title}
+                      </h3>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed">
+                        {course.description || "In-depth academic concepts, theoretical foundations, and problem sets."}
+                      </p>
+                      <div className="pt-2 flex items-center gap-space-sm">
+                        <Link
+                          href={`/courses/${course.id}`}
+                          className="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-label-md font-semibold"
+                        >
+                          <span>Explore Pathway</span>
+                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </Link>
+                        <span className="text-outline-variant">·</span>
+                        <Link
+                          href={`/new-goal?topic=${encodeURIComponent(course.title)}`}
+                          className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
+                        >
+                          Synthesize Custom Track
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                {/* Fallback Synthesis Prompts if catalog has no unenrolled items */}
+                <div className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row gap-space-md items-start">
+                  <div className="w-full sm:w-32 h-28 rounded-lg overflow-hidden shrink-0 bg-primary-container flex items-center justify-center text-white">
+                    <span className="material-symbols-outlined text-4xl text-secondary-fixed">auto_awesome</span>
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-secondary-container/40 text-on-secondary-fixed-variant font-semibold">
+                        Custom AI Synthesizer
+                      </span>
+                    </div>
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface truncate font-serif">
+                      Design a New Rigorous Curriculum
+                    </h3>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed">
+                      Generate structured pathways with verified master educators, problem sets, and interactive quizzes for any target domain.
+                    </p>
+                    <div className="pt-2 flex items-center gap-space-sm">
+                      <Link
+                        href="/new-goal"
+                        className="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-label-md font-semibold"
+                      >
+                        <span>Build Goal</span>
+                        <span className="material-symbols-outlined text-sm">add</span>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Recommended Card 2 */}
-            <div className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row gap-space-md items-start">
-              <div className="w-full sm:w-32 h-28 rounded-lg overflow-hidden shrink-0 bg-primary-container flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-4xl text-primary-fixed-dim">calculate</span>
-              </div>
-              <div className="flex-1 min-w-0 space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-secondary-container/40 text-on-secondary-fixed-variant font-semibold">
-                    Calculus Foundations
-                  </span>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant">8 Lectures · 4 Diagnostic Drills</span>
+                <div className="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col sm:flex-row gap-space-md items-start">
+                  <div className="w-full sm:w-32 h-28 rounded-lg overflow-hidden shrink-0 bg-primary-container flex items-center justify-center text-white">
+                    <span className="material-symbols-outlined text-4xl text-primary-fixed-dim">explore</span>
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-secondary-container/40 text-on-secondary-fixed-variant font-semibold">
+                        Master Catalog
+                      </span>
+                    </div>
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface truncate font-serif">
+                      Explore Published Curricula
+                    </h3>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed">
+                      Browse peer-reviewed courses across mathematics, physics, engineering, computer science, and medical sciences.
+                    </p>
+                    <div className="pt-2 flex items-center gap-space-sm">
+                      <Link
+                        href="/explore"
+                        className="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-label-md font-semibold"
+                      >
+                        <span>Browse Catalog</span>
+                        <span className="material-symbols-outlined text-sm">chevron_right</span>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-headline-sm text-headline-sm text-on-surface truncate font-serif">
-                  Calculus: Differential Equations &amp; Orthogonal Trajectories
-                </h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 leading-relaxed">
-                  Exact differential forms, integrating factor methods, and second order linear homogeneous equations with boundary conditions.
-                </p>
-                <div className="pt-2 flex items-center gap-space-sm">
-                  <Link
-                    href="/new-goal?topic=Differential+Equations"
-                    className="inline-flex items-center gap-1 text-primary hover:text-primary-container font-label-md text-label-md font-semibold"
-                  >
-                    <span>Synthesize Pathway</span>
-                    <span className="material-symbols-outlined text-sm">add</span>
-                  </Link>
-                  <span className="text-outline-variant">·</span>
-                  <Link
-                    href="/explore"
-                    className="font-label-md text-label-md text-on-surface-variant hover:text-primary"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </section>
       </div>

@@ -6,7 +6,8 @@ import Link from "next/link";
 import Toast from "@/components/ui/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { Quiz, QuizAttempt, QuizSubmissionResult } from "@/types";
-import { getQuizById } from "@/services/supabase/quizService";
+import { getQuizById, inMemoryQuizStore } from "@/services/supabase/quizService";
+import { storageAdapter } from "@/lib/storage/storageAdapter";
 
 export default function DiagnosticQuizPage() {
   const params = useParams();
@@ -62,6 +63,47 @@ export default function DiagnosticQuizPage() {
           }
         } catch (fetchErr) {
           console.warn("[practice] Notice fetching quiz from server endpoint:", fetchErr);
+        }
+      }
+
+      // Check storageAdapter saved paths for module with matching checkpointQuestions
+      if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        try {
+          const savedPaths = await storageAdapter.getSavedPaths();
+          for (const sp of savedPaths) {
+            for (const mod of sp.modules || []) {
+              const matchesModule =
+                quizId === `quiz-${mod.id}` ||
+                quizId === `checkpoint-${sp.id}-${mod.id}` ||
+                quizId.includes(mod.id) ||
+                mod.id === quizId;
+              if (matchesModule && mod.checkpointQuestions && mod.checkpointQuestions.length > 0) {
+                quizData = {
+                  id: quizId,
+                  title: `${mod.title}: Module Checkpoint Quiz`,
+                  topic: sp.title || "Curriculum Unit",
+                  subject: sp.domain || "Academic Milestone",
+                  difficulty: (sp.level as any) || "intermediate",
+                  courseId: sp.id,
+                  courseTitle: sp.title,
+                  moduleId: mod.id,
+                  totalQuestions: mod.checkpointQuestions.length,
+                  questions: mod.checkpointQuestions,
+                  timeLimitMinutes: 15,
+                  createdAt: new Date().toISOString(),
+                  userId: null,
+                };
+                inMemoryQuizStore.set(quizId, {
+                  quiz: quizData,
+                  authoritativeQuestions: mod.checkpointQuestions,
+                });
+                break;
+              }
+            }
+            if (quizData) break;
+          }
+        } catch (storageErr) {
+          console.warn("[practice] Notice searching storageAdapter for quiz:", storageErr);
         }
       }
 
@@ -195,6 +237,47 @@ export default function DiagnosticQuizPage() {
 
         setSubmissionResult(data.result);
         if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+
+        // Update progress in course if quiz is associated with a course
+        if (quiz.courseId) {
+          try {
+            const courseProg = (await storageAdapter.getProgress(quiz.courseId)) || {
+              completedLessonIds: [],
+              hoursLogged: 0,
+              quizScores: {},
+              flashcardState: {},
+              pathId: quiz.courseId,
+              lastAccessed: new Date().toISOString(),
+            };
+            const nextQuizScores = {
+              ...(courseProg.quizScores || {}),
+              [quiz.id]: { score: data.result.earnedScore, total: 100, date: new Date().toISOString() },
+              ...(quiz.moduleId ? { [quiz.moduleId]: { score: data.result.earnedScore, total: 100, date: new Date().toISOString() } } : {}),
+            };
+
+            const pathData = await storageAdapter.getSavedPathById(quiz.courseId);
+            const nextCompletedIds = new Set(courseProg.completedLessonIds || []);
+            if (pathData?.modules) {
+              for (const mod of pathData.modules) {
+                if (!quiz.moduleId || mod.id === quiz.moduleId) {
+                  for (const l of mod.lessons || []) {
+                    if (l.type === 'quiz' || (l.sourceUrl && l.sourceUrl.includes(quiz.id))) {
+                      nextCompletedIds.add(l.id);
+                    }
+                  }
+                }
+              }
+            }
+
+            await storageAdapter.updateProgress(quiz.courseId, {
+              quizScores: nextQuizScores as any,
+              completedLessonIds: Array.from(nextCompletedIds),
+              lastAccessed: new Date().toISOString(),
+            });
+          } catch (progErr) {
+            console.warn("[practice] Notice updating course progress after quiz:", progErr);
+          }
+        }
 
         setToastState({
           open: true,

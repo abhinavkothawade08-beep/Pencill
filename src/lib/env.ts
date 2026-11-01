@@ -12,6 +12,8 @@ const clientEnvSchema = z.object({
 
 const serverEnvSchema = z.object({
   GEMINI_API_KEY: z.string().min(1).optional(),
+  GEMINI_READING_API_KEY: z.string().min(1).optional(),
+  GEMINI_READING_MODEL: z.string().min(1).optional(),
 });
 
 export const envSchema = clientEnvSchema.merge(serverEnvSchema);
@@ -73,6 +75,12 @@ export const env = {
   },
   get geminiApiKey(): string | undefined {
     return process.env.GEMINI_API_KEY?.trim();
+  },
+  get geminiReadingApiKey(): string | undefined {
+    return (process.env.GEMINI_READING_API_KEY || process.env.GEMINI_API_KEY)?.trim();
+  },
+  get geminiReadingModel(): string | undefined {
+    return process.env.GEMINI_READING_MODEL?.trim();
   },
   get isSupabaseConfigured(): boolean {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

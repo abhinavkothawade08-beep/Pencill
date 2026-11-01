@@ -4,6 +4,7 @@ import { GeminiProvider } from '@/services/ai/gemini/geminiProvider';
 import { createQuiz } from '@/services/supabase/quizService';
 import { supabase, isSupabaseConfigured, getAuthenticatedSupabaseClient } from '@/services/supabase/client';
 import { QuizQuestion } from '@/types';
+import { generateGroundedFallbackQuiz } from '@/lib/resource-engine/quiz-generator';
 
 const geminiProvider = new GeminiProvider();
 
@@ -40,17 +41,6 @@ export async function POST(req: NextRequest) {
       moduleId,
     } = parseResult.data;
 
-    // Check Gemini API Key presence
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'AI Quiz generator is currently unavailable (GEMINI_API_KEY required on server)',
-        },
-        { status: 503 }
-      );
-    }
-
     // Optional user authentication via Bearer token
     let userId: string | null = null;
     const authHeader = req.headers.get('authorization');
@@ -68,32 +58,71 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Generate questions using Gemini
-    const generated = await geminiProvider.generateQuizQuestions({
-      topic,
-      subject,
-      gradeLevel,
-      curriculum,
-      examTarget,
-      knowledgeLevel,
-      difficulty,
-      questionCount,
-      questionFormat,
-      includeExplanations,
-      learningObjectives,
-    });
+    // Generate questions using Gemini if key is present, otherwise fallback to grounded psychometric bank
+    let generated: any = null;
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        generated = await geminiProvider.generateQuizQuestions({
+          topic,
+          subject,
+          gradeLevel,
+          curriculum,
+          examTarget,
+          knowledgeLevel,
+          difficulty,
+          questionCount,
+          questionFormat,
+          includeExplanations,
+          learningObjectives,
+        });
+      } catch (aiErr) {
+        console.warn(`[QuizGenerateAPI] Gemini quiz generation failed, invoking grounded fallback quiz:`, (aiErr as Error).message);
+      }
+    }
 
     if (!generated || !generated.questions || generated.questions.length === 0) {
-      return NextResponse.json(
-        { success: false, error: `Failed to synthesize valid questions for topic "${topic}".` },
-        { status: 502 }
+      const fallback = generateGroundedFallbackQuiz(
+        {
+          id: moduleId || 'mod-fallback',
+          moduleNumber: 1,
+          title: topic,
+          description: `Diagnostic assessment on ${topic}`,
+          learningObjectives: [
+            { id: 'obj-1', statement: `Demonstrate conceptual understanding of ${topic}`, keyTerms: [topic] },
+          ],
+          prerequisites: [],
+          estimatedHours: 2,
+          expectedOutcomes: [],
+          searchQueries: { videoQueries: [], readingQueries: [] },
+        },
+        (subject || 'Computer Science') as any,
+        topic
       );
+
+      generated = {
+        title: fallback.title,
+        domain: subject || 'General Studies',
+        subject: subject || 'General Studies',
+        timeLimitMinutes: fallback.timeLimitMinutes,
+        questions: fallback.questions.map((q, idx) => ({
+          questionNumber: idx + 1,
+          prompt: q.prompt,
+          questionType: 'single_choice',
+          difficulty: q.difficulty || 'medium',
+          options: q.options.map((opt, oIdx) => ({
+            id: ['A', 'B', 'C', 'D'][oIdx] || `opt-${oIdx + 1}`,
+            text: opt,
+          })),
+          correctOptionId: ['A', 'B', 'C', 'D'][q.correctOptionIndex] || 'A',
+          explanation: q.explanation,
+        })),
+      };
     }
 
     const quizId = `quiz_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const calculatedDuration = timeLimitMinutes || generated.timeLimitMinutes || Math.max(5, generated.questions.length * 2);
 
-    const quizQuestions: QuizQuestion[] = generated.questions.map((q, idx) => ({
+    const quizQuestions: QuizQuestion[] = generated.questions.map((q: any, idx: number) => ({
       id: `${quizId}-q${idx + 1}`,
       questionNumber: idx + 1,
       prompt: q.prompt,

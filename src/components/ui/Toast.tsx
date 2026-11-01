@@ -21,7 +21,7 @@ export default function Toast({
     <aside
       aria-live="polite"
       role="status"
-      className="fixed bottom-6 right-6 md:right-8 bg-inverse-surface text-inverse-on-surface px-space-md py-3 rounded-xl shadow-xl flex items-center gap-space-md z-50 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 border border-outline-variant/20"
+      className="fixed bottom-20 md:bottom-6 right-6 md:right-8 bg-inverse-surface text-inverse-on-surface px-space-md py-3 rounded-xl shadow-xl flex items-center gap-space-md z-50 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5 border border-outline-variant/20"
     >
       <div className="flex items-center gap-2">
         <span className="material-symbols-outlined text-secondary-fixed text-lg">

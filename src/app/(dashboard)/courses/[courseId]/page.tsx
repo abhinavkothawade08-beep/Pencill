@@ -21,6 +21,8 @@ import EmptyState from "@/components/ui/EmptyState";
 import DeleteCourseModal from "@/components/ui/DeleteCourseModal";
 import Toast from "@/components/ui/Toast";
 import { useAuth } from "@/context/AuthContext";
+import StudyScheduleModal from "@/components/schedule/StudyScheduleModal";
+import PersonalAITutor from "@/components/tutor/PersonalAITutor";
 
 export default function CourseDetailsPage() {
   const params = useParams();
@@ -61,6 +63,188 @@ export default function CourseDetailsPage() {
 
   // Accordion state for modules
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+
+  // Curriculum Customization & Module Regeneration State
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [regeneratingModuleId, setRegeneratingModuleId] = useState<string | null>(null);
+  const [addResourceModuleId, setAddResourceModuleId] = useState<string | null>(null);
+  const [newResourceTitle, setNewResourceTitle] = useState("");
+  const [newResourceUrl, setNewResourceUrl] = useState("");
+  const [newResourceType, setNewResourceType] = useState<"video" | "reading" | "notes">("reading");
+
+  // Add Topic / Module State
+  const [isAddTopicModalOpen, setIsAddTopicModalOpen] = useState(false);
+  const [newTopicTitle, setNewTopicTitle] = useState("");
+  const [newTopicObjective, setNewTopicObjective] = useState("");
+  const [newTopicHours, setNewTopicHours] = useState(3);
+  const [autoSynthesizeTopic, setAutoSynthesizeTopic] = useState(true);
+
+  // Regenerate an individual module
+  const handleRegenerateModule = async (moduleId: string) => {
+    if (!course || regeneratingModuleId) return;
+    setRegeneratingModuleId(moduleId);
+
+    try {
+      const res = await fetch(`/api/courses/${course.id}/regenerate-module`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleId }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.course) {
+        setCourse(data.course);
+        await storageAdapter.savePath(data.course);
+        setToastIcon("check_circle");
+        setToastMessage("Module regenerated with fresh verified resources & assessment!");
+        setIsToastOpen(true);
+      } else {
+        throw new Error(data.error || "Failed to regenerate module");
+      }
+    } catch (err: any) {
+      setToastIcon("error");
+      setToastMessage(err.message || "Failed to regenerate module");
+      setIsToastOpen(true);
+    } finally {
+      setRegeneratingModuleId(null);
+    }
+  };
+
+  // Reorder modules
+  const handleReorderModule = async (index: number, direction: "up" | "down") => {
+    if (!course?.modules) return;
+    const targetIdx = direction === "up" ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= course.modules.length) return;
+
+    const newModules = [...course.modules];
+    const temp = newModules[index];
+    newModules[index] = newModules[targetIdx];
+    newModules[targetIdx] = temp;
+
+    const updatedCourse = { ...course, modules: newModules };
+    setCourse(updatedCourse);
+    await storageAdapter.savePath(updatedCourse);
+    setToastIcon("check_circle");
+    setToastMessage("Modules reordered successfully!");
+    setIsToastOpen(true);
+  };
+
+  // Remove a module
+  const handleRemoveModule = async (moduleId: string) => {
+    if (!course?.modules || course.modules.length <= 1) {
+      setToastIcon("warning");
+      setToastMessage("Curriculum must retain at least one module.");
+      setIsToastOpen(true);
+      return;
+    }
+
+    const updatedModules = course.modules.filter((m: any) => m.id !== moduleId);
+    const updatedCourse = { ...course, modules: updatedModules, moduleCount: updatedModules.length };
+    setCourse(updatedCourse);
+    await storageAdapter.savePath(updatedCourse);
+    setToastIcon("check_circle");
+    setToastMessage("Module removed from curriculum.");
+    setIsToastOpen(true);
+  };
+
+  // Add custom resource to module
+  const handleAddCustomResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addResourceModuleId || !newResourceTitle.trim() || !course?.modules) return;
+
+    const newRes = {
+      id: `custom-res-${Date.now()}`,
+      title: newResourceTitle.trim(),
+      type: newResourceType,
+      sourceUrl: newResourceUrl.trim() || undefined,
+      sourceName: "Learner Added Resource",
+      durationMinutes: 15,
+      verificationStatus: "verified",
+    };
+
+    const updatedModules = course.modules.map((m: any) => {
+      if (m.id === addResourceModuleId) {
+        const curLessons = m.lessons || m.resources || [];
+        return {
+          ...m,
+          lessons: [...curLessons, newRes],
+          resources: [...curLessons, newRes],
+          totalResources: curLessons.length + 1,
+        };
+      }
+      return m;
+    });
+
+    const updatedCourse = { ...course, modules: updatedModules };
+    setCourse(updatedCourse);
+    await storageAdapter.savePath(updatedCourse);
+    setAddResourceModuleId(null);
+    setNewResourceTitle("");
+    setNewResourceUrl("");
+    setToastIcon("check_circle");
+    setToastMessage("Custom resource added to module!");
+    setIsToastOpen(true);
+  };
+
+  // Add custom module / topic to course
+  const handleAddTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!course || !newTopicTitle.trim()) return;
+
+    const newModId = `mod-${Date.now()}`;
+    const newModule = {
+      id: newModId,
+      courseId: course.id,
+      moduleNumber: (course.modules?.length || 0) + 1,
+      title: newTopicTitle.trim(),
+      description: newTopicObjective.trim() || `Comprehensive module covering ${newTopicTitle.trim()}`,
+      estimatedHours: newTopicHours || 3,
+      objective: newTopicObjective.trim() || `Master concepts of ${newTopicTitle.trim()}`,
+      lessons: [
+        {
+          id: `les-${newModId}-vid-1`,
+          title: `Foundations of ${newTopicTitle.trim()}`,
+          type: "video",
+          durationMinutes: 15,
+          sourceName: "Verified Curriculum Lecture",
+        },
+        {
+          id: `les-${newModId}-read-1`,
+          title: `${newTopicTitle.trim()} Study Monograph`,
+          type: "reading",
+          durationMinutes: 12,
+          sourceName: "Academic Source",
+        },
+      ],
+      resources: [],
+      checkpointQuestions: [],
+      flashcards: [],
+    };
+
+    const updatedModules = [...(course.modules || []), newModule];
+    const updatedCourse = {
+      ...course,
+      modules: updatedModules,
+      moduleCount: updatedModules.length,
+      durationHours: (course.durationHours || 0) + (newTopicHours || 3),
+    };
+
+    setCourse(updatedCourse);
+    await storageAdapter.savePath(updatedCourse);
+    setIsAddTopicModalOpen(false);
+    const addedTitle = newTopicTitle.trim();
+    setNewTopicTitle("");
+    setNewTopicObjective("");
+    setNewTopicHours(3);
+
+    setToastIcon("check_circle");
+    setToastMessage(`Module "${addedTitle}" appended to syllabus.`);
+    setIsToastOpen(true);
+
+    if (autoSynthesizeTopic) {
+      handleRegenerateModule(newModId);
+    }
+  };
 
   // 1. Load course from Supabase or storageAdapter fallback
   const loadCourseData = useCallback(async () => {
@@ -392,14 +576,27 @@ export default function CourseDetailsPage() {
     setQuizScore(scorePct);
     setQuizSubmitted(true);
 
-    // Save quiz score in storageAdapter
+    // Save quiz score & mark quiz lesson complete in storageAdapter
     const existingProg = (await storageAdapter.getProgress(course.id)) || {
       completedLessonIds: [],
       hoursLogged: 0,
       quizScores: {},
       flashcardState: {},
     };
+
+    const nextCompleted = new Set(existingProg.completedLessonIds || []);
+    // Find quiz lesson in this module
+    const moduleLessons = activeQuizModule.lessons || activeQuizModule.resources || [];
+    for (const l of moduleLessons) {
+      if (l.type === 'quiz' || (l.title && l.title.toLowerCase().includes('quiz'))) {
+        nextCompleted.add(l.id);
+      }
+    }
+    const updatedCompletedList = Array.from(nextCompleted);
+    setCompletedLessonIds(updatedCompletedList);
+
     await storageAdapter.updateProgress(course.id, {
+      completedLessonIds: updatedCompletedList,
       quizScores: {
         ...(existingProg.quizScores || {}),
         [activeQuizModule.id]: scorePct,
@@ -563,6 +760,15 @@ export default function CourseDetailsPage() {
               <span className="material-symbols-outlined text-lg">download</span>
               <span>JSON</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setIsScheduleModalOpen(true)}
+              className="bg-surface-container-lowest text-primary hover:bg-surface-container px-space-md py-2.5 rounded-lg font-label-lg text-label-lg transition-colors flex items-center gap-1.5 border border-surface-container-high/60"
+            >
+              <span className="material-symbols-outlined text-lg">calendar_month</span>
+              <span>Study Planner (.ics)</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2">
@@ -641,7 +847,7 @@ export default function CourseDetailsPage() {
 
       {/* 2. Structured Curriculum Tree / Modules */}
       <section className="space-y-space-md">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-space-sm">
             <h3 className="font-headline-md text-headline-md text-primary font-serif">
               Syllabus Breakdown
@@ -650,16 +856,26 @@ export default function CourseDetailsPage() {
               {course.modules?.length || 0} Modules · {course.durationHours ? `~${course.durationHours}h Total` : ""}
             </span>
           </div>
-          {course.modules && course.modules.length > 0 && (
+          <div className="flex items-center gap-2 print:hidden">
             <button
               type="button"
-              onClick={toggleAll}
-              className="text-primary hover:text-primary-container font-label-md text-label-md font-semibold flex items-center gap-1 print:hidden"
+              onClick={() => setIsAddTopicModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-surface-container-high text-primary hover:bg-surface-container font-label-md text-xs font-semibold flex items-center gap-1 border border-surface-container-high shadow-xs transition-all"
             >
-              <span className="material-symbols-outlined text-base">unfold_more</span>
-              <span>Toggle All Modules</span>
+              <span className="material-symbols-outlined text-sm">add_circle</span>
+              <span>+ Add Topic / Module</span>
             </button>
-          )}
+            {course.modules && course.modules.length > 0 && (
+              <button
+                type="button"
+                onClick={toggleAll}
+                className="text-primary hover:text-primary-container font-label-md text-label-md font-semibold flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-base">unfold_more</span>
+                <span>Toggle All</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Modules Accordion */}
@@ -771,6 +987,63 @@ export default function CourseDetailsPage() {
                           <span>Review Flashcards ({module.flashcards.length} Cards)</span>
                         </button>
                       )}
+
+                      {/* Regenerate Individual Module */}
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateModule(module.id)}
+                        disabled={regeneratingModuleId === module.id}
+                        className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5 disabled:opacity-50"
+                        title="Regenerate this individual module without modifying the rest of the course"
+                      >
+                        <span className={`material-symbols-outlined text-sm ${regeneratingModuleId === module.id ? "animate-spin" : ""}`}>
+                          {regeneratingModuleId === module.id ? "progress_activity" : "refresh"}
+                        </span>
+                        <span>{regeneratingModuleId === module.id ? "Regenerating..." : "Regenerate Module"}</span>
+                      </button>
+
+                      {/* Add Personal Resource */}
+                      <button
+                        type="button"
+                        onClick={() => setAddResourceModuleId(module.id)}
+                        className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5"
+                        title="Add personal study link or note to this module"
+                      >
+                        <span className="material-symbols-outlined text-sm">add</span>
+                        <span>Add Resource</span>
+                      </button>
+
+                      {/* Move Up / Move Down */}
+                      {mIdx > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleReorderModule(mIdx, "up")}
+                          className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+                          title="Move module up"
+                        >
+                          <span className="material-symbols-outlined text-base">arrow_upward</span>
+                        </button>
+                      )}
+                      {mIdx < (course.modules?.length || 0) - 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleReorderModule(mIdx, "down")}
+                          className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+                          title="Move module down"
+                        >
+                          <span className="material-symbols-outlined text-base">arrow_downward</span>
+                        </button>
+                      )}
+
+                      {/* Remove Module */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveModule(module.id)}
+                        className="p-1 rounded-lg hover:bg-error-container hover:text-error text-on-surface-variant ml-auto"
+                        title="Remove module"
+                      >
+                        <span className="material-symbols-outlined text-base">delete</span>
+                      </button>
                     </div>
 
                     {/* Resources list */}
@@ -1103,6 +1376,197 @@ export default function CourseDetailsPage() {
           courseTitle={course.title}
           courseId={course.id}
           isDeleting={isDeleting}
+        />
+      )}
+
+      {/* 5. Study Schedule & Calendar Export Modal */}
+      {course && (
+        <StudyScheduleModal
+          course={course}
+          isOpen={isScheduleModalOpen}
+          onClose={() => setIsScheduleModalOpen(false)}
+        />
+      )}
+
+      {/* 6. Add Custom Resource Modal */}
+      {addResourceModuleId && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <form
+            onSubmit={handleAddCustomResource}
+            className="bg-surface-container-lowest rounded-3xl max-w-md w-full p-6 shadow-2xl border border-surface-container-high/70 space-y-4"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-surface-container-high/40">
+              <h3 className="text-sm font-bold text-primary">Add Custom Resource to Module</h3>
+              <button
+                type="button"
+                onClick={() => setAddResourceModuleId(null)}
+                className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">Resource Title</label>
+              <input
+                type="text"
+                required
+                value={newResourceTitle}
+                onChange={(e) => setNewResourceTitle(e.target.value)}
+                placeholder="e.g. My Notes on Vectors or Official Doc Link"
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">Resource Type</label>
+              <select
+                value={newResourceType}
+                onChange={(e) => setNewResourceType(e.target.value as any)}
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface font-medium"
+              >
+                <option value="reading">Academic Reading / Documentation</option>
+                <option value="video">Video Lecture URL</option>
+                <option value="notes">Personal Study Notes</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">Resource URL (Optional)</label>
+              <input
+                type="url"
+                value={newResourceUrl}
+                onChange={(e) => setNewResourceUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface"
+              />
+            </div>
+
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAddResourceModuleId(null)}
+                className="px-4 py-2 rounded-xl border border-surface-container-high text-xs font-semibold text-on-surface-variant hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-primary text-on-primary hover:bg-primary-container text-xs font-semibold shadow-xs"
+              >
+                Add Resource
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Add Topic / Module Modal */}
+      {isAddTopicModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <form
+            onSubmit={handleAddTopic}
+            className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl max-w-md w-full shadow-2xl p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-surface-container-high">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-xl">add_circle</span>
+                <h3 className="font-headline-sm text-headline-sm font-serif text-primary">
+                  Append New Topic / Module
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddTopicModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">
+                Module / Topic Title
+              </label>
+              <input
+                type="text"
+                required
+                value={newTopicTitle}
+                onChange={(e) => setNewTopicTitle(e.target.value)}
+                placeholder="e.g. Fourier Transforms & Spectral Analysis"
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">
+                Specific Learning Objective / Focus
+              </label>
+              <textarea
+                rows={2}
+                value={newTopicObjective}
+                onChange={(e) => setNewTopicObjective(e.target.value)}
+                placeholder="e.g. Master continuous vs discrete transforms, Euler's formula representation, and frequency decomposition."
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-primary mb-1">
+                Estimated Workload (Hours)
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={newTopicHours}
+                onChange={(e) => setNewTopicHours(Math.max(1, Number(e.target.value)))}
+                className="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container-low/60 border border-surface-container-high/40">
+              <input
+                id="auto-synth"
+                type="checkbox"
+                checked={autoSynthesizeTopic}
+                onChange={(e) => setAutoSynthesizeTopic(e.target.checked)}
+                className="rounded text-primary focus:ring-primary"
+              />
+              <label htmlFor="auto-synth" className="text-xs text-on-surface font-medium cursor-pointer">
+                Automatically discover verified videos &amp; generate study notes
+              </label>
+            </div>
+
+            <div className="pt-2 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsAddTopicModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-surface-container-high text-xs font-semibold text-on-surface-variant hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-primary text-on-primary hover:bg-primary-container text-xs font-semibold shadow-xs"
+              >
+                Append Module
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* 7. Floating Personal AI Tutor */}
+      {course && (
+        <PersonalAITutor
+          courseTitle={course.title}
+          moduleTitle={course.modules?.[0]?.title || "Course Overview"}
+          lessonTitle={course.title}
         />
       )}
 

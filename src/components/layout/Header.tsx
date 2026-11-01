@@ -54,9 +54,9 @@ export default function Header({ onSearch }: HeaderProps) {
     router.push("/login");
   };
 
-  const avatarUrl = profile?.avatarUrl || "/avatars/aanya-patel.png";
-  const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Aanya Patel";
-  const displayGrade = profile?.grade || "Class 11 · JEE Aspirant";
+  const avatarUrl = profile?.avatarUrl || "/avatars/default-avatar.svg";
+  const displayName = profile?.name || user?.user_metadata?.full_name || (user?.email ? user.email.split("@")[0] : "Scholar");
+  const displayGrade = profile?.grade || "Self-Paced Learner";
 
   return (
     <>
@@ -182,6 +182,14 @@ export default function Header({ onSearch }: HeaderProps) {
                   >
                     <span className="material-symbols-outlined text-base text-on-surface-variant">bookmark</span>
                     <span>Saved Bookmarks</span>
+                  </Link>
+                  <Link
+                    href="/settings"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-on-surface hover:bg-surface-container hover:text-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base text-on-surface-variant">settings</span>
+                    <span>Settings &amp; Profile</span>
                   </Link>
                 </div>
 

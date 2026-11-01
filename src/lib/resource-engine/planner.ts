@@ -14,16 +14,57 @@ export async function planCurriculum(
   const totalTargetHours = (input.weeklyStudyHours || 10) * (input.targetWeeks || 4);
   const targetModuleCount = calculateTargetModuleCount(input.topic, input.depth, totalTargetHours);
 
+  let plan: CurriculumPlan;
+
   try {
     const aiPlan = await planCurriculumWithGemini(input, analyzed, targetModuleCount, totalTargetHours);
     if (aiPlan && aiPlan.modules && aiPlan.modules.length >= 2) {
-      return aiPlan;
+      plan = aiPlan;
+    } else {
+      plan = generateAdaptiveFallbackPlan(input, analyzed, targetModuleCount, totalTargetHours);
     }
   } catch (err) {
     console.warn('[CurriculumPlanner] Gemini planning unavailable or failed, utilizing topic-adaptive fallback planner:', (err as Error).message);
+    plan = generateAdaptiveFallbackPlan(input, analyzed, targetModuleCount, totalTargetHours);
   }
 
-  return generateAdaptiveFallbackPlan(input, analyzed, targetModuleCount, totalTargetHours);
+  // Apply user-specified custom title if provided
+  if (input.title && input.title.trim().length > 0) {
+    plan.courseTitle = input.title.trim();
+  }
+
+  // Apply user learning objectives to modules if provided
+  if (input.learningObjectives && input.learningObjectives.length > 0) {
+    input.learningObjectives.forEach((lo, idx) => {
+      const targetModule = plan.modules[idx % plan.modules.length];
+      if (targetModule) {
+        targetModule.learningObjectives.push({
+          id: `custom-lo-${idx + 1}`,
+          statement: lo.text,
+          keyTerms: lo.text.toLowerCase().split(/\s+/).filter(w => w.length > 4),
+        });
+        if (lo.successCriteria) {
+          targetModule.expectedOutcomes.push(lo.successCriteria);
+        }
+      }
+    });
+  }
+
+  // Apply user blueprint overrides (renamed modules, customized topics)
+  if (input.curriculumBlueprintOverrides && input.curriculumBlueprintOverrides.length > 0) {
+    for (const override of input.curriculumBlueprintOverrides) {
+      if (override.moduleIndex >= 0 && override.moduleIndex < plan.modules.length) {
+        if (override.title) {
+          plan.modules[override.moduleIndex].title = override.title;
+        }
+        if (override.customObjectives && override.customObjectives.length > 0) {
+          plan.modules[override.moduleIndex].expectedOutcomes = override.customObjectives;
+        }
+      }
+    }
+  }
+
+  return plan;
 }
 
 function calculateTargetModuleCount(
@@ -33,7 +74,14 @@ function calculateTargetModuleCount(
 ): number {
   const topicLower = topic.toLowerCase();
   
-  // Frontier / extensive disciplines
+  // Dedicated RAG curriculum
+  if (
+    topicLower.includes('rag') ||
+    topicLower.includes('retrieval-augmented') ||
+    topicLower.includes('retrieval augmented')
+  ) {
+    return 4;
+  }
   if (
     topicLower.includes('large language model') ||
     topicLower.includes('llm') ||
@@ -305,6 +353,111 @@ function generateAdaptiveFallbackPlan(
         searchQueries: {
           videoQueries: [`Differential equations ${title} lecture worked examples`, `3Blue1Brown Khan Academy ${title}`],
           readingQueries: [`Differential equations textbook ${title}`, `MIT OpenCourseWare ${title}`],
+        },
+      });
+    });
+  } else if (
+    topicLower.includes('retrieval-augmented') ||
+    topicLower.includes('retrieval augmented') ||
+    topicLower.includes('rag') ||
+    topicLower.includes('vector search')
+  ) {
+    const ragModulesData = [
+      {
+        title: 'Foundations of Vector Search and Embedding Spaces',
+        description: 'Mathematical foundations of dense embeddings, vector spaces, distance metrics, and Approximate Nearest Neighbor (ANN) indexing structures.',
+        prerequisites: ['Basic Python programming', 'Fundamental linear algebra (vectors and dot products)'],
+        outcomes: ['Build and benchmark vector retrieval pipelines using FAISS and HNSW graphs'],
+        objectives: [
+          { statement: 'Analyze high-dimensional embedding spaces, cosine similarity, dot products, and Euclidean distance metrics', keyTerms: ['embeddings', 'vector space', 'cosine similarity', 'dot product', 'euclidean distance'] },
+          { statement: 'Compare Approximate Nearest Neighbor (ANN) index structures including HNSW, IVF-PQ, and ScaNN', keyTerms: ['ann', 'hnsw', 'ivf', 'pq', 'faiss', 'indexing'] },
+          { statement: 'Implement dense vector indexing and measure retrieval recall@k and query latency', keyTerms: ['vector index', 'recall@k', 'latency', 'vector database'] },
+        ],
+        videoQueries: [
+          'Vector search Approximate Nearest Neighbors FAISS HNSW tutorial',
+          'Embedding spaces vector similarity cosine dot product lecture',
+        ],
+        readingQueries: [
+          'FAISS vector search documentation index types wiki',
+          'Pinecone vector similarity metrics and HNSW index architecture',
+        ],
+      },
+      {
+        title: 'Advanced Chunking, Parsing, and Hybrid Search Strategies',
+        description: 'Document decomposition, semantic chunk boundary detection, multi-modal parsing, and hybrid retrieval fusing lexical BM25 with dense vector embeddings.',
+        prerequisites: ['Foundations of Vector Search and Embedding Spaces'],
+        outcomes: ['Implement and compare hybrid dense and sparse retrieval pipelines with Reciprocal Rank Fusion'],
+        objectives: [
+          { statement: 'Design semantic and recursive character chunking strategies that preserve sentence boundaries and table structure', keyTerms: ['chunking', 'chunk size', 'chunk overlap', 'semantic chunking', 'token splitting'] },
+          { statement: 'Enrich document chunks with hierarchical metadata, document summaries, and entity tags for filtered retrieval', keyTerms: ['metadata filtering', 'payload enrichment', 'document hierarchy'] },
+          { statement: 'Implement hybrid search combining BM25 keyword matching with dense vector retrieval using Reciprocal Rank Fusion (RRF)', keyTerms: ['hybrid search', 'bm25', 'sparse retrieval', 'dense retrieval', 'rrf', 'reciprocal rank fusion'] },
+        ],
+        videoQueries: [
+          'Advanced chunking strategies document parsing LangChain LlamaIndex',
+          'Hybrid search BM25 dense vectors reciprocal rank fusion tutorial',
+        ],
+        readingQueries: [
+          'LlamaIndex document chunking and node parsing official documentation',
+          'Elasticsearch hybrid search RRF reciprocal rank fusion guide',
+        ],
+      },
+      {
+        title: 'Advanced RAG Architectures: Re-ranking, Query Transformation, and Routing',
+        description: 'Two-stage retrieval optimization using cross-encoder re-ranking, query expansion with HyDE and multi-query synthesis, and dynamic semantic routing.',
+        prerequisites: ['Advanced Chunking, Parsing, and Hybrid Search Strategies'],
+        outcomes: ['Deploy a two-stage re-ranking pipeline and dynamic query router optimizing context relevance'],
+        objectives: [
+          { statement: 'Implement cross-encoder re-ranking pipelines using ColBERT and modern neural re-rankers to maximize top-k precision', keyTerms: ['re-ranking', 'reranker', 'cross-encoder', 'colbert', 'cohere rerank', 'flashrank'] },
+          { statement: 'Construct query transformation workflows including Hypothetical Document Embeddings (HyDE) and multi-query expansion', keyTerms: ['query transformation', 'hyde', 'multi-query', 'query rewriting', 'sub-queries'] },
+          { statement: 'Design semantic routing mechanisms directing incoming queries to specialized vector indices and domain tools', keyTerms: ['semantic routing', 'retrieval routing', 'query intent', 'multi-index'] },
+        ],
+        videoQueries: [
+          'Cross-encoder re-ranking ColBERT Cohere re-rank tutorial',
+          'Query transformation HyDE multi-query routing RAG architecture',
+        ],
+        readingQueries: [
+          'Cohere re-rank documentation cross-encoder retrieval guide',
+          'LangChain query transformation and semantic routing documentation',
+        ],
+      },
+      {
+        title: 'Production Evaluation, Guardrails, and Observability in RAG',
+        description: 'Comprehensive evaluation frameworks (Ragas, TruLens), automated benchmarking of context relevance and faithfulness, input/output guardrails, and distributed telemetry.',
+        prerequisites: ['Advanced RAG Architectures: Re-ranking, Query Transformation, and Routing'],
+        outcomes: ['Benchmark, trace, and secure an end-to-end production RAG system with verifiable quality metrics'],
+        objectives: [
+          { statement: 'Evaluate the RAG Triad: Context Relevance, Groundedness (Faithfulness), and Answer Relevance using automated evaluation harnesses', keyTerms: ['ragas', 'trulens', 'rag triad', 'groundedness', 'faithfulness', 'context relevance', 'hallucination'] },
+          { statement: 'Implement input validation and output guardrails mitigating prompt injection, jailbreaks, and PII leakage', keyTerms: ['guardrails', 'nemo guardrails', 'prompt injection', 'safety', 'pii'] },
+          { statement: 'Deploy distributed tracing and observability monitoring latency, token budgets, retrieval scores, and failure patterns', keyTerms: ['observability', 'distributed tracing', 'telemetry', 'openinference', 'langfuse'] },
+        ],
+        videoQueries: [
+          'RAG evaluation Ragas TruLens metrics groundedness tutorial',
+          'Production RAG guardrails observability tracing Langfuse',
+        ],
+        readingQueries: [
+          'Ragas documentation RAG evaluation metrics and benchmarking',
+          'NeMo Guardrails and OpenInference tracing documentation',
+        ],
+      },
+    ];
+
+    ragModulesData.forEach((mData, idx) => {
+      modules.push({
+        id: `mod-fallback-${idx + 1}`,
+        moduleNumber: idx + 1,
+        title: mData.title,
+        description: mData.description,
+        estimatedHours: hoursPerModule,
+        prerequisites: mData.prerequisites,
+        expectedOutcomes: mData.outcomes,
+        learningObjectives: mData.objectives.map((obj, oIdx) => ({
+          id: `obj-${idx + 1}-${oIdx + 1}`,
+          statement: obj.statement,
+          keyTerms: obj.keyTerms,
+        })),
+        searchQueries: {
+          videoQueries: mData.videoQueries,
+          readingQueries: mData.readingQueries,
         },
       });
     });

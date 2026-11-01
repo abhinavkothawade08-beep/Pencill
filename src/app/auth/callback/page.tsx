@@ -11,6 +11,27 @@ function CallbackHandler() {
 
   useEffect(() => {
     let isMounted = true;
+    let redirectScheduled = false;
+
+    const navigateToNext = (targetPath: string) => {
+      if (redirectScheduled) return;
+      redirectScheduled = true;
+      try {
+        localStorage.removeItem("pencill_guest_access");
+        sessionStorage.removeItem("pencill_guest_access");
+      } catch {
+        // Ignore storage exceptions
+      }
+      router.replace(targetPath);
+    };
+
+    // 1. Listen for auth state changes immediately (captures session establishment from PKCE or Hash)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
+        const next = searchParams.get("next") || searchParams.get("redirectTo") || "/dashboard";
+        navigateToNext(next);
+      }
+    });
 
     async function handleAuth() {
       try {
@@ -26,10 +47,24 @@ function CallbackHandler() {
         const code = searchParams.get("code");
         const next = searchParams.get("next") || searchParams.get("redirectTo") || "/dashboard";
 
+        // Check if session is already present (e.g. established on page mount or previous tick)
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        if (existingSession) {
+          navigateToNext(next);
+          return;
+        }
+
         if (code) {
           // Exchange authorization code for active session in the browser where PKCE verifier exists
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) {
+            // Verify if session exists despite exchange error (common in React StrictMode double-execution)
+            const { data: { session: checkSession } } = await supabase.auth.getSession();
+            if (checkSession) {
+              navigateToNext(next);
+              return;
+            }
+
             console.error("Auth callback code exchange error:", exchangeError);
             if (isMounted) {
               setErrorMessage(exchangeError.message);
@@ -38,20 +73,20 @@ function CallbackHandler() {
           }
         }
 
-        // Verify active session in client
+        // Final session check
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          router.replace(next);
+          navigateToNext(next);
         } else {
-          // Small buffer to allow auth state listener to propagate
+          // Buffer polling to allow auth state listener to propagate tokens
           const timer = setTimeout(async () => {
             const { data: { session: retrySession } } = await supabase.auth.getSession();
             if (retrySession) {
-              router.replace(next);
-            } else {
+              navigateToNext(next);
+            } else if (isMounted && !redirectScheduled) {
               router.replace("/login");
             }
-          }, 600);
+          }, 800);
           return () => clearTimeout(timer);
         }
       } catch (err: unknown) {
@@ -66,6 +101,7 @@ function CallbackHandler() {
 
     return () => {
       isMounted = false;
+      subscription.unsubscribe();
     };
   }, [router, searchParams]);
 

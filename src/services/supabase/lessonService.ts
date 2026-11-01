@@ -1,6 +1,8 @@
-import { supabase, isSupabaseConfigured } from "./client";
-import { Lesson, LearningPath, Module } from "@/types";
-import { getLearningPathById } from "./pathService";
+import { supabase, isSupabaseConfigured, getAuthenticatedSupabaseClient } from "./client";
+import { Lesson, LearningPath, Module, LessonNoteResource } from "@/types";
+import { getLearningPathById, inMemoryPathCache } from "./pathService";
+import { getGeneratedReadingByLesson } from "./readingService";
+import { Json } from "./database.types";
 
 export interface LessonWorkspaceData {
   course: LearningPath;
@@ -111,6 +113,29 @@ export async function getLessonWorkspaceData(
     }
   }
 
+  // If active lesson study notes are empty, check for persisted on-demand study monograph
+  if (activeLesson && (!activeLesson.studyNotes || activeLesson.studyNotes.length === 0)) {
+    try {
+      const persistedDoc = await getGeneratedReadingByLesson(lessonId, courseId);
+      if (persistedDoc) {
+        const generatedNote: LessonNoteResource = {
+          id: persistedDoc.id,
+          title: persistedDoc.title,
+          type: "study_notes",
+          url: `/learn/${courseId}/${lessonId}/reading/${persistedDoc.id}`,
+          sourceUrl: `/learn/${courseId}/${lessonId}/reading/${persistedDoc.id}`,
+          sourceName: "Pencill Academic Engine",
+          description: persistedDoc.content?.introduction?.slice(0, 300) || persistedDoc.title,
+          publisher: "Pencill Academic Engine",
+          qualityScore: 98,
+        };
+        activeLesson.studyNotes = [generatedNote];
+      }
+    } catch {
+      // Non-blocking
+    }
+  }
+
   return {
     course,
     module: activeModule,
@@ -119,4 +144,72 @@ export async function getLessonWorkspaceData(
     prevLesson,
     nextLesson,
   };
+}
+
+/**
+ * Persists study notes to a lesson and synchronizes course caches.
+ */
+export async function saveLessonStudyNotes(
+  lessonId: string,
+  courseId: string,
+  notes: LessonNoteResource[],
+  accessToken?: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!lessonId) return { success: false, error: "Missing lesson ID" };
+
+  try {
+    const client = accessToken ? getAuthenticatedSupabaseClient(accessToken) : supabase;
+
+    // 1. Update public.lessons table study_notes column if supported
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await client
+          .from("lessons")
+          .update({ study_notes: notes as unknown as Json })
+          .eq("id", lessonId);
+
+        if (error && error.code !== "42703") {
+          console.warn("[lessonService] Error updating lessons.study_notes:", error.message);
+        }
+      } catch (dbErr: any) {
+        console.warn("[lessonService] Exception updating lessons.study_notes:", dbErr?.message);
+      }
+    }
+
+    // 2. Synchronize in-memory course path cache
+    if (inMemoryPathCache.has(courseId)) {
+      const cached = inMemoryPathCache.get(courseId);
+      if (cached?.modules) {
+        for (const mod of cached.modules) {
+          const targetLesson = mod.lessons?.find((l) => l.id === lessonId);
+          if (targetLesson) {
+            targetLesson.studyNotes = notes;
+          }
+        }
+      }
+    }
+
+    // 3. Synchronize local browser storage for guest/resilient course persistence
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(`pencill_path_${courseId}`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.modules) {
+            for (const mod of parsed.modules) {
+              const targetLesson = mod.lessons?.find((l: any) => l.id === lessonId);
+              if (targetLesson) {
+                targetLesson.studyNotes = notes;
+              }
+            }
+            localStorage.setItem(`pencill_path_${courseId}`, JSON.stringify(parsed));
+          }
+        }
+      } catch {}
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }

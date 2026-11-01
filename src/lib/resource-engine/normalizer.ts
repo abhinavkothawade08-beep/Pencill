@@ -34,6 +34,7 @@ export function normalizeCandidateResource(raw: RawCandidateResource): Normalize
     externalId: raw.externalId || ytId || generateSimpleHash(canonicalUrl),
     title: sanitizeTitle(raw.title),
     canonicalUrl,
+    url: canonicalUrl,
     embedUrl,
     description: raw.description ? raw.description.trim() : `Educational ${raw.modality} resource.`,
     modality: raw.modality,
@@ -54,6 +55,9 @@ export function canonicalizeUrl(rawUrl: string): string {
   if (!rawUrl) return '';
   try {
     const url = new URL(rawUrl.trim());
+    if (url.protocol === 'http:' && !url.hostname.includes('localhost') && !url.hostname.includes('127.0.0.1')) {
+      url.protocol = 'https:';
+    }
     // Normalize YouTube URLs
     if (url.hostname.includes('youtu.be')) {
       const vid = url.pathname.replace(/^\//, '');

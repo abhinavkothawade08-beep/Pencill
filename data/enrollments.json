@@ -1,5 +1,662 @@
 [
   {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvxg3m7f",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvxg3m7f",
+    "enrolledAt": "2026-11-01T06:24:48.956Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-11-01T06:24:48.956Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvxg3il1",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvxg3il1",
+    "enrolledAt": "2026-11-01T06:24:44.268Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-11-01T06:24:44.268Z"
+  },
+  {
+    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
+    "userId": "test-learner-alice-uuid-001",
+    "courseId": "oops-in-python-programming-langu-mv9rshpy",
+    "enrolledAt": "2026-11-01T06:24:32.935Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-11-01T06:24:32.935Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvwkpowh",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvwkpowh",
+    "enrolledAt": "2026-10-31T15:46:11.171Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T15:46:11.171Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvwkplbr",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvwkplbr",
+    "enrolledAt": "2026-10-31T15:46:06.537Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T15:46:06.537Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvwkikuy",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvwkikuy",
+    "enrolledAt": "2026-10-31T15:40:39.339Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T15:40:39.339Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvwkih3m",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvwkih3m",
+    "enrolledAt": "2026-10-31T15:40:34.468Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T15:40:34.468Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw7p83j",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw7p83j",
+    "enrolledAt": "2026-10-31T09:41:54.385Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T09:41:54.385Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw7p4hl",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw7p4hl",
+    "enrolledAt": "2026-10-31T09:41:49.716Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T09:41:49.716Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw5xmbu",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw5xmbu",
+    "enrolledAt": "2026-10-31T08:52:26.841Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:52:26.841Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw5xiuf",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw5xiuf",
+    "enrolledAt": "2026-10-31T08:52:22.329Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:52:22.329Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw5j3oh",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw5j3oh",
+    "enrolledAt": "2026-10-31T08:41:09.486Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:41:09.486Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw5ixou",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw5ixou",
+    "enrolledAt": "2026-10-31T08:41:01.732Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:41:01.732Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw5edfp",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw5edfp",
+    "enrolledAt": "2026-10-31T08:37:28.855Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:37:28.855Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw5dw1n",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw5dw1n",
+    "enrolledAt": "2026-10-31T08:37:06.324Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:37:06.324Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-constitutional-law-of-in-mvw4n301",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-constitutional-law-of-in-mvw4n301",
+    "enrolledAt": "2026-10-31T08:16:21.660Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T08:16:23.176Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw1u5a8",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw1u5a8",
+    "enrolledAt": "2026-10-31T06:57:46.320Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:57:46.320Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw1u1d6",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw1u1d6",
+    "enrolledAt": "2026-10-31T06:57:41.246Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:57:41.246Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvw1keo1",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvw1keo1",
+    "enrolledAt": "2026-10-31T06:50:11.923Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:50:11.923Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvw1k1q4",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvw1k1q4",
+    "enrolledAt": "2026-10-31T06:49:55.152Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:49:55.152Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvzy1hf",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvzy1hf",
+    "enrolledAt": "2026-10-31T06:04:48.785Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:04:48.785Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvzxxmb",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvzxxmb",
+    "enrolledAt": "2026-10-31T06:04:43.781Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:04:43.781Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvzsyuv",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvzsyuv",
+    "enrolledAt": "2026-10-31T06:00:52.099Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:00:52.099Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvzs7dh",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvzs7dh",
+    "enrolledAt": "2026-10-31T06:00:16.487Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T06:00:16.487Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvynluh",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvynluh",
+    "enrolledAt": "2026-10-31T05:28:42.341Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T05:28:42.341Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvyn63z",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvyn63z",
+    "enrolledAt": "2026-10-31T05:28:21.953Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-31T05:28:21.953Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvejnur",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvejnur",
+    "enrolledAt": "2026-10-30T20:05:45.999Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T20:05:45.999Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvejkcj",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvejkcj",
+    "enrolledAt": "2026-10-30T20:05:41.459Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T20:05:41.459Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvefs06",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvefs06",
+    "enrolledAt": "2026-10-30T20:02:44.754Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T20:02:44.754Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvefoe0",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvefoe0",
+    "enrolledAt": "2026-10-30T20:02:40.073Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T20:02:40.073Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvdq8d1",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvdq8d1",
+    "enrolledAt": "2026-10-30T19:42:52.898Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:42:52.898Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvdq5bu",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvdq5bu",
+    "enrolledAt": "2026-10-30T19:42:48.972Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:42:48.972Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvdir0p",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvdir0p",
+    "enrolledAt": "2026-10-30T19:37:03.828Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:37:03.828Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvdigdv",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvdigdv",
+    "enrolledAt": "2026-10-30T19:36:50.052Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:36:50.052Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvvcg4z0",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvvcg4z0",
+    "enrolledAt": "2026-10-30T19:07:02.330Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:07:02.330Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvvcfmj1",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvvcfmj1",
+    "enrolledAt": "2026-10-30T19:06:38.429Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T19:06:38.429Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvuvgdzb",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvuvgdzb",
+    "enrolledAt": "2026-10-30T11:11:20.538Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T11:11:20.538Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvuvga0t",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvuvga0t",
+    "enrolledAt": "2026-10-30T11:11:15.408Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T11:11:15.408Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvuvdxh1",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvuvdxh1",
+    "enrolledAt": "2026-10-30T11:09:25.828Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T11:09:25.828Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvuvdkty",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvuvdkty",
+    "enrolledAt": "2026-10-30T11:09:09.448Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T11:09:09.448Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvuupssd",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvuupssd",
+    "enrolledAt": "2026-10-30T10:50:40.010Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T10:50:40.010Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvuupis8",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvuupis8",
+    "enrolledAt": "2026-10-30T10:50:27.048Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T10:50:27.048Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvusrqzx",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvusrqzx",
+    "enrolledAt": "2026-10-30T09:56:11.774Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T09:56:11.774Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvusr8wh",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvusr8wh",
+    "enrolledAt": "2026-10-30T09:55:48.325Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T09:55:48.325Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvupp6z1",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvupp6z1",
+    "enrolledAt": "2026-10-30T08:30:13.664Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T08:30:13.664Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvupopz6",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvupopz6",
+    "enrolledAt": "2026-10-30T08:29:51.641Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T08:29:51.641Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-human-anatomy-mvup7fbn",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-human-anatomy-mvup7fbn",
+    "enrolledAt": "2026-10-30T08:16:30.910Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T08:16:32.645Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvunolez",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvunolez",
+    "enrolledAt": "2026-10-30T07:33:46.488Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T07:33:46.488Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvunoadl",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvunoadl",
+    "enrolledAt": "2026-10-30T07:33:32.184Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T07:33:32.184Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvun4ulr",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvun4ulr",
+    "enrolledAt": "2026-10-30T07:18:25.276Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T07:18:25.276Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvun4dx7",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvun4dx7",
+    "enrolledAt": "2026-10-30T07:18:03.662Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-30T07:18:03.662Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-public-speaking-presenta-mvtve2x1",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-public-speaking-presenta-mvtve2x1",
+    "enrolledAt": "2026-10-29T18:21:50.796Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T18:21:51.817Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-command-line-mvtfrecb",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-command-line-mvtfrecb",
+    "enrolledAt": "2026-10-29T11:04:21.001Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T11:04:22.932Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvtcnvjh",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvtcnvjh",
+    "enrolledAt": "2026-10-29T09:37:31.006Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:37:31.006Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvtcnt0t",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvtcnt0t",
+    "enrolledAt": "2026-10-29T09:37:27.742Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:37:27.742Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvtcj33s",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvtcj33s",
+    "enrolledAt": "2026-10-29T09:33:47.525Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:33:47.525Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvtcirxx",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvtcirxx",
+    "enrolledAt": "2026-10-29T09:33:33.062Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:33:33.062Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvtbvdva",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvtbvdva",
+    "enrolledAt": "2026-10-29T09:15:21.733Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:15:21.733Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvtbuwye",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvtbuwye",
+    "enrolledAt": "2026-10-29T09:14:59.816Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T09:14:59.816Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-retrieval-augmented-gene-mvt9oopr",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-retrieval-augmented-gene-mvt9oopr",
+    "enrolledAt": "2026-10-29T08:14:14.217Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T08:14:15.575Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt8yv30",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvt8yv30",
+    "enrolledAt": "2026-10-29T07:54:05.163Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:54:05.163Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8ysfm",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8ysfm",
+    "enrolledAt": "2026-10-29T07:54:01.734Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:54:01.734Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8yefm",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8yefm",
+    "enrolledAt": "2026-10-29T07:53:43.587Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:53:43.587Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8uo1u",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8uo1u",
+    "enrolledAt": "2026-10-29T07:50:49.429Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:50:49.429Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt8uat4",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvt8uat4",
+    "enrolledAt": "2026-10-29T07:50:32.264Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:50:32.264Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8u8js",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8u8js",
+    "enrolledAt": "2026-10-29T07:50:29.339Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:50:29.339Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8tiua",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8tiua",
+    "enrolledAt": "2026-10-29T07:49:56.020Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:49:56.020Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8sz24",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8sz24",
+    "enrolledAt": "2026-10-29T07:49:30.381Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:49:30.381Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8scf1",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8scf1",
+    "enrolledAt": "2026-10-29T07:49:01.039Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:49:01.039Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8rm35",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8rm35",
+    "enrolledAt": "2026-10-29T07:48:26.917Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:48:26.917Z"
+  },
+  {
+    "id": "enrollment-test-user-rag-path-advanced-retrieval-augme-mvt8izqn",
+    "userId": "test-user-rag",
+    "courseId": "path-advanced-retrieval-augme-mvt8izqn",
+    "enrolledAt": "2026-10-29T07:41:44.707Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:41:44.707Z"
+  },
+  {
+    "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt74apq",
+    "userId": "test-student-charlie-uuid",
+    "courseId": "fine-tuning-of-ai-models-compreh-mvt74apq",
+    "enrolledAt": "2026-10-29T07:02:19.473Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T07:02:19.473Z"
+  },
+  {
+    "id": "enrollment-66c6ed9a-127f-4208-9619-6a7d6dff56a8-path-retrieval-augmented-gene-mvt6oyk2",
+    "userId": "66c6ed9a-127f-4208-9619-6a7d6dff56a8",
+    "courseId": "path-retrieval-augmented-gene-mvt6oyk2",
+    "enrolledAt": "2026-10-29T06:50:27.117Z",
+    "completionStatus": "in_progress",
+    "progressPercent": 0,
+    "lastAccessedAt": "2026-10-29T06:50:29.741Z"
+  },
+  {
     "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt6dcpb",
     "userId": "test-student-charlie-uuid",
     "courseId": "fine-tuning-of-ai-models-compreh-mvt6dcpb",
@@ -7,15 +664,6 @@
     "completionStatus": "in_progress",
     "progressPercent": 0,
     "lastAccessedAt": "2026-10-29T06:41:22.333Z"
-  },
-  {
-    "id": "enrollment-test-learner-alice-uuid-001-oops-in-python-programming-langu-mv9rshpy",
-    "userId": "test-learner-alice-uuid-001",
-    "courseId": "oops-in-python-programming-langu-mv9rshpy",
-    "enrolledAt": "2026-10-29T06:41:12.183Z",
-    "completionStatus": "in_progress",
-    "progressPercent": 0,
-    "lastAccessedAt": "2026-10-29T06:41:12.183Z"
   },
   {
     "id": "enrollment-test-student-charlie-uuid-fine-tuning-of-ai-models-compreh-mvt5wn0e",

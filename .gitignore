@@ -45,9 +45,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# supabase cli cache
+/supabase/.temp/
+
+# temporary and scratch directories
+/.temp_home/
+/scratch/
+
 # IDE and editors
 .idea/
 .vscode/
 *.swp
 *.swo
-

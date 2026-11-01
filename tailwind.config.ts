@@ -66,6 +66,7 @@ const config: Config = {
         "brand-hairline": "#e1e4ed",
         "brand-success": "#5c9275",
         "brand-warning": "#d99b62",
+        scrim: "#000000",
       },
       borderRadius: {
         DEFAULT: "0.25rem",

@@ -560,7 +560,7 @@ function ExploreContent() {
             title="Database Connection Error"
             description={error}
             actionText="Retry Loading"
-            actionHref="/explore"
+            onAction={() => loadPaths()}
           />
         )}
 

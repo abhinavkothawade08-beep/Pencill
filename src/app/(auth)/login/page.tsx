@@ -11,7 +11,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get("redirectTo") || "/dashboard";
 
-  const { user, loading, signInWithEmail, signInWithGoogle, resendConfirmationEmail } = useAuth();
+  const { user, loading, signInWithEmail, signInWithGoogle, resendConfirmationEmail, resetPasswordForEmail } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +21,12 @@ function LoginForm() {
   const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
+
+  // Forgot Password modal state
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [forgotStatus, setForgotStatus] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     if (!loading && user) {
@@ -97,6 +103,32 @@ function LoginForm() {
       const msg = err instanceof Error ? err.message : "Google authentication failed.";
       setErrorMessage(msg);
       setIsGoogleSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) {
+      setForgotStatus({ success: false, message: "Please enter your academic email address." });
+      return;
+    }
+
+    setIsSendingReset(true);
+    setForgotStatus(null);
+    try {
+      const { error } = await resetPasswordForEmail(forgotEmail.trim());
+      if (error) {
+        setForgotStatus({ success: false, message: error.message || "Failed to send password reset email." });
+      } else {
+        setForgotStatus({
+          success: true,
+          message: `Password recovery link dispatched to ${forgotEmail.trim()}. Check your inbox and spam folder.`,
+        });
+      }
+    } catch {
+      setForgotStatus({ success: false, message: "An unexpected error occurred while requesting password reset." });
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -196,6 +228,17 @@ function LoginForm() {
             >
               Password
             </label>
+            <button
+              type="button"
+              onClick={() => {
+                setForgotEmail(email);
+                setIsForgotPasswordOpen(true);
+                setForgotStatus(null);
+              }}
+              className="text-xs font-semibold text-primary hover:text-primary-container hover:underline"
+            >
+              Forgot password?
+            </button>
           </div>
           <input
             id="password"
@@ -230,6 +273,103 @@ function LoginForm() {
           Create an account
         </Link>
       </div>
+
+      {/* Forgot Password Modal */}
+      {isForgotPasswordOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl max-w-md w-full shadow-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-surface-container-high">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-xl">lock_reset</span>
+                <h3 className="font-headline-sm text-headline-sm font-serif text-primary">
+                  Reset Password
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsForgotPasswordOpen(false)}
+                className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+
+            <p className="text-body-sm text-on-surface-variant leading-relaxed">
+              Enter your registered academic email address. We will dispatch a secure link to reset your account password.
+            </p>
+
+            {forgotStatus && (
+              <div
+                className={`p-3 rounded-lg text-body-sm flex items-start gap-2 ${
+                  forgotStatus.success
+                    ? "bg-secondary-container/40 text-on-secondary-fixed-variant border border-secondary/30"
+                    : "bg-error-container/30 text-error border border-error/30"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base shrink-0 mt-0.5">
+                  {forgotStatus.success ? "check_circle" : "error"}
+                </span>
+                <span>{forgotStatus.message}</span>
+              </div>
+            )}
+
+            {!forgotStatus?.success && (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label htmlFor="forgot-email" className="block text-xs font-semibold text-on-surface mb-1">
+                    Academic Email Address
+                  </label>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    required
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="scholar@university.edu"
+                    className="w-full px-3.5 py-2.5 bg-surface-container-low rounded-lg border border-surface-container-high text-on-surface font-body-sm text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordOpen(false)}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingReset}
+                    className="px-4 py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container text-xs font-semibold shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {isSendingReset && (
+                      <span className="w-3.5 h-3.5 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
+                    )}
+                    <span>{isSendingReset ? "Sending Link..." : "Send Reset Link"}</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {forgotStatus?.success && (
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPasswordOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -50,7 +50,7 @@ export async function getUserNotes(
 
   if (error || !data) {
     console.error("Error fetching notes from Supabase:", error);
-    return getGuestNotes(lessonId);
+    return [];
   }
 
   return data.map((n) => ({

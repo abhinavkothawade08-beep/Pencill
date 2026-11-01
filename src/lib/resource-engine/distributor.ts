@@ -22,7 +22,7 @@ export function distributeAndSequenceModuleResources(
   validVideos.sort((a, b) => b.combinedScore - a.combinedScore);
   validReadings.sort((a, b) => b.combinedScore - a.combinedScore);
 
-  // 3. Select top video resources (up to 2-3 per module to avoid cognitive overload)
+  // 3. Select top video resources (up to 2 per module to maintain high cognitive focus)
   const selectedVideos = validVideos.slice(0, 2);
 
   // 4. Select top reading materials (1-2 per module)
@@ -36,17 +36,25 @@ export function distributeAndSequenceModuleResources(
   for (const r of selectedReadings) {
     for (const obj of r.matchedObjectives) metObjectives.add(obj);
   }
+  if (quiz && Array.isArray(quiz.questions)) {
+    for (const q of quiz.questions) {
+      if (q.learningObjectiveReference) {
+        metObjectives.add(q.learningObjectiveReference);
+      }
+    }
+  }
 
   const unmetObjectives: string[] = [];
   for (const obj of modulePlan.learningObjectives) {
     if (!metObjectives.has(obj.statement)) {
-      // If notes cover it, mark partially met
       unmetObjectives.push(obj.statement);
     }
   }
 
   const totalObjectives = modulePlan.learningObjectives.length || 1;
-  const coveragePercent = Math.round(((totalObjectives - unmetObjectives.length) / totalObjectives) * 100);
+  const coveragePercent = Math.round(
+    ((totalObjectives - unmetObjectives.length) / totalObjectives) * 100
+  );
 
   return {
     moduleId: modulePlan.id,
@@ -55,7 +63,7 @@ export function distributeAndSequenceModuleResources(
     readings: selectedReadings,
     studyNotes,
     quiz,
-    coverageScore: Math.max(70, coveragePercent), // Notes and quizzes guarantee foundational pedagogical coverage
+    coverageScore: coveragePercent,
     unmetObjectives: unmetObjectives.length > 0 ? unmetObjectives : [],
   };
 }

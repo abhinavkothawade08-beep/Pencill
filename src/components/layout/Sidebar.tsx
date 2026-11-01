@@ -9,19 +9,26 @@ import { storageAdapter } from "@/lib/storage/storageAdapter";
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid_view" },
   { label: "My Courses", href: "/courses", icon: "menu_book" },
-  { label: "Explore", href: "/explore", icon: "explore" },
-  { label: "Practice & Quizzes", href: "/practice", icon: "check_circle" },
+  { label: "Smart Retention", href: "/review", icon: "psychology" },
+  { label: "Knowledge Graph", href: "/graph", icon: "account_tree" },
+  { label: "Practice & Code", href: "/practice", icon: "terminal" },
+  { label: "Explore Catalog", href: "/explore", icon: "explore" },
+  { label: "Master Educators", href: "/educators", icon: "cast_for_education" },
+  { label: "Universal Importer", href: "/import", icon: "input" },
+  { label: "Community Q&A", href: "/community", icon: "forum" },
+  { label: "Achievements", href: "/achievements", icon: "workspace_premium" },
   { label: "Progress", href: "/progress", icon: "bar_chart" },
   { label: "Bookmarks", href: "/bookmarks", icon: "bookmark" },
+  { label: "Settings", href: "/settings", icon: "settings" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, profile, signOut } = useAuth();
 
-  const avatarUrl = profile?.avatarUrl || "/avatars/aanya-patel.png";
-  const displayName = profile?.name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Aanya Patel";
-  const userGrade = profile?.grade || "Class 11 · JEE Aspirant";
+  const avatarUrl = profile?.avatarUrl || "/avatars/default-avatar.svg";
+  const displayName = profile?.name || user?.user_metadata?.full_name || (user?.email ? user.email.split("@")[0] : "Scholar");
+  const userGrade = profile?.grade || "Self-Paced Learner";
   const userTier = profile?.tier || "Pro Path";
 
   const handleSignOut = async () => {
@@ -45,7 +52,7 @@ export default function Sidebar() {
         </Link>
 
         {/* Navigation Items */}
-        <nav className="px-space-sm space-y-1" aria-label="Main navigation">
+        <nav className="px-space-sm space-y-1 overflow-y-auto max-h-[calc(100vh-210px)] no-scrollbar" aria-label="Main navigation">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (

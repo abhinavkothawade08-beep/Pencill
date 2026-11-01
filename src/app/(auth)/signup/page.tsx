@@ -190,7 +190,7 @@ function SignupForm() {
             required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Aanya Patel"
+            placeholder="e.g. Marie Curie"
             className="w-full px-3.5 py-2.5 bg-surface-container-low rounded-lg border border-surface-container-high text-on-surface font-body-sm text-body-sm placeholder:text-on-surface-variant focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary transition-all"
           />
         </div>

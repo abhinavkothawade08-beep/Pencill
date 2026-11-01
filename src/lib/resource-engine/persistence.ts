@@ -22,6 +22,7 @@ export interface PersistenceResult {
   totalLessons: number;
   verificationPassed: boolean;
   course?: import('@/types').LearningPath;
+  quizzes?: import('@/types').Quiz[];
 }
 
 export async function persistEngineCourse(
@@ -66,9 +67,10 @@ export async function persistEngineCourse(
 
     // 1. Prepare Formative Quiz if present
     let savedQuizId: string | undefined;
+    let moduleQuizQuestions: QuizQuestion[] = [];
     if (assign.quiz && assign.quiz.questions.length > 0) {
       savedQuizId = `quiz-${modId}`;
-      const quizQuestions: QuizQuestion[] = assign.quiz.questions.map((q, qIdx) => ({
+      moduleQuizQuestions = assign.quiz.questions.map((q, qIdx) => ({
         id: `qq-${savedQuizId}-${qIdx + 1}`,
         questionNumber: qIdx + 1,
         prompt: q.prompt,
@@ -96,7 +98,7 @@ export async function persistEngineCourse(
           timeLimitMinutes: assign.quiz.timeLimitMinutes || 15,
           userId: userId || null,
         },
-        questions: quizQuestions,
+        questions: moduleQuizQuestions,
       });
     }
 
@@ -192,7 +194,7 @@ export async function persistEngineCourse(
           url: note.canonicalUrl,
           sourceName: note.authorOrInstitution,
           description: note.overview,
-          publisher: 'Pencill Academic Publishing',
+          publisher: 'Pencill Academic Engine',
           qualityScore: 98,
         },
       ];
@@ -202,7 +204,7 @@ export async function persistEngineCourse(
         title: `${assign.moduleTitle}: In-Depth Study Notes & Handout`,
         type: 'monograph',
         durationMinutes: note.estimatedReadingMinutes,
-        sourceName: note.authorOrInstitution || 'Pencill Faculty Notes',
+        sourceName: note.authorOrInstitution || 'Pencill Academic Engine',
         sourceUrl: `/courses/${courseId}`,
         orderIndex: lessonOrderIndex,
         summaryPoints: note.keyTakeaways,
@@ -239,6 +241,8 @@ export async function persistEngineCourse(
       orderIndex: mIdx,
       status: mIdx === 0 ? 'in_progress' : 'locked',
       totalResources: lessonsForModule.length,
+      objective: assign.moduleTitle,
+      checkpointQuestions: moduleQuizQuestions,
       lessons: lessonsForModule,
     });
   }
@@ -260,9 +264,11 @@ export async function persistEngineCourse(
   await createFullLearningPath(fullPathInput, userId || '', discoveredResourcesToPersist);
 
   // 2. Persist Formative Quizzes in Supabase / Local storage (after learning_path exists)
+  const createdQuizzes: import('@/types').Quiz[] = [];
   for (const qItem of quizzesToPersist) {
     try {
-      await createQuiz(qItem.payload, qItem.questions, userId || null);
+      const saved = await createQuiz(qItem.payload, qItem.questions, userId || null);
+      createdQuizzes.push(saved);
     } catch (err) {
       console.warn(`[Persistence] Quiz persistence warning for ${qItem.payload.id}:`, err);
     }
@@ -277,7 +283,7 @@ export async function persistEngineCourse(
     console.warn(`[Persistence] Automatic enrollment notice:`, enrollErr);
   }
 
-  // 3. Verify persistence
+  // 4. Verify persistence
   const reloaded = await getLearningPathById(courseId);
   const verificationPassed = Boolean(reloaded && reloaded.id === courseId && reloaded.modules && reloaded.modules.length > 0);
 
@@ -289,5 +295,6 @@ export async function persistEngineCourse(
     totalLessons: totalLessonsCounter,
     verificationPassed,
     course: reloaded || inMemoryPathCache.get(courseId) || undefined,
+    quizzes: createdQuizzes,
   };
 }

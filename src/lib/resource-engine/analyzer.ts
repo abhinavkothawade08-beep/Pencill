@@ -16,20 +16,37 @@ export function analyzeLearningGoal(input: Partial<LearnerGoalInput> & { topic: 
   // 2. Normalize Level
   const normalizedLevel = (input.level || 'intermediate') as AcademicLevel;
 
-  // 3. Learning Style
-  const learningStyle = (input.learningStyle || 'balanced') as LearningStyle;
+  // 3. Learning Style calibrated to teachingStyle preference if provided
+  let effectiveStyle: LearningStyle = (input.learningStyle || 'balanced') as LearningStyle;
+  if (input.teachingStyle === 'theory_first') {
+    effectiveStyle = 'theory_focused';
+  } else if (input.teachingStyle === 'practice_first') {
+    effectiveStyle = 'practical_projects';
+  } else if (input.teachingStyle === 'balanced') {
+    effectiveStyle = 'balanced';
+  }
 
   // 4. Derive Pedagogical Strategy based on Domain & Style
-  const pedagogicalStrategy = derivePedagogicalStrategy(detectedDomain, learningStyle);
+  const pedagogicalStrategy = derivePedagogicalStrategy(detectedDomain, effectiveStyle);
 
   // 5. Extract Core Concepts & Prerequisites
-  const { coreConcepts, prerequisites } = extractConceptsAndPrerequisites(topicLower, detectedDomain);
+  const { coreConcepts: baseConcepts, prerequisites: basePrereqs } = extractConceptsAndPrerequisites(topicLower, detectedDomain);
+
+  // Merge user-specified prerequisites if provided
+  const prerequisites = Array.from(new Set([...(input.prerequisites || []), ...basePrereqs]));
+
+  // Merge concepts from learning objectives if provided
+  const objectiveWords = (input.learningObjectives || [])
+    .map((o) => o.text.toLowerCase().split(/\s+/))
+    .flat()
+    .filter((w) => w.length > 3 && !['about', 'using', 'master', 'learn', 'understand', 'explain', 'apply'].includes(w));
+  const coreConcepts = Array.from(new Set([...baseConcepts, ...objectiveWords]));
 
   return {
     primaryTopic: topic,
     detectedDomain,
     normalizedLevel,
-    learningStyle,
+    learningStyle: effectiveStyle,
     targetExam: input.targetExam || undefined,
     coreConcepts,
     prerequisites,
@@ -74,6 +91,11 @@ function detectDomain(topicLower: string, userSpecifiedDomain?: string): Educati
     topicLower.includes('large language model') ||
     topicLower.includes('llm') ||
     topicLower.includes('transformer') ||
+    topicLower.includes('rag') ||
+    topicLower.includes('retrieval-augmented') ||
+    topicLower.includes('retrieval augmented') ||
+    topicLower.includes('vector search') ||
+    topicLower.includes('embedding') ||
     topicLower.includes('nlp') ||
     topicLower.includes('neural network') ||
     topicLower.includes('computer vision') ||

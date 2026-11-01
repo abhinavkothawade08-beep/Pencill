@@ -91,6 +91,8 @@ export interface Module {
   completedResources: number;
   lessons: Lesson[];
   objective?: string;
+  checkpointQuestions?: QuizQuestion[];
+  flashcards?: any[];
 }
 
 export interface LearningPath {

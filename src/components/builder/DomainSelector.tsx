@@ -10,6 +10,7 @@ export default function DomainSelector() {
   const {
     config,
     updateConfig,
+    setTitle,
     addTopic,
     removeTopic,
     renameTopic,
@@ -283,15 +284,32 @@ export default function DomainSelector() {
 
   return (
     <div className="flex flex-col gap-space-md">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
-          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
-            1
-          </span>
-          Educational Domain, Subject &amp; Topics
-        </label>
-        <span className="font-label-sm text-label-sm text-secondary font-medium">Step 1 of 5</span>
+      {/* Header & Learning Path Title */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
+              1
+            </span>
+            Educational Domain, Subject &amp; Topics
+          </label>
+          <span className="font-label-sm text-label-sm text-secondary font-medium">Step 1 of 8</span>
+        </div>
+
+        {/* Title Input */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold text-on-surface flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm text-primary">title</span>
+            <span>Learning Path Title</span>
+          </label>
+          <input
+            type="text"
+            value={config.title || ""}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Class 11 Mechanics & Rotational Dynamics"
+            className="w-full bg-surface-container-low px-3 py-2 rounded-lg text-body-sm text-on-surface font-semibold border border-surface-container-high/60 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-all"
+          />
+        </div>
       </div>
 
       {/* Domain Switch Confirmation Banner if pending */}

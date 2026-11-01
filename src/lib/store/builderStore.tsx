@@ -7,6 +7,10 @@ import {
   SelectedTopicItem,
   SelectedTopicSource,
   AdvancedLearningConfig,
+  LearningObjectiveItem,
+  CustomTeachingMix,
+  TeachingStyleType,
+  DifficultyPreferenceType,
 } from "../types/builderConfig";
 import { storageAdapter } from "../storage/storageAdapter";
 
@@ -19,10 +23,33 @@ interface BuilderStoreContextType {
   canUndoReset: boolean;
   updateConfig: (updater: Partial<BuilderConfig> | ((prev: BuilderConfig) => BuilderConfig)) => void;
   updateAdvanced: <K extends keyof AdvancedLearningConfig>(key: K, val: AdvancedLearningConfig[K]) => void;
+  setTitle: (title: string) => void;
   addTopic: (topic: Omit<SelectedTopicItem, 'id'> & { id?: string }) => { added: boolean; reason?: string };
   removeTopic: (topicId: string) => void;
   renameTopic: (topicId: string, newLabel: string) => void;
   clearTopics: () => void;
+  setTeachingStyle: (style: TeachingStyleType) => void;
+  setCustomTeachingMix: (mix: CustomTeachingMix) => void;
+  setDifficultyPreference: (pref: DifficultyPreferenceType) => void;
+  addLearningObjective: (text: string, successCriteria?: string) => void;
+  updateLearningObjective: (id: string, text: string, successCriteria?: string) => void;
+  removeLearningObjective: (id: string) => void;
+  addPrerequisite: (concept: string) => void;
+  removePrerequisite: (concept: string) => void;
+  addKnownConcept: (concept: string) => void;
+  removeKnownConcept: (concept: string) => void;
+  addDifficultConcept: (concept: string) => void;
+  removeDifficultConcept: (concept: string) => void;
+  addExcludedTopic: (topic: string) => void;
+  removeExcludedTopic: (topic: string) => void;
+  toggleEducatorPreference: (educatorId: string) => void;
+  toggleRepositoryPreference: (repo: string) => void;
+  toggleModality: (modalityKey: keyof BuilderConfig['modalities']) => { success: boolean; reason?: string };
+  updateSchedule: (schedule: Partial<BuilderConfig['scheduleSettings']>) => void;
+  updateLanguageSettings: (settings: Partial<BuilderConfig['languageSettings']>) => void;
+  updateCurriculumOverride: (override: { moduleIndex: number; title: string; customObjectives?: string[]; isRemoved?: boolean }) => void;
+  reorderCurriculumModules: (fromIndex: number, toIndex: number) => void;
+  resetCurriculumOverrides: () => void;
   saveDraft: () => Promise<void>;
   restoreDraft: () => Promise<boolean>;
   resetToDefaults: () => void;
@@ -80,6 +107,22 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
+  // Reset store on auth state reset (logout/account switch)
+  useEffect(() => {
+    const handleAuthReset = () => {
+      setConfig({ ...DEFAULT_BUILDER_CONFIG_STATE });
+      setHasDraft(false);
+      setIsDirty(false);
+      setLastSavedTime(null);
+      setPreviousConfigBeforeReset(null);
+      setCanUndoReset(false);
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    };
+
+    window.addEventListener("pencill:auth-state-reset", handleAuthReset);
+    return () => window.removeEventListener("pencill:auth-state-reset", handleAuthReset);
+  }, []);
+
   // Autosave after 2s idle when dirty
   useEffect(() => {
     if (!initialLoadRef.current || !isDirty) return;
@@ -122,6 +165,10 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
     }));
     setIsDirty(true);
   }, []);
+
+  const setTitle = useCallback((title: string) => {
+    updateConfig({ title });
+  }, [updateConfig]);
 
   // Topic management
   const addTopic = useCallback((topic: Omit<SelectedTopicItem, 'id'> & { id?: string }) => {
@@ -194,6 +241,269 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
     setIsDirty(true);
   }, []);
 
+  // Teaching Style
+  const setTeachingStyle = useCallback((style: TeachingStyleType) => {
+    updateConfig({ teachingStyle: style });
+  }, [updateConfig]);
+
+  const setCustomTeachingMix = useCallback((mix: CustomTeachingMix) => {
+    updateConfig({ customTeachingMix: mix });
+  }, [updateConfig]);
+
+  const setDifficultyPreference = useCallback((pref: DifficultyPreferenceType) => {
+    updateConfig({ difficultyPreference: pref });
+  }, [updateConfig]);
+
+  // Learning Objectives
+  const addLearningObjective = useCallback((text: string, successCriteria?: string) => {
+    const cleanText = text.trim();
+    if (!cleanText) return;
+    const newObj: LearningObjectiveItem = {
+      id: `lo-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      text: cleanText,
+      successCriteria: successCriteria?.trim(),
+    };
+    setConfig((prev) => ({
+      ...prev,
+      learningObjectives: [...(prev.learningObjectives || []), newObj],
+    }));
+    setIsDirty(true);
+  }, []);
+
+  const updateLearningObjective = useCallback((id: string, text: string, successCriteria?: string) => {
+    const cleanText = text.trim();
+    if (!cleanText) return;
+    setConfig((prev) => ({
+      ...prev,
+      learningObjectives: (prev.learningObjectives || []).map((lo) =>
+        lo.id === id ? { ...lo, text: cleanText, successCriteria: successCriteria?.trim() } : lo
+      ),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  const removeLearningObjective = useCallback((id: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      learningObjectives: (prev.learningObjectives || []).filter((lo) => lo.id !== id),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Prerequisites
+  const addPrerequisite = useCallback((concept: string) => {
+    const clean = concept.trim();
+    if (!clean) return;
+    setConfig((prev) => {
+      const list = prev.prerequisites || [];
+      if (list.some((c) => c.toLowerCase() === clean.toLowerCase())) return prev;
+      return { ...prev, prerequisites: [...list, clean] };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const removePrerequisite = useCallback((concept: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      prerequisites: (prev.prerequisites || []).filter((c) => c !== concept),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Known Concepts
+  const addKnownConcept = useCallback((concept: string) => {
+    const clean = concept.trim();
+    if (!clean) return;
+    setConfig((prev) => {
+      const list = prev.knownConcepts || [];
+      if (list.some((c) => c.toLowerCase() === clean.toLowerCase())) return prev;
+      return { ...prev, knownConcepts: [...list, clean] };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const removeKnownConcept = useCallback((concept: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      knownConcepts: (prev.knownConcepts || []).filter((c) => c !== concept),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Difficult Concepts
+  const addDifficultConcept = useCallback((concept: string) => {
+    const clean = concept.trim();
+    if (!clean) return;
+    setConfig((prev) => {
+      const list = prev.difficultConcepts || [];
+      if (list.some((c) => c.toLowerCase() === clean.toLowerCase())) return prev;
+      return { ...prev, difficultConcepts: [...list, clean] };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const removeDifficultConcept = useCallback((concept: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      difficultConcepts: (prev.difficultConcepts || []).filter((c) => c !== concept),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Excluded Topics
+  const addExcludedTopic = useCallback((topic: string) => {
+    const clean = topic.trim();
+    if (!clean) return;
+    setConfig((prev) => {
+      const list = prev.excludedTopics || [];
+      if (list.some((c) => c.toLowerCase() === clean.toLowerCase())) return prev;
+      return { ...prev, excludedTopics: [...list, clean] };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const removeExcludedTopic = useCallback((topic: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      excludedTopics: (prev.excludedTopics || []).filter((t) => t !== topic),
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Educators & Repositories
+  const toggleEducatorPreference = useCallback((educatorId: string) => {
+    setConfig((prev) => {
+      const list = prev.educatorPreferences?.preferredEducatorIds || [];
+      const nextList = list.includes(educatorId)
+        ? list.filter((id) => id !== educatorId)
+        : [...list, educatorId];
+      return {
+        ...prev,
+        educatorPreferences: {
+          ...prev.educatorPreferences,
+          preferredEducatorIds: nextList,
+        },
+      };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const toggleRepositoryPreference = useCallback((repo: string) => {
+    setConfig((prev) => {
+      const list = prev.repositoryPreferences?.preferredRepositories || [];
+      const nextList = list.includes(repo)
+        ? (list.length <= 1 ? list : list.filter((r) => r !== repo))
+        : [...list, repo];
+      return {
+        ...prev,
+        repositoryPreferences: {
+          ...prev.repositoryPreferences,
+          preferredRepositories: nextList,
+        },
+        advanced: {
+          ...prev.advanced,
+          repositories: nextList,
+        },
+      };
+    });
+    setIsDirty(true);
+  }, []);
+
+  // Modality toggle with safety invariant
+  const toggleModality = useCallback((key: keyof BuilderConfig['modalities']) => {
+    const current = configRef.current.modalities;
+    const isCurrentlyOn = current[key];
+    const activeCount = Object.values(current).filter(Boolean).length;
+
+    if (isCurrentlyOn && activeCount <= 1) {
+      return { success: false, reason: "At least one pedagogical modality must remain enabled." };
+    }
+
+    setConfig((prev) => ({
+      ...prev,
+      modalities: {
+        ...prev.modalities,
+        [key]: !isCurrentlyOn,
+      },
+    }));
+    setIsDirty(true);
+    return { success: true };
+  }, []);
+
+  // Schedule & Language
+  const updateSchedule = useCallback((schedule: Partial<BuilderConfig['scheduleSettings']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      scheduleSettings: {
+        ...prev.scheduleSettings,
+        ...schedule,
+      },
+      deadline: schedule.targetCompletionDate !== undefined ? (schedule.targetCompletionDate || null) : prev.deadline,
+    }));
+    setIsDirty(true);
+  }, []);
+
+  const updateLanguageSettings = useCallback((settings: Partial<BuilderConfig['languageSettings']>) => {
+    setConfig((prev) => ({
+      ...prev,
+      languageSettings: {
+        ...prev.languageSettings,
+        ...settings,
+      },
+      language: settings.explanationLanguage || prev.language,
+    }));
+    setIsDirty(true);
+  }, []);
+
+  // Curriculum Blueprint Overrides
+  const updateCurriculumOverride = useCallback((override: { moduleIndex: number; title: string; customObjectives?: string[]; isRemoved?: boolean }) => {
+    setConfig((prev) => {
+      const existing = prev.curriculumBlueprintOverrides || [];
+      const idx = existing.findIndex((o) => o.moduleIndex === override.moduleIndex);
+      let updated: typeof existing;
+      if (idx >= 0) {
+        updated = existing.map((o) => (o.moduleIndex === override.moduleIndex ? { ...o, ...override } : o));
+      } else {
+        updated = [...existing, override];
+      }
+      return {
+        ...prev,
+        curriculumBlueprintOverrides: updated,
+      };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const reorderCurriculumModules = useCallback((fromIndex: number, toIndex: number) => {
+    setConfig((prev) => {
+      const overrides = [...(prev.curriculumBlueprintOverrides || [])];
+      // Store a custom reorder marker or swap
+      const existingFrom = overrides.find((o) => o.moduleIndex === fromIndex);
+      const existingTo = overrides.find((o) => o.moduleIndex === toIndex);
+      
+      const newOverrides = overrides.filter((o) => o.moduleIndex !== fromIndex && o.moduleIndex !== toIndex);
+      if (existingFrom) newOverrides.push({ ...existingFrom, moduleIndex: toIndex });
+      else newOverrides.push({ moduleIndex: toIndex, title: `Module ${fromIndex + 1}` });
+
+      if (existingTo) newOverrides.push({ ...existingTo, moduleIndex: fromIndex });
+      else newOverrides.push({ moduleIndex: fromIndex, title: `Module ${toIndex + 1}` });
+
+      return {
+        ...prev,
+        curriculumBlueprintOverrides: newOverrides,
+      };
+    });
+    setIsDirty(true);
+  }, []);
+
+  const resetCurriculumOverrides = useCallback(() => {
+    setConfig((prev) => ({
+      ...prev,
+      curriculumBlueprintOverrides: [],
+    }));
+    setIsDirty(true);
+  }, []);
+
   // Manual save draft
   const saveDraft = useCallback(async () => {
     setIsSaving(true);
@@ -201,7 +511,7 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
     await storageAdapter.addNotification({
       type: "draft_saved",
       title: "Draft Saved",
-      message: `Curriculum draft for ${config.selectedTopics.map((t) => t.label).join(", ") || "Goal"} saved locally.`,
+      message: `Curriculum draft for ${config.title || config.selectedTopics.map((t) => t.label).join(", ") || "Goal"} saved locally.`,
       read: false,
     });
     setIsSaving(false);
@@ -212,11 +522,61 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
     setLastSavedTime(`Saved ${timeStr}`);
   }, [config]);
 
-  // Restore draft
+  // Restore draft with safe schema hydration
   const restoreDraft = useCallback(async () => {
     const saved = await storageAdapter.getDraft<BuilderConfig>(DRAFT_KEY);
     if (saved && saved.domainId) {
-      setConfig(saved);
+      const hydrated: BuilderConfig = {
+        ...DEFAULT_BUILDER_CONFIG_STATE,
+        ...saved,
+        modalities: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.modalities,
+          ...(saved.modalities || {}),
+        },
+        advanced: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.advanced,
+          ...(saved.advanced || {}),
+        },
+        learningObjectives: saved.learningObjectives?.length
+          ? saved.learningObjectives
+          : DEFAULT_BUILDER_CONFIG_STATE.learningObjectives,
+        prerequisites: saved.prerequisites?.length
+          ? saved.prerequisites
+          : DEFAULT_BUILDER_CONFIG_STATE.prerequisites,
+        videoPreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.videoPreferences,
+          ...(saved.videoPreferences || {}),
+        },
+        readingPreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.readingPreferences,
+          ...(saved.readingPreferences || {}),
+        },
+        practicePreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.practicePreferences,
+          ...(saved.practicePreferences || {}),
+        },
+        assessmentPreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.assessmentPreferences,
+          ...(saved.assessmentPreferences || {}),
+        },
+        repositoryPreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.repositoryPreferences,
+          ...(saved.repositoryPreferences || {}),
+        },
+        educatorPreferences: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.educatorPreferences,
+          ...(saved.educatorPreferences || {}),
+        },
+        scheduleSettings: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.scheduleSettings,
+          ...(saved.scheduleSettings || {}),
+        },
+        languageSettings: {
+          ...DEFAULT_BUILDER_CONFIG_STATE.languageSettings,
+          ...(saved.languageSettings || {}),
+        },
+      };
+      setConfig(hydrated);
       setIsDirty(false);
       return true;
     }
@@ -257,10 +617,33 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
         canUndoReset,
         updateConfig,
         updateAdvanced,
+        setTitle,
         addTopic,
         removeTopic,
         renameTopic,
         clearTopics,
+        setTeachingStyle,
+        setCustomTeachingMix,
+        setDifficultyPreference,
+        addLearningObjective,
+        updateLearningObjective,
+        removeLearningObjective,
+        addPrerequisite,
+        removePrerequisite,
+        addKnownConcept,
+        removeKnownConcept,
+        addDifficultConcept,
+        removeDifficultConcept,
+        addExcludedTopic,
+        removeExcludedTopic,
+        toggleEducatorPreference,
+        toggleRepositoryPreference,
+        toggleModality,
+        updateSchedule,
+        updateLanguageSettings,
+        updateCurriculumOverride,
+        reorderCurriculumModules,
+        resetCurriculumOverrides,
         saveDraft,
         restoreDraft,
         resetToDefaults,

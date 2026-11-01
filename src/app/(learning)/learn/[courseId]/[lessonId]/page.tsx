@@ -28,6 +28,37 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/services/supabase/client";
 import { LessonNoteResource } from "@/types";
 import { storageAdapter } from "@/lib/storage/storageAdapter";
+import ReadingDocumentViewer from "@/components/reading/ReadingDocumentViewer";
+import { GeneratedReadingDocument } from "@/lib/reading-engine/types";
+import PersonalAITutor from "@/components/tutor/PersonalAITutor";
+
+function isGenuineExternalUrl(url?: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim().toLowerCase();
+  if (
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("#") ||
+    trimmed.includes("localhost") ||
+    trimmed.includes("127.0.0.1")
+  ) {
+    return false;
+  }
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+    return false;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    const host = parsed.hostname.replace(/^www\./, "");
+    const path = parsed.pathname;
+    const placeholderHosts = ["openstax.org", "ocw.mit.edu", "wikipedia.org", "pencill.app"];
+    if (placeholderHosts.includes(host) && (path === "" || path === "/")) {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+  return true;
+}
 
 function extractYouTubeEmbedUrl(url?: string): string | null {
   if (!url) return null;
@@ -103,6 +134,17 @@ export default function LearningWorkspacePage() {
   const [isLoadingNotes, setIsLoadingNotes] = useState(false);
   const [notesError, setNotesError] = useState<string | null>(null);
 
+  // Reliable AI Study Notes Persistence States
+  type NotesPersistenceStatus = 'NOT_GENERATED' | 'GENERATING' | 'SAVING' | 'SAVED' | 'FAILED';
+  const [notesStatus, setNotesStatus] = useState<NotesPersistenceStatus>('NOT_GENERATED');
+  const [unpersistedDocument, setUnpersistedDocument] = useState<GeneratedReadingDocument | null>(null);
+
+  // On-Demand AI Reading Engine State
+  const [readingDocument, setReadingDocument] = useState<GeneratedReadingDocument | null>(null);
+  const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
+  const [readingStatusMessage, setReadingStatusMessage] = useState<string>("");
+  const [readingError, setReadingError] = useState<string | null>(null);
+
   // Notes state
   const [notes, setNotes] = useState<UserNoteItem[]>([]);
   const [newNote, setNewNote] = useState("");
@@ -122,6 +164,13 @@ export default function LearningWorkspacePage() {
 
     async function loadData() {
       setLoading(true);
+      // Clean previous lesson note states to prevent cross-lesson bleeding
+      setReadingDocument(null);
+      setReadingError(null);
+      setReadingStatusMessage("");
+      setNotesStatus('NOT_GENERATED');
+      setUnpersistedDocument(null);
+
       const uid = currentUser;
 
       // Fetch full workspace hierarchy (course, module, lesson, siblings)
@@ -157,11 +206,61 @@ export default function LearningWorkspacePage() {
         }
       }
 
+      // Fetch on-demand reading material from Supabase
+      let fetchedDoc: GeneratedReadingDocument | null = null;
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const readRes = await fetch(
+          `/api/reading/lesson/${encodeURIComponent(lessonId)}?courseId=${encodeURIComponent(courseId)}`,
+          { headers }
+        );
+        if (readRes.ok) {
+          const readJson = await readRes.json();
+          if (mounted && readJson?.data?.document) {
+            fetchedDoc = readJson.data.document;
+            setReadingDocument(fetchedDoc);
+            setNotesStatus('SAVED');
+            storageAdapter.saveReadingMaterial(fetchedDoc);
+          }
+        }
+      } catch {
+        // Non-blocking
+      }
+
       if (mounted) {
         setWorkspace(data);
         setCompletedLessonIds(completed);
         setNotes(loadedNotes);
-        setStudyNotes(data?.lesson?.studyNotes || []);
+
+        const resolvedNotes =
+          data?.lesson?.studyNotes && data.lesson.studyNotes.length > 0
+            ? data.lesson.studyNotes
+            : fetchedDoc
+            ? [
+                {
+                  id: fetchedDoc.id,
+                  title: fetchedDoc.title,
+                  type: "study_notes" as const,
+                  url: `/learn/${courseId}/${lessonId}/reading/${fetchedDoc.id}`,
+                  sourceUrl: `/learn/${courseId}/${lessonId}/reading/${fetchedDoc.id}`,
+                  sourceName: "Pencill Academic Engine",
+                  description: fetchedDoc.content?.introduction?.slice(0, 300) || fetchedDoc.title,
+                  publisher: "Pencill Academic Engine",
+                  qualityScore: 98,
+                },
+              ]
+            : [];
+
+        setStudyNotes(resolvedNotes);
+        if (resolvedNotes.length > 0 || fetchedDoc) {
+          setNotesStatus('SAVED');
+        } else {
+          setNotesStatus('NOT_GENERATED');
+        }
         setLoading(false);
       }
     }
@@ -172,6 +271,219 @@ export default function LearningWorkspacePage() {
       mounted = false;
     };
   }, [courseId, lessonId, currentUser]);
+
+  const handleGenerateStudyNotes = useCallback(
+    async (forceRegenerate = false) => {
+      if (notesStatus === 'GENERATING' || notesStatus === 'SAVING' || isGeneratingNotes || !courseId || !lessonId) return;
+      setIsGeneratingNotes(true);
+      setNotesStatus('GENERATING');
+      setReadingError(null);
+      setUnpersistedDocument(null);
+      setReadingStatusMessage(
+        forceRegenerate
+          ? "Synthesizing refreshed study notes with Pencill AI..."
+          : "Synthesizing comprehensive study notes with Pencill AI..."
+      );
+
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        // Prepare client curriculum context as a resilient fallback
+        const clientContext = workspace?.lesson
+          ? {
+              courseTitle: workspace.course?.title,
+              courseDomain: workspace.course?.domain,
+              moduleTitle: workspace.module?.title,
+              lessonTitle: workspace.lesson?.title,
+              learningObjectives:
+                workspace.lesson.summaryPoints && workspace.lesson.summaryPoints.length > 0
+                  ? workspace.lesson.summaryPoints
+                  : workspace.module?.objective
+                  ? [workspace.module.objective]
+                  : undefined,
+              expectedReadingDurationMinutes: workspace.lesson.durationMinutes,
+              previousLessonTitle: workspace.prevLesson?.title,
+              nextLessonTitle: workspace.nextLesson?.title,
+            }
+          : undefined;
+
+        const res = await fetch("/api/reading/generate", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            courseId,
+            lessonId,
+            moduleId: workspace?.module?.id,
+            userRequest: true,
+            forceRegenerate,
+            clientContext,
+          }),
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          if (json?.unpersistedDocument) {
+            setUnpersistedDocument(json.unpersistedDocument);
+            setNotesStatus('FAILED');
+            throw new Error(
+              json.error || "AI generated study notes, but saving to the Supabase database failed. Click 'Retry Saving' to persist your notes."
+            );
+          }
+          setNotesStatus('FAILED');
+          throw new Error(json.error || "We were unable to synthesize study notes at this moment. Please click Retry Generation.");
+        }
+
+        // Database persistence CONFIRMED by Supabase
+        const persistedDoc = json.data;
+        setReadingDocument(persistedDoc);
+        setUnpersistedDocument(null);
+        setNotesStatus('SAVED');
+        setReadingStatusMessage("Your study notes are permanently saved.");
+
+        const genNote: LessonNoteResource = {
+          id: persistedDoc.id,
+          title: persistedDoc.title,
+          type: "study_notes",
+          url: `/learn/${courseId}/${lessonId}/reading/${persistedDoc.id}`,
+          sourceUrl: `/learn/${courseId}/${lessonId}/reading/${persistedDoc.id}`,
+          sourceName: "Pencill Academic Engine",
+          description: persistedDoc.content?.introduction?.slice(0, 300) || persistedDoc.title,
+          publisher: "Pencill Academic Engine",
+          qualityScore: 98,
+        };
+
+        setStudyNotes([genNote]);
+        await storageAdapter.saveReadingMaterial(persistedDoc);
+
+        // Update local workspace and course cache
+        setWorkspace((prev) => {
+          if (!prev || !prev.lesson) return prev;
+          return {
+            ...prev,
+            lesson: {
+              ...prev.lesson,
+              studyNotes: [genNote],
+            },
+          };
+        });
+
+        if (typeof window !== "undefined") {
+          try {
+            const raw = localStorage.getItem(`pencill_path_${courseId}`);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed?.modules) {
+                for (const mod of parsed.modules) {
+                  const targetLesson = mod.lessons?.find((l: any) => l.id === lessonId);
+                  if (targetLesson) {
+                    targetLesson.studyNotes = [genNote];
+                  }
+                }
+                localStorage.setItem(`pencill_path_${courseId}`, JSON.stringify(parsed));
+              }
+            }
+          } catch {}
+        }
+
+        setToastState({ open: true, message: "Study notes saved to Supabase successfully." });
+      } catch (err: any) {
+        setReadingError(err.message || "We were unable to synthesize study notes at this moment. Please click Retry Generation.");
+      } finally {
+        setIsGeneratingNotes(false);
+      }
+    },
+    [courseId, lessonId, isGeneratingNotes, notesStatus, workspace]
+  );
+
+  const handleRetrySaving = useCallback(async () => {
+    if (!unpersistedDocument || notesStatus === 'SAVING') return;
+    setNotesStatus('SAVING');
+    setIsGeneratingNotes(true);
+    setReadingStatusMessage("Saving study notes to Supabase...");
+    setReadingError(null);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch("/api/reading/save", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          document: unpersistedDocument,
+          courseId,
+          lessonId,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to save study notes to database. Please click Retry Saving.");
+      }
+
+      const savedDoc = json.data;
+      setReadingDocument(savedDoc);
+      setUnpersistedDocument(null);
+      setNotesStatus('SAVED');
+      setReadingStatusMessage("Your study notes are permanently saved.");
+
+      const genNote: LessonNoteResource = {
+        id: savedDoc.id,
+        title: savedDoc.title,
+        type: "study_notes",
+        url: `/learn/${courseId}/${lessonId}/reading/${savedDoc.id}`,
+        sourceUrl: `/learn/${courseId}/${lessonId}/reading/${savedDoc.id}`,
+        sourceName: "Pencill Academic Engine",
+        description: savedDoc.content?.introduction?.slice(0, 300) || savedDoc.title,
+        publisher: "Pencill Academic Engine",
+        qualityScore: 98,
+      };
+
+      setStudyNotes([genNote]);
+      await storageAdapter.saveReadingMaterial(savedDoc);
+
+      setWorkspace((prev) => {
+        if (!prev || !prev.lesson) return prev;
+        return {
+          ...prev,
+          lesson: {
+            ...prev.lesson,
+            studyNotes: [genNote],
+          },
+        };
+      });
+
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem(`pencill_path_${courseId}`);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.modules) {
+              for (const mod of parsed.modules) {
+                const targetLesson = mod.lessons?.find((l: any) => l.id === lessonId);
+                if (targetLesson) {
+                  targetLesson.studyNotes = [genNote];
+                }
+              }
+              localStorage.setItem(`pencill_path_${courseId}`, JSON.stringify(parsed));
+            }
+          }
+        } catch {}
+      }
+
+      setToastState({ open: true, message: "Study notes saved to Supabase successfully." });
+    } catch (err: any) {
+      setNotesStatus('FAILED');
+      setReadingError(err.message || "Failed to save study notes. Please click Retry Saving.");
+    } finally {
+      setIsGeneratingNotes(false);
+    }
+  }, [unpersistedDocument, notesStatus, courseId, lessonId]);
 
   const fetchNotesForLesson = useCallback(
     async (_targetLessonTitle?: string, _targetTopic?: string, _targetDomain?: string) => {
@@ -605,24 +917,68 @@ export default function LearningWorkspacePage() {
               {lesson.title}
             </h1>
 
-            <div className="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm pt-1">
-              <span className="flex items-center gap-1 text-primary font-medium">
-                <span className="material-symbols-outlined text-sm text-secondary">verified</span>
-                {lesson.educatorName ? `Masterclass by ${lesson.educatorName}` : 'Curated Masterclass'}
-              </span>
-              <span>·</span>
-              {lesson.sourceUrl ? (
-                <a
-                  href={lesson.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="truncate text-secondary hover:text-primary hover:underline flex items-center gap-1 font-medium"
-                >
-                  <span>Source: {lesson.sourceName}</span>
-                  <span className="material-symbols-outlined text-xs">open_in_new</span>
-                </a>
+            <div className="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm pt-1 flex-wrap">
+              {lesson.type === "monograph" || lesson.type === "paper" || (lesson.type as string) === "article" ? (
+                <>
+                  <span className="flex items-center gap-1 text-primary font-medium">
+                    <span className="material-symbols-outlined text-sm text-secondary">
+                      {readingDocument ? "auto_stories" : "menu_book"}
+                    </span>
+                    {readingDocument
+                      ? "Pencill AI Generated Study Notes"
+                      : isGenuineExternalUrl(lesson.sourceUrl)
+                      ? "Verified Academic Literature"
+                      : "Academic Reading Monograph"}
+                  </span>
+                  <span>·</span>
+                  {readingDocument ? (
+                    <span className="text-secondary font-medium">
+                      Generated by Pencill Academic Engine
+                    </span>
+                  ) : lesson.sourceUrl && isGenuineExternalUrl(lesson.sourceUrl) ? (
+                    <a
+                      href={lesson.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-secondary hover:text-primary hover:underline flex items-center gap-1 font-medium"
+                    >
+                      <span>Source: {lesson.sourceName}</span>
+                      <span className="material-symbols-outlined text-xs">open_in_new</span>
+                    </a>
+                  ) : (
+                    <span className="truncate">Pencill Academic Engine</span>
+                  )}
+                </>
+              ) : lesson.type === "quiz" ? (
+                <>
+                  <span className="flex items-center gap-1 text-primary font-medium">
+                    <span className="material-symbols-outlined text-sm text-secondary">quiz</span>
+                    <span>Module Formative Assessment</span>
+                  </span>
+                  <span>·</span>
+                  <span className="truncate">Grounded in Curriculum Objectives</span>
+                </>
               ) : (
-                <span className="truncate">Source: {lesson.sourceName}</span>
+                <>
+                  <span className="flex items-center gap-1 text-primary font-medium">
+                    <span className="material-symbols-outlined text-sm text-secondary">verified</span>
+                    {lesson.educatorName ? `Masterclass by ${lesson.educatorName}` : 'Curated Lecture'}
+                  </span>
+                  <span>·</span>
+                  {lesson.sourceUrl && isGenuineExternalUrl(lesson.sourceUrl) ? (
+                    <a
+                      href={lesson.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-secondary hover:text-primary hover:underline flex items-center gap-1 font-medium"
+                    >
+                      <span>Source: {lesson.sourceName}</span>
+                      <span className="material-symbols-outlined text-xs">open_in_new</span>
+                    </a>
+                  ) : (
+                    <span className="truncate">Source: {lesson.sourceName}</span>
+                  )}
+                </>
               )}
             </div>
 
@@ -852,9 +1208,48 @@ export default function LearningWorkspacePage() {
             }
 
             // Monograph, article, or external open-access resource
+            if (readingDocument) {
+              return (
+                <div className="space-y-4">
+                  <ReadingDocumentViewer
+                    document={readingDocument}
+                    onRegenerate={() => handleGenerateStudyNotes(true)}
+                    isRegenerating={isGeneratingNotes}
+                  />
+                </div>
+              );
+            }
+
+            if (isGeneratingNotes) {
+              return (
+                <div className="bg-surface-container-lowest text-on-surface rounded-xl overflow-hidden shadow-sm border border-primary/30 p-space-lg flex flex-col items-center justify-center text-center gap-4 py-12">
+                  <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                  <div className="space-y-1">
+                    <h3 className="font-headline-sm text-lg font-serif text-primary">
+                      {notesStatus === 'SAVING'
+                        ? "Saving Study Notes to Supabase..."
+                        : "Synthesizing Academic Reading Monograph..."}
+                    </h3>
+                    <p className="font-body-sm text-xs text-on-surface-variant max-w-md mx-auto">
+                      {readingStatusMessage ||
+                        (notesStatus === 'SAVING'
+                          ? "Securing your generated study notes in permanent Supabase storage."
+                          : "Pencill Academic Engine is constructing structured study notes, conceptual explanations, key definitions, and self-assessment questions.")}
+                    </p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-surface-container-low text-xs text-on-surface-variant flex items-center gap-1.5 font-mono">
+                    <span className="material-symbols-outlined text-sm text-secondary">verified</span>
+                    <span>Grounded in {activeModule?.title || course.title} objectives</span>
+                  </div>
+                </div>
+              );
+            }
+
+            const hasGenuineExternalSource = lesson.sourceUrl && isGenuineExternalUrl(lesson.sourceUrl);
+
             return (
               <div className="bg-surface-container-lowest text-on-surface rounded-xl overflow-hidden shadow-sm border border-surface-container-high/60 p-space-lg flex flex-col gap-space-md">
-                <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+                <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-secondary text-2xl">
                       {lesson.type === "monograph" ? "menu_book" : lesson.type === "practice" ? "quiz" : "article"}
@@ -868,11 +1263,13 @@ export default function LearningWorkspacePage() {
                           : "Primary Literature Study Unit"}
                       </h3>
                       <p className="font-body-sm text-body-sm text-on-surface-variant">
-                        Provided via {lesson.sourceName}
+                        {hasGenuineExternalSource
+                          ? `Provided via ${lesson.sourceName}`
+                          : "Reading material is not available for this lesson yet."}
                       </p>
                     </div>
                   </div>
-                  {lesson.sourceUrl && (
+                  {hasGenuineExternalSource && (
                     <a
                       href={lesson.sourceUrl}
                       target="_blank"
@@ -883,6 +1280,28 @@ export default function LearningWorkspacePage() {
                       <span className="material-symbols-outlined text-sm">open_in_new</span>
                     </a>
                   )}
+                </div>
+
+                {/* Intelligent AI Generation Banner if no monograph document exists */}
+                <div className="p-5 rounded-xl bg-surface-container-low border border-surface-container-high/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1 text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5 text-primary font-semibold text-sm">
+                      <span className="material-symbols-outlined text-base">auto_stories</span>
+                      <span>Generate Study Notes with Pencill AI</span>
+                    </div>
+                    <p className="text-xs text-on-surface-variant max-w-lg">
+                      Create comprehensive, syllabus-grounded academic study notes, step-by-step conceptual walkthroughs, common misconceptions, and self-assessment questions.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateStudyNotes(false)}
+                    disabled={isGeneratingNotes}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all shadow-sm active:scale-95 disabled:opacity-50 shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                    <span>Generate Study Notes</span>
+                  </button>
                 </div>
 
                 {/* Key Concepts Preview */}
@@ -926,108 +1345,234 @@ export default function LearningWorkspacePage() {
 
           {/* Verified Study Notes & Reading Materials Section */}
           <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-surface-container-high/60 flex flex-col gap-space-sm">
-            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-2">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-2 flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-xl">menu_book</span>
                 <h3 className="font-headline-sm text-headline-sm font-serif text-primary">
                   Verified Study Notes &amp; Handouts
                 </h3>
-                {studyNotes.length > 0 && (
+                {notesStatus === 'SAVED' && (
+                  <span className="font-label-sm text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs">verified</span>
+                    Saved
+                  </span>
+                )}
+                {notesStatus === 'SAVING' && (
+                  <span className="font-label-sm text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs animate-spin">sync</span>
+                    Saving to database...
+                  </span>
+                )}
+                {notesStatus !== 'SAVED' && notesStatus !== 'SAVING' && studyNotes.length > 0 && (
                   <span className="font-label-sm text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary">
                     {studyNotes.length} Available
                   </span>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => fetchNotesForLesson(lesson.title, course.title, course.domain)}
-                disabled={isLoadingNotes}
-                className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary text-label-sm font-semibold transition-colors disabled:opacity-50"
-                title="Re-scan academic repositories for notes"
-              >
-                <span className={`material-symbols-outlined text-sm ${isLoadingNotes ? "animate-spin" : ""}`}>
-                  refresh
-                </span>
-                <span>{isLoadingNotes ? "Discovering..." : "Refresh Notes"}</span>
-              </button>
+
+              <div className="flex items-center gap-2">
+                {readingDocument && (
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateStudyNotes(true)}
+                    disabled={isGeneratingNotes}
+                    className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary text-label-sm font-semibold transition-colors disabled:opacity-50"
+                    title="Regenerate notes with Pencill AI"
+                  >
+                    <span className={`material-symbols-outlined text-sm ${isGeneratingNotes ? "animate-spin" : ""}`}>
+                      refresh
+                    </span>
+                    <span>{isGeneratingNotes ? "Regenerating..." : "Regenerate Notes"}</span>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {isLoadingNotes ? (
-              <div className="space-y-2 py-2 animate-pulse">
-                <div className="h-14 bg-surface-container-low rounded-lg"></div>
-                <div className="h-14 bg-surface-container-low rounded-lg"></div>
+            {/* Error banner if generation or saving failed */}
+            {readingError && (
+              <div className="p-3.5 rounded-lg bg-error/10 border border-error/20 flex items-center justify-between gap-3 text-xs text-error">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="material-symbols-outlined text-base shrink-0">error</span>
+                  <span className="break-words">{readingError}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {unpersistedDocument ? (
+                    <button
+                      type="button"
+                      onClick={handleRetrySaving}
+                      disabled={notesStatus === 'SAVING'}
+                      className="px-3 py-1 rounded bg-primary text-on-primary font-semibold hover:bg-primary-container transition-colors shrink-0 shadow-xs flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-xs">sync</span>
+                      <span>{notesStatus === 'SAVING' ? 'Saving...' : 'Retry Saving'}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateStudyNotes(true)}
+                      className="px-3 py-1 rounded bg-error text-white font-semibold hover:bg-error/90 transition-colors shrink-0 shadow-xs"
+                    >
+                      Retry Generation
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isGeneratingNotes ? (
+              <div className="p-6 bg-surface-container-low rounded-lg border border-primary/20 text-center space-y-2">
+                <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto" />
+                <p className="font-semibold text-xs text-primary">
+                  {readingStatusMessage ||
+                    (notesStatus === 'SAVING'
+                      ? "Saving study notes to Supabase..."
+                      : "Synthesizing comprehensive study notes with Pencill AI...")}
+                </p>
+                <p className="text-[11px] text-on-surface-variant">
+                  {notesStatus === 'SAVING'
+                    ? "Securing your generated notes in permanent Supabase storage."
+                    : "Generating verified conceptual analysis and self-assessment diagnostics."}
+                </p>
+              </div>
+            ) : readingDocument ? (
+              <div className="p-4 bg-surface-container-low rounded-xl border border-surface-container-high/60 space-y-3">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary uppercase tracking-wider">
+                        Pencill AI Monograph
+                      </span>
+                      <span className="text-xs text-on-surface-variant">
+                        · {readingDocument.readingDurationMinutes} min read
+                      </span>
+                      <span className="text-xs text-on-surface-variant">
+                        · Generated by Pencill Academic Engine
+                      </span>
+                    </div>
+                    <h4 className="font-label-lg text-sm sm:text-base font-bold text-primary">
+                      {readingDocument.title}
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      href={`/learn/${course.id}/${lesson.id}/reading/${readingDocument.id}`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all shadow-xs"
+                    >
+                      <span>Open Study Notes</span>
+                      <span className="material-symbols-outlined text-sm">open_in_new</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {readingDocument.content?.keyTakeaways && readingDocument.content.keyTakeaways.length > 0 && (
+                  <div className="space-y-1.5 pt-2 border-t border-surface-container-high/40">
+                    <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
+                      Key Takeaways Preview:
+                    </span>
+                    <ul className="space-y-1 text-xs text-on-surface">
+                      {readingDocument.content.keyTakeaways.slice(0, 3).map((tk, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="material-symbols-outlined text-secondary text-xs mt-0.5 shrink-0">check</span>
+                          <span>{tk}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : studyNotes.length === 0 ? (
-              <div className="p-4 bg-surface-container-low rounded-lg border border-surface-container-high/40 text-center space-y-1">
-                <p className="font-label-md text-label-md text-on-surface-variant">
-                  No direct notes or handouts currently attached to this unit.
+              <div className="p-6 bg-surface-container-low rounded-lg border border-surface-container-high/40 text-center space-y-2">
+                <span className="material-symbols-outlined text-3xl text-on-surface-variant">auto_stories</span>
+                <p className="font-label-md text-sm font-medium text-on-surface-variant">
+                  Reading material is not available for this lesson yet.
+                </p>
+                <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
+                  Generate comprehensive study notes with Pencill AI.
                 </p>
                 <button
                   type="button"
-                  onClick={() => fetchNotesForLesson(lesson.title, course.title, course.domain)}
-                  className="font-label-sm text-sm text-primary font-semibold hover:underline"
+                  onClick={() => handleGenerateStudyNotes(false)}
+                  disabled={isGeneratingNotes}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-container transition-all shadow-xs"
                 >
-                  Discover open-access study notes for this lesson
+                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                  <span>Generate Study Notes</span>
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-xs">
-                {studyNotes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="p-3 bg-surface-container-low rounded-lg border border-surface-container-high/40 hover:border-primary/40 transition-all flex flex-col justify-between gap-2"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                          note.isDirectPdf
-                            ? "bg-error/15 text-error border border-error/30"
-                            : note.type === "official_documentation"
-                            ? "bg-secondary-container/40 text-on-secondary-container"
-                            : "bg-surface-container text-on-surface-variant"
-                        }`}>
-                          {note.isDirectPdf ? "PDF Document" : note.type.replace(/_/g, " ")}
-                        </span>
-                        {note.publisher && (
-                          <span className="font-label-sm text-xs text-on-surface-variant truncate max-w-[120px]">
-                            · {note.publisher}
+                {studyNotes.map((note) => {
+                  const hasGenuineUrl = isGenuineExternalUrl(note.sourceUrl || note.url);
+                  const readUrl = hasGenuineUrl ? (note.sourceUrl || note.url) : undefined;
+
+                  return (
+                    <div
+                      key={note.id}
+                      className="p-3 bg-surface-container-low rounded-lg border border-surface-container-high/40 hover:border-primary/40 transition-all flex flex-col justify-between gap-2"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                            note.isDirectPdf
+                              ? "bg-error/15 text-error border border-error/30"
+                              : note.type === "official_documentation"
+                              ? "bg-secondary-container/40 text-on-secondary-container"
+                              : "bg-surface-container text-on-surface-variant"
+                          }`}>
+                            {note.isDirectPdf ? "PDF Document" : note.type.replace(/_/g, " ")}
                           </span>
+                          {note.publisher && (
+                            <span className="font-label-sm text-xs text-on-surface-variant truncate max-w-[120px]">
+                              · {note.publisher}
+                            </span>
+                          )}
+                        </div>
+                        <h5 className="font-label-md text-sm font-semibold text-primary line-clamp-2">
+                          {note.title}
+                        </h5>
+                        {note.description && (
+                          <p className="font-body-sm text-xs text-on-surface-variant line-clamp-2">
+                            {note.description}
+                          </p>
                         )}
                       </div>
-                      <h5 className="font-label-md text-sm font-semibold text-primary line-clamp-2">
-                        {note.title}
-                      </h5>
-                      {note.description && (
-                        <p className="font-body-sm text-xs text-on-surface-variant line-clamp-2">
-                          {note.description}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-2 pt-1 border-t border-surface-container-high/30">
+                        {readUrl ? (
+                          <a
+                            href={readUrl}
+                            target={hasGenuineUrl ? "_blank" : undefined}
+                            rel={hasGenuineUrl ? "noopener noreferrer" : undefined}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                          >
+                            <span>Read Online</span>
+                            <span className="material-symbols-outlined text-xs">open_in_new</span>
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateStudyNotes(false)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                          >
+                            <span>Generate Study Notes</span>
+                            <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                          </button>
+                        )}
+                        {(note.downloadUrl || (note.isDirectPdf && hasGenuineUrl)) && (
+                          <a
+                            href={note.downloadUrl || note.sourceUrl || note.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-secondary hover:underline ml-auto"
+                          >
+                            <span className="material-symbols-outlined text-xs">download</span>
+                            <span>Download PDF</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 pt-1 border-t border-surface-container-high/30">
-                      <a
-                        href={note.sourceUrl || note.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                      >
-                        <span>Read Online</span>
-                        <span className="material-symbols-outlined text-xs">open_in_new</span>
-                      </a>
-                      {(note.downloadUrl || note.isDirectPdf) && (
-                        <a
-                          href={note.downloadUrl || note.sourceUrl || note.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-secondary hover:underline ml-auto"
-                        >
-                          <span className="material-symbols-outlined text-xs">download</span>
-                          <span>Download PDF</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1367,74 +1912,129 @@ export default function LearningWorkspacePage() {
                         Try Again
                       </button>
                     </div>
+                  ) : readingDocument ? (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-surface-container-low rounded-lg border border-primary/30 space-y-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                            Pencill AI Monograph
+                          </span>
+                          <span className="font-label-sm text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-0.5">
+                            <span className="material-symbols-outlined text-[10px]">verified</span>
+                            Saved
+                          </span>
+                          <span className="text-[11px] text-on-surface-variant font-medium">
+                            · {readingDocument.readingDurationMinutes}m
+                          </span>
+                        </div>
+                        <h5 className="font-label-md text-xs font-semibold text-primary leading-snug">
+                          {readingDocument.title}
+                        </h5>
+                        <div className="flex items-center gap-2 pt-1 border-t border-surface-container-high/40">
+                          <Link
+                            href={`/learn/${course.id}/${lesson.id}/reading/${readingDocument.id}`}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                          >
+                            <span>Open Notes</span>
+                            <span className="material-symbols-outlined text-xs">open_in_new</span>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleGenerateStudyNotes(true)}
+                            disabled={isGeneratingNotes}
+                            className="text-[11px] text-on-surface-variant hover:text-primary transition-colors ml-auto"
+                          >
+                            Regenerate
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   ) : studyNotes.length === 0 ? (
                     <div className="p-4 bg-surface-container-low rounded-lg text-center space-y-2 text-on-surface-variant text-xs">
-                      <span className="material-symbols-outlined text-2xl text-on-surface-variant">description</span>
-                      <p>No study notes found for this lesson yet.</p>
+                      <span className="material-symbols-outlined text-2xl text-on-surface-variant">auto_stories</span>
+                      <p>Reading material is not available for this lesson yet.</p>
                       <button
                         type="button"
-                        onClick={() => fetchNotesForLesson(lesson.title, course.title, course.domain)}
-                        className="px-3 py-1.5 bg-primary text-on-primary rounded text-xs font-semibold hover:bg-primary-container transition-colors inline-block"
+                        onClick={() => handleGenerateStudyNotes(false)}
+                        disabled={isGeneratingNotes}
+                        className="px-3 py-1.5 bg-primary text-on-primary rounded text-xs font-semibold hover:bg-primary-container transition-colors inline-flex items-center gap-1"
                       >
-                        Discover Notes Now
+                        <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                        <span>Generate Study Notes</span>
                       </button>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {studyNotes.map((note) => (
-                        <div
-                          key={note.id}
-                          className="p-3 bg-surface-container-low rounded-lg border border-surface-container-high/40 hover:border-primary/40 transition-all flex flex-col gap-2"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className={`font-mono text-[10px] font-semibold px-1.5 py-0.2 rounded uppercase ${
-                                note.isDirectPdf
-                                  ? "bg-error/15 text-error"
-                                  : "bg-surface-container text-on-surface-variant"
-                              }`}>
-                                {note.isDirectPdf ? "PDF" : note.type.replace(/_/g, " ")}
-                              </span>
-                              {note.qualityScore && (
-                                <span className="font-label-sm text-[10px] font-semibold px-1.5 py-0.2 rounded bg-primary/10 text-primary">
-                                  {note.qualityScore}%
+                      {studyNotes.map((note) => {
+                        const hasGenuineUrl = isGenuineExternalUrl(note.sourceUrl || note.url);
+                        const readUrl = hasGenuineUrl ? (note.sourceUrl || note.url) : undefined;
+
+                        return (
+                          <div
+                            key={note.id}
+                            className="p-3 bg-surface-container-low rounded-lg border border-surface-container-high/40 hover:border-primary/40 transition-all flex flex-col gap-2"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className={`font-mono text-[10px] font-semibold px-1.5 py-0.2 rounded uppercase ${
+                                  note.isDirectPdf
+                                    ? "bg-error/15 text-error"
+                                    : "bg-surface-container text-on-surface-variant"
+                                }`}>
+                                  {note.isDirectPdf ? "PDF" : note.type.replace(/_/g, " ")}
                                 </span>
+                                {note.qualityScore && (
+                                  <span className="font-label-sm text-[10px] font-semibold px-1.5 py-0.2 rounded bg-primary/10 text-primary">
+                                    {note.qualityScore}%
+                                  </span>
+                                )}
+                              </div>
+                              <h5 className="font-label-md text-xs font-semibold text-primary leading-snug">
+                                {note.title}
+                              </h5>
+                              {note.publisher && (
+                                <p className="font-body-sm text-[11px] text-on-surface-variant">
+                                  Source: {note.publisher}
+                                </p>
                               )}
                             </div>
-                            <h5 className="font-label-md text-xs font-semibold text-primary leading-snug">
-                              {note.title}
-                            </h5>
-                            {note.publisher && (
-                              <p className="font-body-sm text-[11px] text-on-surface-variant">
-                                Source: {note.publisher}
-                              </p>
-                            )}
+                            <div className="flex items-center gap-2 pt-1 border-t border-surface-container-high/30">
+                              {readUrl ? (
+                                <a
+                                  href={readUrl}
+                                  target={hasGenuineUrl ? "_blank" : undefined}
+                                  rel={hasGenuineUrl ? "noopener noreferrer" : undefined}
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                                >
+                                  <span>Read Online</span>
+                                  <span className="material-symbols-outlined text-xs">open_in_new</span>
+                                </a>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleGenerateStudyNotes(false)}
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                                >
+                                  <span>Generate Notes</span>
+                                  <span className="material-symbols-outlined text-xs">auto_awesome</span>
+                                </button>
+                              )}
+                              {(note.downloadUrl || (note.isDirectPdf && hasGenuineUrl)) && (
+                                <a
+                                  href={note.downloadUrl || note.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-secondary hover:underline ml-auto"
+                                >
+                                  <span className="material-symbols-outlined text-xs">download</span>
+                                  <span>Download PDF</span>
+                                </a>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 pt-1 border-t border-surface-container-high/30">
-                            <a
-                              href={note.sourceUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
-                            >
-                              <span>Read Online</span>
-                              <span className="material-symbols-outlined text-xs">open_in_new</span>
-                            </a>
-                            {(note.downloadUrl || note.isDirectPdf) && (
-                              <a
-                                href={note.downloadUrl || note.sourceUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-secondary hover:underline ml-auto"
-                              >
-                                <span className="material-symbols-outlined text-xs">download</span>
-                                <span>Download PDF</span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1443,6 +2043,17 @@ export default function LearningWorkspacePage() {
           </div>
         </aside>
       </div>
+
+      {/* Floating Context-Aware Personal AI Tutor */}
+      {workspace && lesson && (
+        <PersonalAITutor
+          courseTitle={workspace.course.title}
+          moduleTitle={workspace.module?.title || "Active Module"}
+          lessonTitle={lesson.title}
+          lessonType={lesson.type}
+          studyNotes={lesson.studyNotes}
+        />
+      )}
     </div>
   </div>
 );

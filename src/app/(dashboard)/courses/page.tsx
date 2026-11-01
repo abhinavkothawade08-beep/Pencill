@@ -59,17 +59,24 @@ export default function CoursesPage() {
         console.warn("[Courses] Supabase enrollments failed, loading from storageAdapter:", e);
       }
 
-      // Merge with locally synthesized courses in storageAdapter
-      const localPaths = await storageAdapter.getSavedPaths();
-      const combinedMap = new Map<string, any>();
-      enrolledCourses.forEach((c) => combinedMap.set(c.id, c));
-      localPaths.forEach((c) => {
-        if (!combinedMap.has(c.id)) {
-          combinedMap.set(c.id, c);
-        }
-      });
+      // Strict multi-user data isolation:
+      // Authenticated users only see their own verified enrollments.
+      let finalCourses: any[] = [];
+      if (user?.id) {
+        finalCourses = enrolledCourses;
+      } else {
+        const localPaths = await storageAdapter.getSavedPaths();
+        const combinedMap = new Map<string, any>();
+        enrolledCourses.forEach((c) => combinedMap.set(c.id, c));
+        localPaths.forEach((c) => {
+          if (!combinedMap.has(c.id)) {
+            combinedMap.set(c.id, c);
+          }
+        });
+        finalCourses = Array.from(combinedMap.values());
+      }
 
-      setCourses(Array.from(combinedMap.values()));
+      setCourses(finalCourses);
     } catch (err) {
       console.error("Failed to load enrolled courses:", err);
       setError("Unable to load your enrolled curricula.");
@@ -254,7 +261,7 @@ export default function CoursesPage() {
             title="Unable to Load Enrolled Curricula"
             description={error}
             actionText="Retry"
-            actionHref="/courses"
+            onAction={() => loadEnrolledCourses()}
           />
         ) : courses.length === 0 ? (
           <EmptyState

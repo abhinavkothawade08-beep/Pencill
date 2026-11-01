@@ -118,6 +118,147 @@ export class ReadingMaterialProvider implements ResourceProvider {
       }
     }
 
+    // RAG & Generative AI Official Documentation
+    if (
+      queryLower.includes('rag') ||
+      queryLower.includes('retrieval') ||
+      queryLower.includes('vector') ||
+      queryLower.includes('embedding') ||
+      queryLower.includes('chunk') ||
+      queryLower.includes('rerank') ||
+      queryLower.includes('evaluation')
+    ) {
+      if (
+        queryLower.includes('vector') ||
+        queryLower.includes('faiss') ||
+        queryLower.includes('ann') ||
+        queryLower.includes('embedding space')
+      ) {
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'faiss-official-docs',
+          title: 'Meta AI FAISS Official Documentation: Indexes, Clustering & GPU Search',
+          url: 'https://github.com/facebookresearch/faiss/wiki',
+          description: 'Official architectural wiki and guides for FAISS: IVF, HNSW, Product Quantization, and exact L2/Inner Product search.',
+          modality: 'documentation',
+          authorOrChannel: 'Meta AI Research',
+          durationSeconds: 1500,
+          sourceRepository: 'Meta Research FAISS Repository',
+          licenseOrAttribution: 'MIT License',
+        });
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'pinecone-ann-guide',
+          title: 'Pinecone Architecture Guide: Approximate Nearest Neighbor Search in Production',
+          url: 'https://docs.pinecone.io/guides/indexes/vector-indexes',
+          description: 'Production vector indexing guide covering trade-offs between recall, latency, memory footprints, and indexing algorithms.',
+          modality: 'documentation',
+          authorOrChannel: 'Pinecone Systems',
+          durationSeconds: 1200,
+          sourceRepository: 'Pinecone Documentation',
+          licenseOrAttribution: 'Commercial Educational Material',
+        });
+      }
+
+      if (
+        queryLower.includes('chunk') ||
+        queryLower.includes('hybrid') ||
+        queryLower.includes('bm25') ||
+        queryLower.includes('parsing')
+      ) {
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'llamaindex-chunking-docs',
+          title: 'LlamaIndex Official Documentation: Document Parsing, Node Parsing & Semantic Splitters',
+          url: 'https://docs.llamaindex.ai/en/stable/module_guides/loading/documents_and_nodes/',
+          description: 'Authoritative guide to data parsing, sentence window retrieval, chunk overlap tuning, and semantic document splitting.',
+          modality: 'documentation',
+          authorOrChannel: 'LlamaIndex Team',
+          durationSeconds: 1400,
+          sourceRepository: 'LlamaIndex Documentation',
+          licenseOrAttribution: 'MIT License',
+        });
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'langchain-hybrid-search',
+          title: 'LangChain Documentation: Ensemble Retrieval & Reciprocal Rank Fusion (RRF)',
+          url: 'https://python.langchain.com/docs/modules/data_connection/retrievers/ensemble',
+          description: 'Implementing ensemble retrievers combining dense semantic embeddings with sparse BM25 keyword matching.',
+          modality: 'documentation',
+          authorOrChannel: 'LangChain AI',
+          durationSeconds: 1200,
+          sourceRepository: 'LangChain Documentation',
+          licenseOrAttribution: 'MIT License',
+        });
+      }
+
+      if (
+        queryLower.includes('rerank') ||
+        queryLower.includes('cross-encoder') ||
+        queryLower.includes('query transformation') ||
+        queryLower.includes('hyde') ||
+        queryLower.includes('routing')
+      ) {
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'cohere-rerank-docs',
+          title: 'Cohere Rerank Official Documentation: Two-Stage Retrieval Architectures',
+          url: 'https://docs.cohere.com/docs/reranking',
+          description: 'Architectural documentation on boosting RAG precision using cross-encoder re-ranking models on top of dense search.',
+          modality: 'documentation',
+          authorOrChannel: 'Cohere AI',
+          durationSeconds: 1300,
+          sourceRepository: 'Cohere Documentation',
+          licenseOrAttribution: 'Commercial Educational Material',
+        });
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'sbert-cross-encoder-guide',
+          title: 'Sentence-Transformers Guide: Cross-Encoder Architectures for Information Retrieval',
+          url: 'https://sbert.net/examples/applications/cross-encoder/README.html',
+          description: 'Technical guide on training and deploying cross-encoders for passage re-ranking and semantic search relevance.',
+          modality: 'documentation',
+          authorOrChannel: 'UKP Lab / Hugging Face',
+          durationSeconds: 1400,
+          sourceRepository: 'Sentence-Transformers Documentation',
+          licenseOrAttribution: 'Apache 2.0',
+        });
+      }
+
+      if (
+        queryLower.includes('evaluation') ||
+        queryLower.includes('ragas') ||
+        queryLower.includes('trulens') ||
+        queryLower.includes('guardrails') ||
+        queryLower.includes('observability')
+      ) {
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'ragas-official-docs',
+          title: 'Ragas Official Documentation: Automated Metrics for RAG Evaluation',
+          url: 'https://docs.ragas.io/en/stable/',
+          description: 'Definitive guide to quantifying RAG performance: Faithfulness, Answer Relevance, Context Precision, and Context Recall.',
+          modality: 'documentation',
+          authorOrChannel: 'Exploding Gradients / Ragas Community',
+          durationSeconds: 1500,
+          sourceRepository: 'Ragas Documentation',
+          licenseOrAttribution: 'Apache 2.0',
+        });
+        docs.push({
+          providerId: 'official_docs',
+          externalId: 'trulens-rag-triad-docs',
+          title: 'TruLens Evaluation Guide: The RAG Triad Framework & Observability',
+          url: 'https://www.trulens.org/trulens_eval/getting_started/core_concepts/rag_triad/',
+          description: 'Systematic observability and evaluation of hallucination, groundedness, and context retrieval in production LLM applications.',
+          modality: 'documentation',
+          authorOrChannel: 'TruEra / TruLens Team',
+          durationSeconds: 1400,
+          sourceRepository: 'TruLens Documentation',
+          licenseOrAttribution: 'Apache 2.0',
+        });
+      }
+    }
+
     if (queryLower.includes('react')) {
       if (queryLower.includes('hook') || queryLower.includes('state') || queryLower.includes('effect')) {
         docs.push({
@@ -299,50 +440,55 @@ export class ReadingMaterialProvider implements ResourceProvider {
   }
 
   private async queryArxiv(query: string, limit: number): Promise<RawCandidateResource[]> {
-    const cleanQuery = encodeURIComponent(query.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
-    const endpoint = `https://export.arxiv.org/api/query?search_query=all:${cleanQuery}&start=0&max_results=${limit}`;
+    try {
+      const cleanQuery = encodeURIComponent(query.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+      const endpoint = `https://export.arxiv.org/api/query?search_query=all:${cleanQuery}&start=0&max_results=${limit}`;
 
-    const res = await fetch(endpoint, {
-      headers: { Accept: 'application/atom+xml' },
-    });
+      const res = await fetch(endpoint, {
+        headers: { Accept: 'application/atom+xml' },
+        signal: AbortSignal.timeout(3500),
+      });
 
-    if (!res.ok) return [];
+      if (!res.ok) return [];
 
-    const xml = await res.text();
-    const entries = xml.split('<entry>');
-    const results: RawCandidateResource[] = [];
+      const xml = await res.text();
+      const entries = xml.split('<entry>');
+      const results: RawCandidateResource[] = [];
 
-    for (let i = 1; i < entries.length; i++) {
-      const entry = entries[i];
-      const titleMatch = entry.match(/<title>([\s\S]*?)<\/title>/);
-      const summaryMatch = entry.match(/<summary>([\s\S]*?)<\/summary>/);
-      const idMatch = entry.match(/<id>([\s\S]*?)<\/id>/);
-      const publishedMatch = entry.match(/<published>([\s\S]*?)<\/published>/);
-      const authorMatch = entry.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>/);
+      for (let i = 1; i < entries.length; i++) {
+        const entry = entries[i];
+        const titleMatch = entry.match(/<title>([\s\S]*?)<\/title>/);
+        const summaryMatch = entry.match(/<summary>([\s\S]*?)<\/summary>/);
+        const idMatch = entry.match(/<id>([\s\S]*?)<\/id>/);
+        const publishedMatch = entry.match(/<published>([\s\S]*?)<\/published>/);
+        const authorMatch = entry.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>/);
 
-      const title = titleMatch ? titleMatch[1].replace(/\s+/g, ' ').trim() : 'Scholarly Research Publication';
-      const summary = summaryMatch ? summaryMatch[1].replace(/\s+/g, ' ').trim() : '';
-      const arxivUrl = idMatch ? idMatch[1].trim() : '';
-      const published = publishedMatch ? publishedMatch[1].trim() : undefined;
-      const author = authorMatch ? authorMatch[1].trim() : 'Research Authors';
+        const title = titleMatch ? titleMatch[1].replace(/\s+/g, ' ').trim() : 'Scholarly Research Publication';
+        const summary = summaryMatch ? summaryMatch[1].replace(/\s+/g, ' ').trim() : '';
+        const arxivUrl = idMatch ? idMatch[1].trim() : '';
+        const published = publishedMatch ? publishedMatch[1].trim() : undefined;
+        const author = authorMatch ? authorMatch[1].trim() : 'Research Authors';
 
-      if (arxivUrl) {
-        results.push({
-          providerId: 'arxiv',
-          externalId: arxivUrl.split('/').pop() || `arxiv-${i}`,
-          title: `arXiv Research Paper: ${title}`,
-          url: arxivUrl,
-          description: summary.slice(0, 300) + (summary.length > 300 ? '...' : ''),
-          modality: 'paper',
-          authorOrChannel: author,
-          durationSeconds: 2700, // 45 mins reading
-          publishedDate: published,
-          sourceRepository: 'arXiv.org e-Print Archive',
-          licenseOrAttribution: 'arXiv Open Access',
-        });
+        if (arxivUrl) {
+          results.push({
+            providerId: 'arxiv',
+            externalId: arxivUrl.split('/').pop() || `arxiv-${i}`,
+            title: `arXiv Research Paper: ${title}`,
+            url: arxivUrl,
+            description: summary.slice(0, 300) + (summary.length > 300 ? '...' : ''),
+            modality: 'paper',
+            authorOrChannel: author,
+            durationSeconds: 2700, // 45 mins reading
+            publishedDate: published,
+            sourceRepository: 'arXiv.org e-Print Archive',
+            licenseOrAttribution: 'arXiv Open Access',
+          });
+        }
       }
-    }
 
-    return results;
+      return results;
+    } catch {
+      return [];
+    }
   }
 }

@@ -16,17 +16,59 @@ export type LearningStyle = 'balanced' | 'theory_focused' | 'practical_projects'
 
 export const LearnerGoalInputSchema = z.object({
   topic: z.string().min(2, 'Topic must be at least 2 characters'),
+  title: z.string().optional(),
   domain: z.string().optional(),
+  subject: z.string().optional(),
+  topics: z.array(z.string()).optional(),
+  subtopics: z.array(z.string()).optional(),
+  learningObjectives: z.array(
+    z.object({
+      id: z.string().optional(),
+      text: z.string(),
+      successCriteria: z.string().optional(),
+    })
+  ).optional(),
+  prerequisites: z.array(z.string()).optional(),
+  knownConcepts: z.array(z.string()).optional(),
+  difficultConcepts: z.array(z.string()).optional(),
+  excludedTopics: z.array(z.string()).optional(),
   level: z.enum(['beginner', 'intermediate', 'advanced', 'undergraduate', 'competitive_exam']).optional().default('intermediate'),
   learningGoal: z.enum(['understand_concepts', 'prepare_exam', 'build_projects', 'master_subject']).optional().default('understand_concepts'),
   learningStyle: z.enum(['balanced', 'theory_focused', 'practical_projects', 'exam_preparation']).optional().default('balanced'),
+  teachingStyle: z.enum(['theory_first', 'practice_first', 'balanced', 'custom_mix']).optional(),
+  customTeachingMix: z.object({
+    theory: z.number(),
+    workedExamples: z.number(),
+    practicalExercises: z.number(),
+    projects: z.number(),
+  }).optional(),
+  difficultyPreference: z.enum(['easy', 'moderate', 'challenging', 'progressive']).optional(),
   weeklyStudyHours: z.number().min(1).max(60).optional().default(10),
   targetWeeks: z.number().min(1).max(52).optional().default(4),
   language: z.string().optional().default('English'),
+  explanationLanguage: z.string().optional(),
+  videoLanguage: z.string().optional(),
+  readingLanguage: z.string().optional(),
+  quizLanguage: z.string().optional(),
   targetExam: z.string().nullable().optional(),
   priorKnowledge: z.string().optional(),
   depth: z.enum(['introductory', 'comprehensive', 'rigorous']).optional().default('comprehensive'),
-});
+  modalities: z.record(z.string(), z.boolean()).optional(),
+  preferredEducators: z.array(z.string()).optional(),
+  preferredRepositories: z.array(z.string()).optional(),
+  excludedRepositories: z.array(z.string()).optional(),
+  readingDepth: z.enum(['concise', 'standard', 'detailed', 'rigorous']).optional(),
+  questionsPerQuiz: z.number().min(1).max(20).optional(),
+  requireCaptions: z.boolean().optional(),
+  curriculumBlueprintOverrides: z.array(
+    z.object({
+      moduleIndex: z.number(),
+      title: z.string(),
+      customObjectives: z.array(z.string()).optional(),
+      isRemoved: z.boolean().optional(),
+    })
+  ).optional(),
+}).passthrough();
 
 export type LearnerGoalInput = z.infer<typeof LearnerGoalInputSchema>;
 
@@ -118,6 +160,7 @@ export interface NormalizedResource {
   externalId: string;
   title: string;
   canonicalUrl: string;
+  url?: string;
   embedUrl?: string;
   description: string;
   modality: ResourceModality;
@@ -134,6 +177,7 @@ export interface NormalizedResource {
 }
 
 export interface ScoredResource extends NormalizedResource {
+  targetModuleId?: string;
   relevanceScore: number; // 0 - 100
   qualityScore: number; // 0 - 100
   combinedScore: number; // 0 - 100
@@ -206,6 +250,23 @@ export interface ModuleResourceAssignment {
   unmetObjectives: string[];
 }
 
+export interface QualityGateResult {
+  gate: string;
+  status: 'PASSED' | 'WARNING' | 'FAILED';
+  description: string;
+  details: string[];
+}
+
+export interface CourseQualityGates {
+  allPassed: boolean;
+  curriculumQuality: QualityGateResult;
+  topicCoverage: QualityGateResult;
+  resourceValidity: QualityGateResult;
+  assessmentValidity: QualityGateResult;
+  persistenceIntegrity: QualityGateResult;
+  learnerExperience: QualityGateResult;
+}
+
 export interface CurriculumCoverageAudit {
   overallCoveragePercent: number;
   isComplete: boolean;
@@ -214,6 +275,7 @@ export interface CurriculumCoverageAudit {
   totalReadings: number;
   totalNotes: number;
   totalQuizzes: number;
+  qualityGates?: CourseQualityGates;
   moduleAudits: Array<{
     moduleId: string;
     title: string;
@@ -274,6 +336,8 @@ export interface EngineExecutionResult {
   telemetry: ResourceEngineTelemetry;
   diagnostics: string[];
   course?: import('@/types').LearningPath;
+  quizzes?: import('@/types').Quiz[];
+  qualityGates?: any;
 }
 
 export interface ResourceProvider {

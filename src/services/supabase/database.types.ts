@@ -411,6 +411,259 @@ export type Database = {
           }
         ];
       };
+      generated_reading_materials: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          course_id: string;
+          module_id: string;
+          lesson_id: string;
+          title: string;
+          content: Json;
+          content_format: string;
+          language: string;
+          academic_level: string;
+          learning_objectives: Json;
+          generation_model: string | null;
+          generation_status: string;
+          content_hash: string | null;
+          source_metadata: Json;
+          token_usage: Json;
+          reading_duration_minutes: number;
+          generated_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          course_id: string;
+          module_id: string;
+          lesson_id: string;
+          title: string;
+          content: Json;
+          content_format?: string;
+          language?: string;
+          academic_level?: string;
+          learning_objectives?: Json;
+          generation_model?: string | null;
+          generation_status?: string;
+          content_hash?: string | null;
+          source_metadata?: Json;
+          token_usage?: Json;
+          reading_duration_minutes?: number;
+          generated_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          course_id?: string;
+          module_id?: string;
+          lesson_id?: string;
+          title?: string;
+          content?: Json;
+          content_format?: string;
+          language?: string;
+          academic_level?: string;
+          learning_objectives?: Json;
+          generation_model?: string | null;
+          generation_status?: string;
+          content_hash?: string | null;
+          source_metadata?: Json;
+          token_usage?: Json;
+          reading_duration_minutes?: number;
+          generated_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "generated_reading_materials_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      community_discussions: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          author_name: string;
+          author_avatar: string | null;
+          course_id: string | null;
+          lesson_id: string | null;
+          domain: string;
+          title: string;
+          content: string;
+          tags: string[];
+          upvotes: number;
+          upvoter_user_ids: string[];
+          reply_count: number;
+          is_solved: boolean;
+          is_pinned: boolean;
+          is_reported: boolean;
+          report_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          author_name?: string;
+          author_avatar?: string | null;
+          course_id?: string | null;
+          lesson_id?: string | null;
+          domain?: string;
+          title: string;
+          content: string;
+          tags?: string[];
+          upvotes?: number;
+          upvoter_user_ids?: string[];
+          reply_count?: number;
+          is_solved?: boolean;
+          is_pinned?: boolean;
+          is_reported?: boolean;
+          report_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          author_name?: string;
+          author_avatar?: string | null;
+          course_id?: string | null;
+          lesson_id?: string | null;
+          domain?: string;
+          title?: string;
+          content?: string;
+          tags?: string[];
+          upvotes?: number;
+          upvoter_user_ids?: string[];
+          reply_count?: number;
+          is_solved?: boolean;
+          is_pinned?: boolean;
+          is_reported?: boolean;
+          report_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      community_replies: {
+        Row: {
+          id: string;
+          discussion_id: string;
+          user_id: string | null;
+          author_name: string;
+          author_avatar: string | null;
+          content: string;
+          upvotes: number;
+          upvoter_user_ids: string[];
+          is_accepted_answer: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          discussion_id: string;
+          user_id?: string | null;
+          author_name?: string;
+          author_avatar?: string | null;
+          content: string;
+          upvotes?: number;
+          upvoter_user_ids?: string[];
+          is_accepted_answer?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          discussion_id?: string;
+          user_id?: string | null;
+          author_name?: string;
+          author_avatar?: string | null;
+          content?: string;
+          upvotes?: number;
+          upvoter_user_ids?: string[];
+          is_accepted_answer?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "community_replies_discussion_id_fkey";
+            columns: ["discussion_id"];
+            isOneToOne: false;
+            referencedRelation: "community_discussions";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      spaced_repetition_cards: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          course_id: string;
+          module_id: string | null;
+          lesson_id: string | null;
+          concept: string;
+          prompt: string;
+          solution: string;
+          card_type: string;
+          stability: number;
+          difficulty: number;
+          repetitions: number;
+          lapses: number;
+          last_rating: number | null;
+          due_date: string;
+          last_reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          course_id: string;
+          module_id?: string | null;
+          lesson_id?: string | null;
+          concept: string;
+          prompt: string;
+          solution: string;
+          card_type?: string;
+          stability?: number;
+          difficulty?: number;
+          repetitions?: number;
+          lapses?: number;
+          last_rating?: number | null;
+          due_date?: string;
+          last_reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          course_id?: string;
+          module_id?: string | null;
+          lesson_id?: string | null;
+          concept?: string;
+          prompt?: string;
+          solution?: string;
+          card_type?: string;
+          stability?: number;
+          difficulty?: number;
+          repetitions?: number;
+          lapses?: number;
+          last_rating?: number | null;
+          due_date?: string;
+          last_reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       bookmarks: {
         Row: {
           id: string;

@@ -47,6 +47,9 @@ export interface CreateFullLearningPathInput {
     orderIndex?: number;
     status?: "completed" | "in_progress" | "locked";
     totalResources?: number;
+    objective?: string;
+    checkpointQuestions?: import('@/types').QuizQuestion[] | any[];
+    flashcards?: any[];
     lessons: Array<{
       id?: string;
       title: string;
@@ -281,16 +284,10 @@ export function repairCourseVideoDuplicates(course: LearningPath): { path: Learn
           }
         }
 
-        // 2. Fallback: Progressive chapter offset so modules don't repeat blindly from 0:00
-        const estimatedOffsetSeconds = mIdx * 900;
-        lesson.sourceUrl = formatYouTubeTimestampUrl(lesson.sourceUrl, estimatedOffsetSeconds);
-        lesson.selectionReason = `Course lecture series (Part/Module ${mIdx + 1} at ${Math.floor(estimatedOffsetSeconds / 60)}m) covering ${mod.title} concepts.`;
-        seenVideos.set(`${vidId}_t${estimatedOffsetSeconds}`, {
-          moduleIdx: mIdx,
-          lessonIdx: lIdx,
-          sourceUrl: lesson.sourceUrl,
-          startSeconds: estimatedOffsetSeconds,
-        });
+        // 2. Cross-module deduplication: prune unchaptered repeat video from subsequent modules
+        // to prevent identical introductory videos from appearing in advanced modules
+        mod.lessons.splice(lIdx, 1);
+        lIdx--;
         repaired = true;
       }
     }
@@ -334,6 +331,17 @@ export async function getLearningPathById(id: string): Promise<LearningPath | nu
       }
     } catch {}
   }
+
+  // 3. Check storageAdapter (Unified IndexedDB & In-Memory storage for guests/offline/tests)
+  try {
+    const { storageAdapter } = await import("@/lib/storage/storageAdapter");
+    const saved = await storageAdapter.getSavedPathById(id);
+    if (saved && !LEGACY_MOCK_COURSE_IDS.has(saved.id)) {
+      const { path: repairedPath } = repairCourseVideoDuplicates(saved);
+      inMemoryPathCache.set(id, repairedPath);
+      return repairedPath;
+    }
+  } catch {}
 
   if (!isSupabaseConfigured) {
     return null;
@@ -524,6 +532,9 @@ export async function createFullLearningPath(
       status: mIdx === 0 ? "in_progress" : "locked",
       totalResources: m.lessons.length,
       completedResources: 0,
+      objective: m.objective,
+      checkpointQuestions: m.checkpointQuestions || [],
+      flashcards: m.flashcards || [],
       lessons: m.lessons.map((l, lIdx) => ({
         id: l.id || `les-${m.id || `mod-${pathId}-${mIdx + 1}`}-${lIdx + 1}`,
         moduleId: m.id || `mod-${pathId}-${mIdx + 1}`,

@@ -260,3 +260,5 @@ export function clearDeletionRegistryForTesting(): void {
     } catch {}
   }
 }
+
+export const resetDeletionRegistry = clearDeletionRegistryForTesting;

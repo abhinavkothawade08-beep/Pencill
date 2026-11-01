@@ -14,6 +14,7 @@ import { addBookmark } from "@/services/supabase/bookmarkService";
 import { getVerifiedResources, searchResourcesInDatabase } from "@/services/supabase/resourceService";
 import { storageAdapter } from "@/lib/storage/storageAdapter";
 import { useAuth } from "@/context/AuthContext";
+import InteractiveCodeRunner from "@/components/practice/InteractiveCodeRunner";
 
 interface QuizItem {
   id: string;
@@ -46,8 +47,8 @@ export default function PracticeQuizzesPage() {
   const router = useRouter();
   const { user, session } = useAuth();
 
-  // Mode View: Quizzes or Discovered Problem Sets
-  const [sectionView, setSectionView] = useState<"quizzes" | "problemSets">("quizzes");
+  // Mode View: Quizzes, Discovered Problem Sets, or Code Sandbox
+  const [sectionView, setSectionView] = useState<"quizzes" | "problemSets" | "codeSandbox">("quizzes");
 
   // Quizzes State
   const [quizzes, setQuizzes] = useState<QuizItem[]>([]);
@@ -86,10 +87,20 @@ export default function PracticeQuizzesPage() {
         console.warn("[Practice] Supabase quizzes failed, extracting from savedPaths:", e);
       }
 
-      // Harvest checkpoint quizzes from storageAdapter saved paths
-      const savedPaths = await storageAdapter.getSavedPaths();
+      // Harvest checkpoint quizzes strictly from user's enrolled courses
+      let enrolledCoursesList: any[] = [];
+      if (user?.id) {
+        try {
+          const { getUserEnrollments } = await import("@/services/supabase/enrollmentService");
+          const enrollments = await getUserEnrollments(user.id);
+          enrolledCoursesList = enrollments.map((e) => e.course).filter(Boolean);
+        } catch {}
+      } else {
+        enrolledCoursesList = await storageAdapter.getSavedPaths();
+      }
+
       const harvested: QuizItem[] = [];
-      for (const p of savedPaths) {
+      for (const p of enrolledCoursesList) {
         if (p.modules) {
           for (const m of p.modules) {
             if (m.checkpointQuestions && m.checkpointQuestions.length > 0) {
@@ -156,6 +167,15 @@ export default function PracticeQuizzesPage() {
   useEffect(() => {
     loadQuizzes();
   }, [loadQuizzes]);
+
+  useEffect(() => {
+    const handleAuthReset = () => {
+      setQuizzes([]);
+      setTargetQuizToDelete(null);
+    };
+    window.addEventListener("pencill:auth-state-reset", handleAuthReset);
+    return () => window.removeEventListener("pencill:auth-state-reset", handleAuthReset);
+  }, []);
 
   // Load default practice resources when switching to problemSets tab
   useEffect(() => {
@@ -396,7 +416,7 @@ export default function PracticeQuizzesPage() {
         </header>
 
         {/* Section Mode Toggle (Quizzes vs Problem Sets & PYQs) */}
-        <div className="flex items-center gap-2 border-b border-surface-container-high pb-2">
+        <div className="flex items-center gap-2 border-b border-surface-container-high pb-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setSectionView("quizzes")}
@@ -420,6 +440,18 @@ export default function PracticeQuizzesPage() {
           >
             <span className="material-symbols-outlined text-base">history_edu</span>
             <span>Discovered Problem Sets &amp; PYQs</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSectionView("codeSandbox")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              sectionView === "codeSandbox"
+                ? "bg-primary text-on-primary shadow-xs"
+                : "bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">terminal</span>
+            <span>Interactive Code Sandbox</span>
           </button>
         </div>
 
@@ -802,6 +834,13 @@ export default function PracticeQuizzesPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VIEW C: SAFE IN-BROWSER CODE RUNNER SANDBOX                               */}
+        {/* ========================================================================= */}
+        {sectionView === "codeSandbox" && (
+          <InteractiveCodeRunner />
         )}
       </div>
     </AuthGuard>

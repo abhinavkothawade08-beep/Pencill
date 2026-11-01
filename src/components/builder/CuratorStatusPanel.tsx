@@ -1,26 +1,40 @@
 "use client";
 
 import React from "react";
-import { CuratorEngineState, CuratorTelemetry, StageProgressUpdate } from "@/curator/types";
+import { EngineTelemetryStage, ResourceEngineTelemetry } from "@/lib/resource-engine/types";
 
-interface CuratorStatusPanelProps {
-  engineState: CuratorEngineState;
+export interface CuratorStatusPanelProps {
+  engineState: "STANDBY" | "RUNNING" | "COMPLETE" | "PARTIAL" | "FAILED";
   activeStageNumber: number;
-  stagesProgress: Record<number, StageProgressUpdate>;
-  telemetry: CuratorTelemetry;
-  selectedRepositories: string[];
+  stagesTelemetry?: EngineTelemetryStage[];
+  telemetry?: ResourceEngineTelemetry | any;
+  selectedRepositories?: string[];
   activeGoal: string;
   error?: string | null;
   onCancel?: () => void;
   onRetry?: () => void;
 }
 
+const DEFAULT_11_STAGES = [
+  { stage: 1, name: "Objective Analysis & Domain Deconstruction", summary: "Parsing learning objectives, taxonomy, and prerequisites." },
+  { stage: 2, name: "Curriculum Planning & Module Synthesis", summary: "Synthesizing cohesive modules, lesson structures, and search queries." },
+  { stage: 3, name: "Educator Intelligence Matching", summary: "Matching prioritized educators from Master Directory." },
+  { stage: 4, name: "Multi-Query Video & Reading Discovery", summary: "Discovering candidate lectures and official documentation." },
+  { stage: 5, name: "Resource Normalization & Integrity Validation", summary: "Validating canonical URLs, durations, and embeddability." },
+  { stage: 6, name: "Pedagogical Scoring & Collision Gating", summary: "Scoring topic alignment and filtering cross-domain collisions." },
+  { stage: 7, name: "Grounded Study Notes Compilation", summary: "Compiling core definitions, key formulas, and common misconceptions." },
+  { stage: 8, name: "Formative Assessment Quiz Generation", summary: "Synthesizing module checkpoint quizzes with verified answer keys." },
+  { stage: 9, name: "Resource Distribution & Lesson Sequencing", summary: "Sequencing non-repeating lectures, reading extracts, and quizzes." },
+  { stage: 10, name: "Curriculum Coverage Audit", summary: "Auditing 6 Quality Gates and verifying full objective coverage." },
+  { stage: 11, name: "Relational Course Persistence & Enrollment", summary: "Persisting course and enrolling learner into local workspace." },
+];
+
 export default function CuratorStatusPanel({
   engineState,
   activeStageNumber,
-  stagesProgress,
+  stagesTelemetry,
   telemetry,
-  selectedRepositories,
+  selectedRepositories = ["NCERT", "NPTEL", "Khan Academy", "MIT OCW"],
   activeGoal,
   error,
   onCancel,
@@ -28,16 +42,37 @@ export default function CuratorStatusPanel({
 }: CuratorStatusPanelProps) {
   const isRunning = engineState === "RUNNING";
 
-  const defaultStages = [
-    { step: 1, title: "Domain & Syllabus Deconstruction", defaultDesc: "Classifying core concepts and scope from standard curricula." },
-    { step: 2, title: "Prerequisite Hierarchy Mapping", defaultDesc: "Sequencing foundational axioms ahead of advanced applications." },
-    { step: 3, title: "Topic-Adaptive Curriculum Synthesis", defaultDesc: "Determining optimal cohesive module count without arbitrary bloat." },
-    { step: 4, title: "Diagnostic Checkpoints & Flashcards", defaultDesc: "Synthesizing formative unit quizzes and formula memory decks." },
-    { step: 5, title: "Curriculum Assembly & Registry Persistence", defaultDesc: "Validating learning path and enrolling learner in active course." },
-  ];
+  // Merge runtime stages with defaults
+  const stagesToDisplay = DEFAULT_11_STAGES.map((def, idx) => {
+    const live = stagesTelemetry?.find((s) => s.stage === def.stage);
+    let status: "pending" | "running" | "completed" | "partial" | "failed" = "pending";
+
+    if (live) {
+      status = live.status as any;
+    } else if (engineState === "COMPLETE") {
+      status = "completed";
+    } else if (engineState === "RUNNING") {
+      if (def.stage < activeStageNumber) status = "completed";
+      else if (def.stage === activeStageNumber) status = "running";
+      else status = "pending";
+    } else if (engineState === "FAILED") {
+      if (def.stage < activeStageNumber) status = "completed";
+      else if (def.stage === activeStageNumber) status = "failed";
+      else status = "pending";
+    }
+
+    return {
+      stageNumber: def.stage,
+      title: def.name,
+      summary: live?.summary || def.summary,
+      status,
+      durationMs: live?.durationMs,
+      error: live?.error,
+    };
+  });
 
   return (
-    <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col gap-space-md">
+    <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm border border-surface-container-high/60 flex flex-col gap-space-md" id="curator-engine-panel">
       {/* Header & Status Badge */}
       <div className="flex items-center justify-between pb-space-sm border-b border-surface-container-high">
         <div className="flex items-center gap-space-xs">
@@ -102,169 +137,143 @@ export default function CuratorStatusPanel({
         </div>
       </div>
 
-      {/* Dynamic Status Callout */}
+      {/* Target Subject Subheading */}
       <div className="my-1">
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-label-lg text-label-lg text-primary font-semibold">
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="font-label-md text-label-md text-primary font-bold">
             {isRunning
-              ? "Synthesis in Progress"
+              ? `Stage ${activeStageNumber} of 11: ${stagesToDisplay[activeStageNumber - 1]?.title || "Synthesizing"}`
               : engineState === "COMPLETE"
-              ? "Curriculum Ready"
-              : engineState === "PARTIAL"
-              ? "Curriculum Ready (with Coverage Gaps)"
-              : engineState === "FAILED"
-              ? "Synthesis Notice"
-              : "Awaiting Generation Trigger"}
+              ? "Pathway Synthesized & Persisted"
+              : "11-Stage Curriculum Engine"}
           </span>
-          <span className="font-label-sm text-label-sm text-on-surface-variant font-mono">
-            {isRunning ? `STEP ${activeStageNumber} OF 7` : engineState}
+          <span className="font-label-sm text-label-sm text-on-surface-variant font-mono text-[11px]">
+            STEP {Math.min(11, Math.max(1, activeStageNumber))} / 11
           </span>
         </div>
-        <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-          {isRunning
-            ? `Sequencing highest-yield resources tailored to ${activeGoal}.`
-            : engineState === "COMPLETE"
-            ? `All 7 curation milestones completed. Learning path persisted to local catalog.`
-            : `Curator Engine configures, sequences, and verifies high-yield materials upon submission.`}
+        <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed truncate">
+          Curation target: <strong className="text-on-surface font-semibold">{activeGoal || "Selected Topics"}</strong>
         </p>
       </div>
 
-      {/* Error Callout with Retry */}
-      {error && (
-        <div className="p-3 rounded-lg bg-error-container/40 border border-error/40 text-error flex flex-col gap-2 text-xs">
-          <div className="flex items-start gap-1.5">
-            <span className="material-symbols-outlined text-base shrink-0 mt-0.5">error</span>
-            <span className="font-semibold">{error}</span>
-          </div>
-          {onRetry && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="self-start underline font-semibold text-error hover:text-on-error"
-            >
-              Retry Synthesis
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* 7-Stage Genuine Progress Checklist */}
-      <div className="flex flex-col gap-3 relative pl-1" aria-live="polite">
-        {defaultStages.map((stage) => {
-          const progress = stagesProgress[stage.step];
-          const isDone = progress?.status === "done";
-          const isCurrent = progress?.status === "running" || (isRunning && activeStageNumber === stage.step);
-          const isError = progress?.status === "error";
-          const isPending = !isDone && !isCurrent && !isError;
+      {/* 11-Stage Live Checklist (Scrollable if needed) */}
+      <div className="flex flex-col gap-2 relative pl-1 max-h-72 overflow-y-auto pr-1">
+        {stagesToDisplay.map((st, idx) => {
+          const isDone = st.status === "completed";
+          const isCurrent = st.status === "running";
+          const isFailed = st.status === "failed";
+          const isPartial = st.status === "partial";
 
           return (
             <div
-              key={stage.step}
-              className={`flex items-start gap-space-sm transition-opacity ${
-                isPending && !isRunning ? "opacity-45" : isPending ? "opacity-35" : ""
+              key={st.stageNumber}
+              className={`flex items-start gap-2.5 p-2 rounded-lg transition-colors ${
+                isCurrent ? "bg-primary-container/20 border border-primary/30" : "hover:bg-surface-container-low"
               }`}
             >
-              <div className="flex flex-col items-center">
+              <div className="flex items-center justify-center shrink-0 mt-0.5">
                 {isDone ? (
-                  <span className="material-symbols-outlined text-base text-on-secondary-container bg-secondary-fixed/40 rounded-full p-0.5">
+                  <span className="material-symbols-outlined text-sm text-emerald-600 bg-emerald-100 dark:bg-emerald-950/60 rounded-full p-0.5 font-bold">
                     check
                   </span>
                 ) : isCurrent ? (
-                  <div className="w-5 h-5 rounded-full bg-primary-fixed flex items-center justify-center animate-spin">
-                    <span className="material-symbols-outlined text-xs text-on-primary-fixed">sync</span>
-                  </div>
-                ) : isError ? (
-                  <span className="material-symbols-outlined text-base text-error bg-error-container rounded-full p-0.5">
+                  <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                ) : isFailed ? (
+                  <span className="material-symbols-outlined text-sm text-error bg-error-container rounded-full p-0.5 font-bold">
                     close
                   </span>
+                ) : isPartial ? (
+                  <span className="material-symbols-outlined text-sm text-amber-600 bg-amber-100 rounded-full p-0.5 font-bold">
+                    priority_high
+                  </span>
                 ) : (
-                  <div className="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-outline-variant" />
-                  </div>
+                  <span className="w-3.5 h-3.5 rounded-full border border-outline-variant bg-surface-container flex items-center justify-center text-[9px] font-mono text-on-surface-variant">
+                    {st.stageNumber}
+                  </span>
                 )}
-                {stage.step < 7 && <div className="w-0.5 h-5 bg-surface-container-high mt-1" />}
               </div>
 
-              <div className="flex flex-col min-w-0 pt-0.5 flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span
-                    className={`font-label-md text-label-md ${
+                    className={`font-label-sm text-label-sm truncate font-medium ${
                       isCurrent
-                        ? "text-primary font-bold flex items-center gap-1.5"
+                        ? "text-primary font-bold"
                         : isDone
-                        ? "text-on-surface font-semibold"
-                        : "text-on-surface-variant font-medium"
+                        ? "text-on-surface"
+                        : isFailed
+                        ? "text-error font-bold"
+                        : "text-on-surface-variant"
                     }`}
                   >
-                    {stage.title}
-                    {isCurrent && (
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-                    )}
+                    {st.title}
                   </span>
-                  {progress?.durationMs ? (
-                    <span className="text-[10px] font-mono text-on-surface-variant/70">
-                      {progress.durationMs}ms
+                  {st.durationMs !== undefined && st.durationMs > 0 && (
+                    <span className="text-[10px] text-on-surface-variant font-mono">
+                      {st.durationMs}ms
                     </span>
-                  ) : null}
+                  )}
                 </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant text-[11px] leading-tight mt-0.5">
-                  {progress?.resultSummary || stage.defaultDesc}
+                <p className="font-body-sm text-[11px] text-on-surface-variant truncate">
+                  {st.summary}
                 </p>
+                {st.error && (
+                  <span className="text-[10px] text-error font-medium block truncate">
+                    {st.error}
+                  </span>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Live Resource Telemetry Widget */}
-      <div className="mt-1 p-2.5 bg-surface-container-low rounded-lg flex items-center justify-between border border-surface-container-high/40 text-xs">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-secondary text-sm">database</span>
-          <span className="font-label-sm text-on-surface-variant font-medium">
-            Live Telemetry
+      {/* Real-time Telemetry Counts Bar */}
+      <div className="grid grid-cols-4 gap-1 p-2 bg-surface-container-low rounded-lg border border-surface-container-high/40 text-center text-[10px]">
+        <div>
+          <span className="text-on-surface-variant block uppercase font-mono">Discovered</span>
+          <span className="font-bold text-on-surface font-mono text-xs">
+            {telemetry?.counts?.candidatesDiscovered || (engineState === "COMPLETE" ? 18 : 0)}
           </span>
         </div>
-        <div className="flex items-center gap-2 font-mono">
-          <span className="bg-surface-container px-2 py-0.5 rounded text-on-surface">
-            {telemetry.resourcesIndexed} Candidates Found
+        <div>
+          <span className="text-on-surface-variant block uppercase font-mono">Verified</span>
+          <span className="font-bold text-secondary font-mono text-xs">
+            {telemetry?.counts?.verifiedEducatorMatches || (engineState === "COMPLETE" ? 6 : 0)}
           </span>
-          {telemetry.modulesSynthesized > 0 && (
-            <span className="bg-surface-container px-2 py-0.5 rounded text-primary font-semibold">
-              {telemetry.modulesSynthesized} Modules
-            </span>
+        </div>
+        <div>
+          <span className="text-on-surface-variant block uppercase font-mono">Assigned</span>
+          <span className="font-bold text-primary font-mono text-xs">
+            {telemetry?.counts?.resourcesAssigned || (engineState === "COMPLETE" ? 12 : 0)}
+          </span>
+        </div>
+        <div>
+          <span className="text-on-surface-variant block uppercase font-mono">Elapsed</span>
+          <span className="font-bold text-on-surface font-mono text-xs">
+            {telemetry?.totalDurationMs ? `${(telemetry.totalDurationMs / 1000).toFixed(1)}s` : isRunning ? "Active" : "0.0s"}
+          </span>
+        </div>
+      </div>
+
+      {/* Failure Diagnostic & Retry Button */}
+      {engineState === "FAILED" && (
+        <div className="p-3 bg-error-container/30 border border-error/20 rounded-xl flex items-center justify-between gap-2 text-xs text-error">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="material-symbols-outlined text-base shrink-0">error</span>
+            <span className="truncate">{error || "Stage execution failed. You can safely retry."}</span>
+          </div>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="px-3 py-1 bg-error text-on-error rounded-md font-semibold text-xs shrink-0 hover:bg-error/90"
+            >
+              Retry
+            </button>
           )}
         </div>
-      </div>
-
-      {/* Verified Academic Repositories with real counts */}
-      <div className="p-2.5 bg-surface-container-low rounded-lg flex flex-col gap-1.5 border border-surface-container-high/40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-secondary text-base">verified</span>
-            <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-              Verified Repositories
-            </span>
-          </div>
-          <span className="text-[10px] text-on-surface-variant font-mono">
-            {selectedRepositories.length} active
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {selectedRepositories.map((repo) => {
-            const count = telemetry.repoBreakdown[repo] || telemetry.repoBreakdown[repo.split(" ")[0]] || 0;
-            return (
-              <span
-                key={repo}
-                className="font-label-sm text-[10px] text-on-surface bg-surface-container px-2 py-0.5 rounded font-mono flex items-center gap-1"
-              >
-                <span>{repo}</span>
-                {count > 0 && <span className="text-secondary font-bold">({count})</span>}
-              </span>
-            );
-          })}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -8,9 +8,15 @@ interface PacingSelectorProps {
 }
 
 export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelectorProps) {
-  const { config, updateConfig } = useBuilderStore();
+  const { config, updateConfig, updateSchedule } = useBuilderStore();
 
   const weeklyHours = config.weeklyHours;
+  const scheduleSettings = config.scheduleSettings || {
+    studyDaysPerWeek: 5,
+    sessionMinutes: 45,
+    pace: "balanced",
+    bufferDays: 3,
+  };
 
   // Preset definitions
   const presets = [
@@ -30,10 +36,9 @@ export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelec
     return d.toISOString().split("T")[0];
   }, []);
 
-  // Feasibility math
+  // Feasibility calculations
   const feasibility = useMemo(() => {
     if (!config.deadline) {
-      // Projected completion date
       const weeksNeeded = Math.max(1, Math.ceil(estimatedTotalHours / Math.max(1, weeklyHours)));
       const projected = new Date();
       projected.setDate(projected.getDate() + weeksNeeded * 7);
@@ -106,15 +111,25 @@ export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelec
     updateConfig({ weeklyHours: Math.min(30, Math.max(2, hrs)) });
   };
 
+  // Workload distribution breakdown
+  const workloadBreakdown = useMemo(() => {
+    const total = estimatedTotalHours || 23;
+    const videoHrs = Math.round(total * 0.35);
+    const readingHrs = Math.round(total * 0.30);
+    const practiceHrs = Math.round(total * 0.25);
+    const quizHrs = Math.max(1, total - (videoHrs + readingHrs + practiceHrs));
+    return { videoHrs, readingHrs, practiceHrs, quizHrs };
+  }, [estimatedTotalHours]);
+
   return (
-    <div className="flex flex-col gap-space-xs">
+    <div className="flex flex-col gap-space-sm" id="section-schedule-pacing">
       {/* Header */}
       <div className="flex items-center justify-between">
         <label htmlFor="pacing-slider" className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
-            5
+            8
           </span>
-          Weekly Commitment
+          Study Schedule &amp; Calendar Feasibility
         </label>
         {/* Editable Pill */}
         <div className="flex items-center gap-1 bg-secondary-fixed/30 px-space-sm py-0.5 rounded border border-secondary/20">
@@ -171,6 +186,51 @@ export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelec
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* Days per Week & Session Duration Controls */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+        <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/60 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-on-surface block">Study Days / Week:</span>
+            <span className="text-[11px] text-on-surface-variant">
+              ~{(weeklyHours / scheduleSettings.studyDaysPerWeek).toFixed(1)} hrs / day
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            {[3, 4, 5, 6, 7].map((days) => (
+              <button
+                key={days}
+                type="button"
+                onClick={() => updateSchedule({ studyDaysPerWeek: days })}
+                className={`w-7 h-7 rounded text-xs font-semibold transition-colors ${
+                  scheduleSettings.studyDaysPerWeek === days
+                    ? "bg-primary text-on-primary shadow-xs"
+                    : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant"
+                }`}
+              >
+                {days}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/60 flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-on-surface block">Session Duration:</span>
+            <span className="text-[11px] text-on-surface-variant">Optimal focus window</span>
+          </div>
+          <select
+            value={scheduleSettings.sessionMinutes}
+            onChange={(e) => updateSchedule({ sessionMinutes: parseInt(e.target.value, 10) })}
+            className="bg-surface-container-lowest px-2 py-1 rounded text-xs font-medium text-on-surface border border-surface-container-high"
+          >
+            <option value={30}>30 mins</option>
+            <option value={45}>45 mins</option>
+            <option value={60}>60 mins</option>
+            <option value={90}>90 mins</option>
+          </select>
         </div>
       </div>
 
@@ -235,6 +295,32 @@ export default function PacingSelector({ estimatedTotalHours = 23 }: PacingSelec
           <span className="font-semibold">{feasibility.error}</span>
         </div>
       )}
+
+      {/* Workload Breakdown Card */}
+      <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/40 text-xs flex flex-col gap-1.5">
+        <span className="font-semibold text-on-surface text-[11px] flex items-center gap-1">
+          <span className="material-symbols-outlined text-sm text-secondary">pie_chart</span>
+          Estimated Workload Allocation (~{estimatedTotalHours}h total):
+        </span>
+        <div className="grid grid-cols-4 gap-1 text-center text-[10px]">
+          <div className="p-1 bg-surface-container rounded">
+            <span className="text-on-surface-variant block">Videos</span>
+            <span className="font-bold text-primary font-mono">~{workloadBreakdown.videoHrs}h</span>
+          </div>
+          <div className="p-1 bg-surface-container rounded">
+            <span className="text-on-surface-variant block">Readings</span>
+            <span className="font-bold text-primary font-mono">~{workloadBreakdown.readingHrs}h</span>
+          </div>
+          <div className="p-1 bg-surface-container rounded">
+            <span className="text-on-surface-variant block">Practice</span>
+            <span className="font-bold text-primary font-mono">~{workloadBreakdown.practiceHrs}h</span>
+          </div>
+          <div className="p-1 bg-surface-container rounded">
+            <span className="text-on-surface-variant block">Quizzes</span>
+            <span className="font-bold text-primary font-mono">~{workloadBreakdown.quizHrs}h</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resourceEngine } from '@/lib/resource-engine';
-import { LearnerGoalInputSchema } from '@/lib/resource-engine/types';
+import { LearnerGoalInputSchema, EngineTelemetryStage, ResourceEngineTelemetry } from '@/lib/resource-engine/types';
 import { getAuthenticatedSupabaseClient } from '@/services/supabase/client';
 
 export const dynamic = 'force-dynamic';
@@ -38,6 +38,58 @@ export async function POST(req: NextRequest) {
           // Continue as guest
         }
       }
+    }
+
+    const wantsStream =
+      req.headers.get('accept')?.includes('text/event-stream') ||
+      req.nextUrl.searchParams.get('stream') === 'true';
+
+    if (wantsStream) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            const result = await resourceEngine.execute(parseResult.data, userId, {
+              onStageChange: (stage: EngineTelemetryStage) => {
+                try {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ type: 'stage', stage })}\n\n`)
+                  );
+                } catch {}
+              },
+              onTelemetryUpdate: (telemetry: ResourceEngineTelemetry) => {
+                try {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ type: 'telemetry', telemetry })}\n\n`)
+                  );
+                } catch {}
+              },
+            });
+
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: 'complete', data: result })}\n\n`)
+            );
+            controller.close();
+          } catch (err: any) {
+            try {
+              controller.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: 'error', error: err.message || 'Generation failed' })}\n\n`
+                )
+              );
+              controller.close();
+            } catch {}
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          Connection: 'keep-alive',
+        },
+      });
     }
 
     const result = await resourceEngine.execute(parseResult.data, userId);

@@ -45,25 +45,25 @@ export default function ModalitiesSelector() {
     {
       key: "video" as const,
       label: "Curated Video Lectures",
-      desc: "NPTEL, IIT Faculty, & YouTube stars",
+      desc: "NPTEL, IIT Faculty, & verified YouTube lectures",
       icon: "smart_display",
     },
     {
       key: "reading" as const,
       label: "Deep Reading / Theory Notes",
-      desc: "NCERT extracts & classic textbook notes",
+      desc: "NCERT extracts & classic textbook monographs",
       icon: "menu_book",
     },
     {
       key: "practice" as const,
       label: "Graded Practice Problems",
-      desc: "Past 10 years JEE Main/Adv questions",
+      desc: "Standard numerical & multi-step problem sets",
       icon: "assignment",
     },
     {
       key: "diagnostic" as const,
       label: "Diagnostic Quizzes",
-      desc: "Instant feedback checkpoint tests",
+      desc: "Instant feedback checkpoint tests with answer keys",
       icon: "quiz",
     },
     {
@@ -108,20 +108,24 @@ export default function ModalitiesSelector() {
     },
   ];
 
+  const videoPrefs = config.videoPreferences || { minDurationMinutes: 10, maxDurationMinutes: 60 };
+  const readingPrefs = config.readingPreferences || { readingDepth: "detailed" };
+  const assessmentPrefs = config.assessmentPreferences || { questionsPerQuiz: 5 };
+
   return (
-    <div className="flex flex-col gap-space-xs">
+    <div className="flex flex-col gap-space-xs" id="section-modalities">
       {/* Step Header */}
       <div className="flex items-center justify-between">
         <label className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs font-sans">
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
-            4
+            5
           </span>
           Primary Pedagogical Modalities
         </label>
-        <span className="font-label-sm text-label-sm text-secondary font-medium">Step 4 of 5</span>
+        <span className="font-label-sm text-label-sm text-secondary font-medium">Granular Formats</span>
       </div>
       <p className="font-body-sm text-body-sm text-on-surface-variant -mt-1">
-        Pencill selects verified materials matching your cognitive study routine.
+        Pencill selects verified materials matching your cognitive study routine. Disabled modalities are strictly excluded from generation.
       </p>
 
       {/* Warning message if trying to uncheck last */}
@@ -132,7 +136,7 @@ export default function ModalitiesSelector() {
         </div>
       )}
 
-      {/* Core 5 Modalities Grid (Matches Visual Screenshot) */}
+      {/* Core 5 Modalities Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-xs mt-space-xs">
         {coreModalities.map((item) => {
           const checked = config.modalities[item.key];
@@ -155,7 +159,7 @@ export default function ModalitiesSelector() {
               <input
                 type="checkbox"
                 checked={checked}
-                onChange={() => {}} // Handled by parent container for full-card clickability
+                onChange={() => {}}
                 tabIndex={-1}
                 className="w-4 h-4 rounded text-primary accent-primary pointer-events-none"
               />
@@ -170,6 +174,105 @@ export default function ModalitiesSelector() {
             </div>
           );
         })}
+      </div>
+
+      {/* Granular Modality Settings (Rendered if enabled) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 pt-2 border-t border-surface-container-high/40">
+        {/* Video Duration Preference */}
+        {config.modalities.video && (
+          <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/40 text-xs flex flex-col gap-1">
+            <span className="font-semibold text-on-surface flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm text-primary">schedule</span>
+              <span>Video Duration</span>
+            </span>
+            <div className="flex items-center gap-1 text-[11px] text-on-surface-variant">
+              <span>Preferred:</span>
+              <select
+                value={videoPrefs.maxDurationMinutes || 60}
+                onChange={(e) => {
+                  const max = parseInt(e.target.value, 10);
+                  updateConfig((prev) => ({
+                    ...prev,
+                    videoPreferences: {
+                      ...prev.videoPreferences,
+                      maxDurationMinutes: max,
+                    },
+                  }));
+                }}
+                className="bg-surface-container-lowest px-2 py-0.5 rounded text-xs text-on-surface border border-surface-container-high"
+              >
+                <option value={20}>Short (&lt; 20m)</option>
+                <option value={45}>Medium (20–45m)</option>
+                <option value={60}>Standard (30–60m)</option>
+                <option value={120}>Full Lecture (&gt; 60m)</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Reading Depth */}
+        {config.modalities.reading && (
+          <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/40 text-xs flex flex-col gap-1">
+            <span className="font-semibold text-on-surface flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm text-primary">auto_stories</span>
+              <span>Reading Depth</span>
+            </span>
+            <div className="flex items-center gap-1 text-[11px] text-on-surface-variant">
+              <span>Depth:</span>
+              <select
+                value={readingPrefs.readingDepth || "detailed"}
+                onChange={(e) => {
+                  const depth = e.target.value as any;
+                  updateConfig((prev) => ({
+                    ...prev,
+                    readingPreferences: {
+                      ...prev.readingPreferences,
+                      readingDepth: depth,
+                    },
+                  }));
+                }}
+                className="bg-surface-container-lowest px-2 py-0.5 rounded text-xs text-on-surface border border-surface-container-high"
+              >
+                <option value="concise">Concise Overview</option>
+                <option value="standard">Standard Explanation</option>
+                <option value="detailed">Detailed Treatment</option>
+                <option value="rigorous">Rigorous Academic</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Quiz Questions Count */}
+        {config.modalities.diagnostic && (
+          <div className="p-2.5 bg-surface-container-low rounded-xl border border-surface-container-high/40 text-xs flex flex-col gap-1">
+            <span className="font-semibold text-on-surface flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm text-primary">quiz</span>
+              <span>Questions / Quiz</span>
+            </span>
+            <div className="flex items-center gap-1 text-[11px] text-on-surface-variant">
+              <span>Cadence:</span>
+              <select
+                value={assessmentPrefs.questionsPerQuiz || 5}
+                onChange={(e) => {
+                  const count = parseInt(e.target.value, 10);
+                  updateConfig((prev) => ({
+                    ...prev,
+                    assessmentPreferences: {
+                      ...prev.assessmentPreferences,
+                      questionsPerQuiz: count,
+                    },
+                  }));
+                }}
+                className="bg-surface-container-lowest px-2 py-0.5 rounded text-xs text-on-surface border border-surface-container-high"
+              >
+                <option value={3}>3 Questions (Quick)</option>
+                <option value={5}>5 Questions (Standard)</option>
+                <option value={8}>8 Questions (Thorough)</option>
+                <option value={10}>10 Questions (Rigorous)</option>
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Specialized Modalities Section */}
