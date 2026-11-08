@@ -146,6 +146,11 @@ function detectDomain(topicLower: string, userSpecifiedDomain?: string): Educati
   if (
     topicLower.includes('finance') ||
     topicLower.includes('accounting') ||
+    topicLower.includes('financial reporting') ||
+    topicLower.includes('ind as') ||
+    topicLower.includes('ca final') ||
+    topicLower.includes('chartered') ||
+    topicLower.includes('cfa') ||
     topicLower.includes('macroeconomics') ||
     topicLower.includes('microeconomics') ||
     topicLower.includes('investing')

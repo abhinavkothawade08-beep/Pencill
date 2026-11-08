@@ -99,6 +99,7 @@ export class YouTubeProvider implements ResourceProvider {
 
     const res = await fetch(searchUrl.toString(), {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(1200),
     });
 
     if (!res.ok) {
@@ -197,6 +198,7 @@ export class YouTubeProvider implements ResourceProvider {
 
       const res = await fetch(detailsUrl.toString(), {
         headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(1200),
       });
 
       if (res.ok) {
@@ -468,6 +470,184 @@ export class YouTubeProvider implements ResourceProvider {
           thumbnailUrl: 'https://img.youtube.com/vi/LlvBzyy-558/hqdefault.jpg',
           licenseOrAttribution: 'Standard YouTube Educational License',
           rawMetadata: { isVerifiedEducator: true, channelName: 'Web Dev Simplified' },
+        },
+      },
+
+      // --- Algorithms & Data Structures (Binary Search / Sorting / DSA) ---
+      {
+        keywords: ['binary search', 'search algorithm', 'bisect'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-dsa-binary-search-01',
+          title: 'Binary Search Algorithm: In-Depth Mechanics & Logarithmic Search Invariants',
+          url: 'https://www.youtube.com/watch?v=P3YID7liBug',
+          description: 'Definitive lecture on binary search mechanics, iterative and recursive implementations, loop invariants, and asymptotic time complexity by Abdul Bari.',
+          modality: 'video',
+          authorOrChannel: 'Abdul Bari',
+          durationSeconds: 1560,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/P3YID7liBug/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Abdul Bari' },
+        },
+      },
+
+      // --- Operating Systems (Kernel, Scheduling, Synchronization, Memory, File Systems) ---
+      {
+        keywords: ['os architecture', 'kernel traps', 'operating system', 'system calls', 'os intro'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-os-intro-01',
+          title: 'Introduction to Operating Systems: Kernel Architecture, Traps & System Calls',
+          url: 'https://www.youtube.com/watch?v=26QPDBe-NB8',
+          description: 'Foundational computer science lecture covering monolithic vs microkernel architecture, user/kernel mode transitions, interrupt vectors, and system call interfaces.',
+          modality: 'video',
+          authorOrChannel: 'Neso Academy',
+          durationSeconds: 1680,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/26QPDBe-NB8/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Neso Academy' },
+        },
+      },
+      {
+        keywords: ['process', 'scheduling', 'multithreading', 'cpu scheduling', 'context switch'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-os-scheduling-02',
+          title: 'Operating Systems: Process Control Blocks, Context Switching & CPU Scheduling Algorithms',
+          url: 'https://www.youtube.com/watch?v=OrM7nZcxXZU',
+          description: 'Comprehensive analysis of process lifecycles, PCB structures, preemption, and scheduling heuristics (Round Robin, Multilevel Feedback Queues).',
+          modality: 'video',
+          authorOrChannel: 'Neso Academy',
+          durationSeconds: 1800,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/OrM7nZcxXZU/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Neso Academy' },
+        },
+      },
+      {
+        keywords: ['synchronization', 'deadlock', 'mutex', 'semaphore', 'critical section'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-os-concurrency-03',
+          title: 'Process Synchronization: Critical Section Problem, Mutexes, Semaphores & Deadlock',
+          url: 'https://www.youtube.com/watch?v=1u2qu-64dc8',
+          description: 'Rigorous theoretical walkthrough of mutual exclusion, race conditions, Peterson algorithm, semaphores, and Banker algorithm for deadlock prevention.',
+          modality: 'video',
+          authorOrChannel: 'Abdul Bari',
+          durationSeconds: 2100,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/1u2qu-64dc8/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Abdul Bari' },
+        },
+      },
+      {
+        keywords: ['virtual memory', 'paging', 'page replacement', 'tlb', 'address translation'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-os-memory-04',
+          title: 'Virtual Memory Architecture: Paging, Multi-Level Page Tables & TLB Translation',
+          url: 'https://www.youtube.com/watch?v=qcBIvHMz8ps',
+          description: 'In-depth explanation of hardware MMU address translation, page faults, demand paging, and optimal page replacement algorithms (LRU, Clock).',
+          modality: 'video',
+          authorOrChannel: 'Neso Academy',
+          durationSeconds: 1920,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/qcBIvHMz8ps/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Neso Academy' },
+        },
+      },
+      {
+        keywords: ['file system', 'inodes', 'journaling', 'virtualization', 'hypervisor', 'kernel security'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-os-storage-05',
+          title: 'File System Architecture: Inode Structures, Allocation Methods & Crash Consistency',
+          url: 'https://www.youtube.com/watch?v=tGzC6e2x1xI',
+          description: 'In-depth lecture on secondary storage management, inode structures, journaling file systems, and operating system protection domains.',
+          modality: 'video',
+          authorOrChannel: 'Neso Academy',
+          durationSeconds: 1740,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/tGzC6e2x1xI/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Neso Academy' },
+        },
+      },
+
+      // --- Computer Networks (Layers, Routing, TCP/IP, Sockets) ---
+      {
+        keywords: ['network', 'osi model', 'tcp/ip', 'packet', 'router'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-net-osi-01',
+          title: 'Computer Networking: OSI 7-Layer Model & Encapsulation Architecture',
+          url: 'https://www.youtube.com/watch?v=IPvYjXCsTg8',
+          description: 'Clear architectural breakdown of protocol layers from Physical and Data Link to Transport and Application with packet encapsulation analysis.',
+          modality: 'video',
+          authorOrChannel: 'NetworkChuck',
+          durationSeconds: 1620,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/IPvYjXCsTg8/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'NetworkChuck' },
+        },
+      },
+      {
+        keywords: ['tcp', 'udp', 'flow control', 'congestion', 'transport layer'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-net-tcp-02',
+          title: 'Transport Layer Protocols: TCP 3-Way Handshake, Flow Control & UDP',
+          url: 'https://www.youtube.com/watch?v=7_LPdttKXPc',
+          description: 'Detailed analysis of connection establishment, sliding window flow control, sequence numbers, checksums, and congestion control mechanics.',
+          modality: 'video',
+          authorOrChannel: 'Ben Eater',
+          durationSeconds: 1800,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/7_LPdttKXPc/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'Ben Eater' },
+        },
+      },
+
+      // --- Machine Learning (Math, Supervised, Unsupervised, Deep Learning) ---
+      {
+        keywords: ['machine learning', 'supervised', 'regression', 'gradient descent', 'loss function'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-ml-linear-01',
+          title: 'StatQuest: Linear Regression, Cost Functions and Gradient Descent Step-by-Step',
+          url: 'https://www.youtube.com/watch?v=nk2CQITm_eo',
+          description: 'Crystal-clear visual walkthrough of linear models, mean squared error cost functions, and optimization via gradient descent.',
+          modality: 'video',
+          authorOrChannel: 'StatQuest with Josh Starmer',
+          durationSeconds: 1680,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/nk2CQITm_eo/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: 'StatQuest' },
+        },
+      },
+      {
+        keywords: ['neural network', 'deep learning', 'backpropagation', 'weights and biases'],
+        resource: {
+          providerId: 'youtube',
+          externalId: 'yt-ml-nn-02',
+          title: '3Blue1Brown: But what is a neural network? | Deep learning, chapter 1',
+          url: 'https://www.youtube.com/watch?v=aircAruvnKk',
+          description: 'Iconic visual and mathematical exploration of multilayer perceptrons, activation functions, linear transformations, and universal approximation.',
+          modality: 'video',
+          authorOrChannel: '3Blue1Brown',
+          durationSeconds: 1140,
+          isEmbeddable: true,
+          thumbnailUrl: 'https://img.youtube.com/vi/aircAruvnKk/hqdefault.jpg',
+          licenseOrAttribution: 'Standard YouTube Educational License',
+          rawMetadata: { isVerifiedEducator: true, channelName: '3Blue1Brown' },
         },
       },
     ];

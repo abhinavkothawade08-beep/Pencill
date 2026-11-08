@@ -156,5 +156,57 @@ export const BatchDeleteCoursesSchema = z.object({
   softDelete: z.boolean().optional().default(false),
 });
 
+export const UpdateLessonInputSchema = z.object({
+  id: z.string().trim().min(1, 'Lesson ID is required').optional(),
+  title: z.string().trim().min(1, 'Lesson title cannot be empty').max(300),
+  type: z.enum(['video', 'monograph', 'practice', 'quiz', 'paper', 'formulae', 'reading', 'notes', 'study_notes']).optional(),
+  durationMinutes: z.coerce.number().min(1).max(600).optional(),
+  sourceName: z.string().trim().optional(),
+  sourceUrl: z.string().trim().nullable().optional(),
+  orderIndex: z.coerce.number().min(0).optional(),
+  summaryPoints: z.array(z.string().trim()).nullish(),
+  conceptId: z.string().trim().nullable().optional(),
+  prerequisitesNote: z.string().trim().nullable().optional(),
+  studyNotes: z.array(z.any()).nullish(),
+  verificationStatus: z.string().optional(),
+  selectionExplanation: z.string().trim().nullable().optional(),
+  isPlaylist: z.boolean().optional(),
+  playlistItemCount: z.coerce.number().optional(),
+});
+
+export const UpdateModuleInputSchema = z.object({
+  id: z.string().trim().min(1, 'Module ID is required').optional(),
+  title: z.string().trim().min(1, 'Module title cannot be empty').max(300),
+  moduleNumber: z.coerce.number().min(1).optional(),
+  orderIndex: z.coerce.number().min(0).optional(),
+  description: z.string().trim().nullable().optional(),
+  objective: z.string().trim().nullable().optional(),
+  status: z.enum(['completed', 'in_progress', 'locked']).optional(),
+  checkpointQuestions: z.array(z.any()).nullish(),
+  flashcards: z.array(z.any()).nullish(),
+  primaryPlaylist: z.any().nullable().optional(),
+  syllabusMatrix: z.any().nullable().optional(),
+  coverageStatus: z.string().optional(),
+  unmetObjectives: z.array(z.string()).nullish(),
+  lessons: z.array(UpdateLessonInputSchema).optional(),
+});
+
+export const UpdateCourseSchema = z.object({
+  title: z.string().trim().min(2, 'Course title must be at least 2 characters').max(300).optional(),
+  description: z.string().trim().max(3000).optional(),
+  domain: z.string().trim().min(1).optional(),
+  level: z.string().trim().min(1).optional(),
+  durationHours: z.coerce.number().min(1).max(500).optional(),
+  tags: z.array(z.string().trim()).optional(),
+  syllabusNote: z.string().trim().nullable().optional(),
+  weeklyCheckpoint: z.record(z.string(), z.any()).nullable().optional(),
+  modules: z.array(UpdateModuleInputSchema).optional(),
+});
+
+export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
+export type UpdateModuleInput = z.infer<typeof UpdateModuleInputSchema>;
+export type UpdateLessonInput = z.infer<typeof UpdateLessonInputSchema>;
+
+
 
 

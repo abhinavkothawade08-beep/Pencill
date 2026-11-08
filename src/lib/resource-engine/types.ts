@@ -239,6 +239,78 @@ export interface GeneratedQuiz {
   questions: GeneratedQuizQuestion[];
 }
 
+
+export interface PlaylistItem {
+  videoId: string;
+  title: string;
+  durationSeconds?: number;
+  videoUrl: string;
+  sequenceNumber: number;
+}
+
+export interface PlaylistCoverageMap {
+  playlistId: string;
+  playlistUrl: string;
+  channelId?: string;
+  channelName: string;
+  verifiedVideoIds: string[];
+  canonicalWatchUrls: string[];
+  availableVideoTitles: string[];
+  coveredSyllabusTopics: string[];
+  coveredLearningObjectives: string[];
+  uncoveredObjectives: string[];
+  coveragePercent: number;
+  verificationStatus: 'VERIFIED_COMPLETE' | 'PARTIALLY_VERIFIED' | 'UNVERIFIED';
+  lastVerificationTimestamp: number;
+  isCurated: boolean;
+}
+
+export interface PlaylistResource {
+  id: string;
+  playlistId?: string;
+  title: string;
+  channelName: string;
+  channelTitle?: string;
+  channelId?: string;
+  playlistUrl: string;
+  url?: string;
+  canonicalUrl?: string;
+  itemCount: number;
+  totalDurationMinutes?: number;
+  thumbnailUrl?: string;
+  description?: string;
+  topicsCovered: string[];
+  coverageStatus: 'VERIFIED_COMPLETE' | 'PARTIALLY_VERIFIED' | 'UNVERIFIED';
+  isCurated: boolean;
+  score?: number;
+  relevanceScore?: number;
+  items?: PlaylistItem[];
+  coverageMap?: PlaylistCoverageMap;
+}
+
+export interface SyllabusSubtopic {
+  id: string;
+  title: string;
+  learningObjective: string;
+  coverageStatus: 'Fully Covered' | 'Partially Covered' | 'Missing Resources' | 'Needs Verification';
+  matchedVideoUrl?: string;
+  matchedReadingUrl?: string;
+  matchedPracticeUrl?: string;
+  pyqAvailable?: boolean;
+  pyqAttribution?: string;
+  hasNotes?: boolean;
+  hasAssessment?: boolean;
+}
+
+export interface SyllabusCoverageMatrix {
+  moduleId: string;
+  moduleTitle: string;
+  subtopics: SyllabusSubtopic[];
+  overallCoveragePercent: number;
+  coverageSummary: string;
+  missingObjectiveCount: number;
+}
+
 export interface ModuleResourceAssignment {
   moduleId: string;
   moduleTitle: string;
@@ -248,6 +320,11 @@ export interface ModuleResourceAssignment {
   quiz?: GeneratedQuiz;
   coverageScore: number;
   unmetObjectives: string[];
+  primaryPlaylist?: PlaylistResource;
+  syllabusMatrix?: SyllabusCoverageMatrix;
+  subtopics?: SyllabusSubtopic[];
+  removedDuplicateVideos?: ScoredResource[];
+  playlistCoverageMap?: PlaylistCoverageMap;
 }
 
 export interface QualityGateResult {

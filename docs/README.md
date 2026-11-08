@@ -11,6 +11,9 @@ docs/
 ├── README.md                              <-- (You are here) Master directory & reading guides
 ├── architecture/
 │   ├── SYSTEM_ARCHITECTURE.md            <-- Verified system diagrams, layers, lifecycle & dependencies
+│   ├── ENGINEERING_STANDARDS.md          <-- Strict TypeScript, Next.js patterns, 4-state UI & clean code
+│   ├── DEPLOYMENT_INSTRUCTIONS.md        <-- Vercel deployment, Supabase migrations & operations runbook
+│   ├── TECHNICAL_DECISION_RECORDS.md     <-- TDR-001 through TDR-007 architectural decisions
 │   ├── FILE_INVENTORY.md                 <-- Granular inventory of 88+ application source files
 │   ├── USER_JOURNEY.md                   <-- 17-step end-to-end trace with exact runtime call chains
 │   ├── RESOURCE_ENGINE_DEEP_DIVE.md      <-- Mathematical models, scoring formulas, pipelines & fallbacks
@@ -82,6 +85,9 @@ If you want to evaluate code quality, resilience, test coverage, and security po
 | :--- | :--- | :--- |
 | **[PROJECT_FROM_ZERO.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/learning/PROJECT_FROM_ZERO.md)** | Beginners, Onboarding | Real problem, stack justification, code-linked concepts. |
 | **[SYSTEM_ARCHITECTURE.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/SYSTEM_ARCHITECTURE.md)** | Architects, Interviewers | 5 Mermaid diagrams (A-E), server/client boundaries. |
+| **[ENGINEERING_STANDARDS.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/ENGINEERING_STANDARDS.md)** | All Engineers | Strict TypeScript, Next.js App Router, 4-state UI & security. |
+| **[DEPLOYMENT_INSTRUCTIONS.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/DEPLOYMENT_INSTRUCTIONS.md)** | DevOps & Leads | Vercel setup, Supabase migrations, verification & rollbacks. |
+| **[TECHNICAL_DECISION_RECORDS.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/TECHNICAL_DECISION_RECORDS.md)** | Architects & Reviewers | Formal TDR-001 through TDR-007 architectural decisions. |
 | **[FILE_INVENTORY.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/FILE_INVENTORY.md)** | Maintainers, Reviewers | 88+ application source files categorized by subsystem. |
 | **[USER_JOURNEY.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/USER_JOURNEY.md)** | Full-Stack Devs | 17 concrete user steps with component-to-DB call chains. |
 | **[RESOURCE_ENGINE_DEEP_DIVE.md](file:///c:/Users/Abhinav/Documents/Projects/Pencill%20Find%20Your%20Path/docs/architecture/RESOURCE_ENGINE_DEEP_DIVE.md)** | AI/ML & Search Engs | V2 engine architecture, exact ranking formulas & failure modes. |

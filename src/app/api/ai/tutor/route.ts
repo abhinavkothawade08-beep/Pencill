@@ -28,6 +28,7 @@ ${payload.message}
 `;
 
     let replyText = '';
+    let isFallback = false;
     try {
       replyText = await callGemini(contextHeader, systemPrompt, {
         temperature: payload.personality === 'socratic_tutor' ? 0.4 : 0.2,
@@ -36,6 +37,7 @@ ${payload.message}
     } catch (err) {
       console.warn('[PersonalAITutor API] Gemini call fell back to deterministic response:', (err as any)?.message);
       replyText = generateFallbackResponse(payload.personality, payload.lessonTitle, payload.message);
+      isFallback = true;
     }
 
     // Dynamic suggested next queries
@@ -57,6 +59,7 @@ ${payload.message}
       response: replyText,
       personality: payload.personality,
       suggestions,
+      isFallback,
     });
   } catch (err: any) {
     console.error('[PersonalAITutor API Error]', err);

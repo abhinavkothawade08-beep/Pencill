@@ -1,4 +1,4 @@
-export type ResourceType = 'video' | 'monograph' | 'practice' | 'quiz' | 'paper' | 'formulae';
+export type ResourceType = 'video' | 'monograph' | 'practice' | 'quiz' | 'paper' | 'formulae' | 'reading' | 'notes';
 
 export interface Resource {
   id: string;
@@ -18,6 +18,9 @@ export interface Resource {
   verificationStatus?: string;
   selectionExplanation?: string;
   coverageAssessment?: string;
+  isUserCreated?: boolean;
+  isCustom?: boolean;
+  isPlaylist?: boolean;
 }
 
 export interface VideoChapter {
@@ -78,6 +81,8 @@ export interface Lesson extends Resource {
   thumbnailUrl?: string;
   studyNotes?: LessonNoteResource[];
   keyConcepts?: string[];
+  isPlaylist?: boolean;
+  playlistItemCount?: number;
 }
 
 export interface Module {
@@ -93,6 +98,12 @@ export interface Module {
   objective?: string;
   checkpointQuestions?: QuizQuestion[];
   flashcards?: any[];
+  resources?: Lesson[] | any[];
+  subtopics?: any[];
+  primaryPlaylist?: any;
+  syllabusMatrix?: any;
+  coverageStatus?: string;
+  unmetObjectives?: string[];
 }
 
 export interface LearningPath {
@@ -119,6 +130,7 @@ export interface LearningPath {
   authorUserId?: string | null;
   isPublished?: boolean;
   deletedAt?: string | null;
+  updatedAt?: string;
 }
 
 export interface QuizOption {

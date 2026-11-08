@@ -11,7 +11,13 @@ export function validateCurriculumCoverage(
   diagnostics: string[] = []
 ): CurriculumCoverageAudit {
   const moduleAudits = assignments.map((mod) => {
-    const hasVideo = mod.videos.length > 0;
+    const hasVideo =
+      (mod.videos && mod.videos.length > 0) ||
+      Boolean(
+        mod.primaryPlaylist &&
+          (mod.primaryPlaylist.itemCount > 0 ||
+            (mod.primaryPlaylist.items && mod.primaryPlaylist.items.length > 0))
+      );
     const hasReading = mod.readings.length > 0;
     const hasStudyNotes = mod.studyNotes.length > 0;
     const hasQuiz = Boolean(mod.quiz && mod.quiz.questions.length > 0);

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useSidebar } from "@/context/SidebarContext";
 import GlobalSearchModal from "./GlobalSearchModal";
 import NotificationPopover from "./NotificationPopover";
 import { storageAdapter } from "@/lib/storage/storageAdapter";
@@ -16,6 +17,7 @@ interface HeaderProps {
 export default function Header({ onSearch }: HeaderProps) {
   const router = useRouter();
   const { user, profile, signOut } = useAuth();
+  const { isCollapsed, toggleCollapse, toggleMobileDrawer } = useSidebar();
   const [searchVal, setSearchVal] = useState("");
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -60,26 +62,57 @@ export default function Header({ onSearch }: HeaderProps) {
 
   return (
     <>
-      <header className="fixed top-0 left-0 md:left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-40 px-gutter flex items-center justify-between border-b border-surface-container-high/40">
-        {/* Search Bar - triggers search modal */}
-        <div className="flex-1 max-w-md">
-          <div
-            onClick={() => setIsSearchModalOpen(true)}
-            className="relative flex items-center cursor-pointer group"
+      <header
+        className={`fixed top-0 left-0 ${
+          isCollapsed ? "md:left-20" : "md:left-64"
+        } right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] z-30 px-gutter flex items-center justify-between border-b border-surface-container-high/40 transition-[left] duration-200 ease-in-out motion-reduce:transition-none`}
+      >
+        {/* Left Section: Mobile Menu + Desktop Sidebar Toggle + Search */}
+        <div className="flex items-center gap-2 flex-1 max-w-lg min-w-0">
+          {/* Mobile Hamburger Button */}
+          <button
+            type="button"
+            onClick={toggleMobileDrawer}
+            className="md:hidden p-2 -ml-1 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
+            aria-label="Open navigation menu"
+            title="Open navigation menu"
           >
-            <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none group-hover:text-primary transition-colors">
-              search
+            <span className="material-symbols-outlined text-2xl">menu</span>
+          </button>
+
+          {/* Desktop Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            className="hidden md:flex p-2 -ml-1 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0"
+            aria-label={isCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
+            title={isCollapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"}
+          >
+            <span className="material-symbols-outlined text-xl">
+              {isCollapsed ? "menu_open" : "menu"}
             </span>
-            <input
-              type="text"
-              readOnly
-              value={searchVal}
-              placeholder="Search topics, courses, notes... (Ctrl+K)"
-              className="w-full pl-9 pr-14 py-2 bg-surface-container-lowest hover:bg-white rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-container transition-all"
-            />
-            <kbd className="absolute right-3 hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-on-surface-variant bg-surface-container rounded border border-outline-variant/30">
-              ⌘K
-            </kbd>
+          </button>
+
+          {/* Search Bar - triggers search modal */}
+          <div className="flex-1 max-w-md min-w-0">
+            <div
+              onClick={() => setIsSearchModalOpen(true)}
+              className="relative flex items-center cursor-pointer group"
+            >
+              <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg pointer-events-none group-hover:text-primary transition-colors">
+                search
+              </span>
+              <input
+                type="text"
+                readOnly
+                value={searchVal}
+                placeholder="Search topics, courses, notes... (Ctrl+K)"
+                className="w-full pl-9 pr-14 py-2 bg-surface-container-lowest hover:bg-white rounded-lg border-0 shadow-[0_1px_3px_rgba(0,0,0,0.04)] font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-container transition-all"
+              />
+              <kbd className="absolute right-3 hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-on-surface-variant bg-surface-container rounded border border-outline-variant/30">
+                ⌘K
+              </kbd>
+            </div>
           </div>
         </div>
 

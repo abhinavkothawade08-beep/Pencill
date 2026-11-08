@@ -113,14 +113,6 @@ function ExploreContent() {
     const course = courses.find((c) => c.id === pathId);
     if (!course) return;
 
-    if (false && !user) {
-      setToastState({
-        open: true,
-        message: "Please sign in to save learning paths to your shelf.",
-      });
-      return;
-    }
-
     if (isBookmarked) {
       let newId: string | null = null;
       if (user?.id) {

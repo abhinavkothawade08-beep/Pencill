@@ -165,15 +165,17 @@ export function analyzeTopicComplexity(
     (t.includes('lora') && !t.includes('fine'));
 
   if (isNarrowFocused) {
+    const isSingleModule = (durationHours && durationHours <= 10) || level === 'introductory';
     return {
       complexityTier: 'narrow_focused',
-      recommendedModuleRange: [2, 3],
+      recommendedModuleRange: isSingleModule ? [1, 1] : [1, 2],
       domain,
-      detectedSubtopics: [
-        'Core Mechanics, Architecture & Foundational Principles',
-        'Applied Implementation, Idiomatic Patterns & Edge Cases',
-        'Advanced Optimizations, Diagnostics & Production Synthesis',
-      ],
+      detectedSubtopics: isSingleModule
+        ? ['Core Principles, Implementation, Invariants & Practical Synthesis']
+        : [
+            'Core Mechanics, Architecture & Foundational Principles',
+            'Advanced Optimizations, Edge Cases & Practical Synthesis',
+          ],
       prerequisites: ['Foundational Syntax & Execution Environment'],
       practicalFocus: ['Hands-on Implementation', 'Edge Case Diagnostics', 'Pattern Benchmarking'],
     };
@@ -390,7 +392,7 @@ export function validateAndSanitizeCurriculum(
     deduplicatedRawModules.push(m);
   }
 
-  const effectiveModules = deduplicatedRawModules.length >= 2 ? deduplicatedRawModules.slice(0, 8) : rawModules.slice(0, 8);
+  const effectiveModules = deduplicatedRawModules.length >= 1 ? deduplicatedRawModules.slice(0, 12) : rawModules.slice(0, 12);
   const sanitizedModules: GeneratedModuleOutline[] = [];
 
   effectiveModules.forEach((m, idx) => {
@@ -472,7 +474,7 @@ export function validateAndSanitizeCurriculum(
   const totalCalculatedHours = sanitizedModules.reduce((acc, m) => acc + (m.estimatedHours || 0), 0);
   const durationHours = typeof data.durationHours === 'number' && data.durationHours > 0
     ? data.durationHours
-    : Math.max(12, totalCalculatedHours);
+    : Math.max(1, totalCalculatedHours);
 
   const weeklyCheckpoint = data.weeklyCheckpoint && typeof data.weeklyCheckpoint === 'object'
     ? {
@@ -500,7 +502,7 @@ export function validateAndSanitizeCurriculum(
   };
 
   return {
-    valid: sanitizedModules.length >= 2,
+    valid: sanitizedModules.length >= 1,
     curriculum,
     warnings,
   };
@@ -941,35 +943,58 @@ export function createTopicAdaptiveCurriculum(
       },
     ];
   } else if (complexity.complexityTier === 'narrow_focused') {
-    // 2-3 Cohesive Modules for Narrow / Focused Single-Concept Topics
-    moduleTemplates = [
-      {
-        title: `${cleanTopic}: Core Mechanics, Syntax & Internal Architecture`,
-        objective: `Analyze foundational primitives, syntactic rules, and execution mechanics of ${cleanTopic}.`,
-        hoursWeight: 0.5,
-        videoTitle: `${cleanTopic} Complete Technical Deep Dive`,
-        videoConcepts: [`${cleanTopic} Foundations`, 'Internal Mechanics', 'Syntax Semantics'],
-        monographTitle: `${cleanTopic}: Formal Architecture & Specification Reference`,
-        monographConcepts: ['Formal Mechanics', 'Memory & State Model', 'Axiomatic Invariants'],
-        practiceTitle: `${cleanTopic}: Hands-on Implementation Drills`,
-        practiceConcepts: ['Core Drills', 'Syntax Exercises'],
-        quizTitle: `${cleanTopic} Diagnostic Checkpoint`,
-        quizConcepts: ['Conceptual Clarity', 'Syntax Rules'],
-      },
-      {
-        title: `${cleanTopic}: Applied Implementation, Idiomatic Patterns & Production Edge Cases`,
-        objective: `Implement idiomatic production patterns, resolve edge cases, and benchmark performance in ${cleanTopic}.`,
-        hoursWeight: 0.5,
-        videoTitle: `${cleanTopic} Practical Implementation, Common Mistakes & Best Practices`,
-        videoConcepts: ['Idiomatic Patterns', 'Edge Case Handling', 'Performance Optimization'],
-        monographTitle: `${cleanTopic}: Design Patterns, Anti-Patterns & Best Practices`,
-        monographConcepts: ['Design Patterns', 'Defensive Engineering', 'Benchmarking'],
-        practiceTitle: `${cleanTopic}: Applied Problem Set & Production Refactoring`,
-        practiceConcepts: ['Refactoring Drills', 'Edge Case Tests'],
-        quizTitle: `${cleanTopic} Mastery Assessment`,
-        quizConcepts: ['Pattern Identification', 'Error Prevention'],
-      },
-    ];
+    const isSingleModule =
+      complexity.recommendedModuleRange[1] === 1 ||
+      weeklyHours <= 3 ||
+      options?.depthLevel === 'introductory';
+
+    if (isSingleModule) {
+      moduleTemplates = [
+        {
+          title: `${cleanTopic}: Core Principles, Implementation & Applied Mastery`,
+          objective: `Analyze foundational primitives, syntactic rules, invariants, and production implementation of ${cleanTopic}.`,
+          hoursWeight: 1.0,
+          videoTitle: `${cleanTopic} Complete Technical Deep Dive & Tutorial`,
+          videoConcepts: [`${cleanTopic} Foundations`, 'Internal Mechanics', 'Syntax Semantics', 'Edge Case Handling'],
+          monographTitle: `${cleanTopic}: Formal Architecture & Specification Reference`,
+          monographConcepts: ['Formal Mechanics', 'Memory & State Model', 'Axiomatic Invariants', 'Benchmarking'],
+          practiceTitle: `${cleanTopic}: Hands-on Implementation & Problem Set`,
+          practiceConcepts: ['Core Drills', 'Syntax Exercises', 'Refactoring Drills'],
+          quizTitle: `${cleanTopic} Diagnostic Mastery Assessment`,
+          quizConcepts: ['Conceptual Clarity', 'Syntax Rules', 'Edge Case Prevention'],
+        },
+      ];
+    } else {
+      // 2 Cohesive Modules for Narrow / Focused Single-Concept Topics
+      moduleTemplates = [
+        {
+          title: `${cleanTopic}: Core Mechanics, Syntax & Internal Architecture`,
+          objective: `Analyze foundational primitives, syntactic rules, and execution mechanics of ${cleanTopic}.`,
+          hoursWeight: 0.5,
+          videoTitle: `${cleanTopic} Complete Technical Deep Dive`,
+          videoConcepts: [`${cleanTopic} Foundations`, 'Internal Mechanics', 'Syntax Semantics'],
+          monographTitle: `${cleanTopic}: Formal Architecture & Specification Reference`,
+          monographConcepts: ['Formal Mechanics', 'Memory & State Model', 'Axiomatic Invariants'],
+          practiceTitle: `${cleanTopic}: Hands-on Implementation Drills`,
+          practiceConcepts: ['Core Drills', 'Syntax Exercises'],
+          quizTitle: `${cleanTopic} Diagnostic Checkpoint`,
+          quizConcepts: ['Conceptual Clarity', 'Syntax Rules'],
+        },
+        {
+          title: `${cleanTopic}: Applied Implementation, Idiomatic Patterns & Production Edge Cases`,
+          objective: `Implement idiomatic production patterns, resolve edge cases, and benchmark performance in ${cleanTopic}.`,
+          hoursWeight: 0.5,
+          videoTitle: `${cleanTopic} Practical Implementation, Common Mistakes & Best Practices`,
+          videoConcepts: ['Idiomatic Patterns', 'Edge Case Handling', 'Performance Optimization'],
+          monographTitle: `${cleanTopic}: Design Patterns, Anti-Patterns & Best Practices`,
+          monographConcepts: ['Design Patterns', 'Defensive Engineering', 'Benchmarking'],
+          practiceTitle: `${cleanTopic}: Applied Problem Set & Production Refactoring`,
+          practiceConcepts: ['Refactoring Drills', 'Edge Case Tests'],
+          quizTitle: `${cleanTopic} Mastery Assessment`,
+          quizConcepts: ['Pattern Identification', 'Error Prevention'],
+        },
+      ];
+    }
   } else {
     // =========================================================================
     // Generic Dynamic Topic Adapter: Generates 5 to 7 modules based on topic keywords

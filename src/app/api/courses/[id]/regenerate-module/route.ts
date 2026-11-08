@@ -40,7 +40,7 @@ export async function POST(
 
     const targetMod = modules[modIndex];
 
-    // Collect all video URLs from other modules to enforce zero cross-module duplicate videos
+    // Collect all video URLs from other modules and their playlists to enforce zero cross-module duplicate videos
     const otherVideoUrls: string[] = [];
     modules.forEach((m: any, idx: number) => {
       if (idx !== modIndex) {
@@ -49,6 +49,12 @@ export async function POST(
             otherVideoUrls.push(l.sourceUrl);
           }
         });
+        if (m.primaryPlaylist?.items) {
+          m.primaryPlaylist.items.forEach((item: any) => {
+            if (item.videoUrl) otherVideoUrls.push(item.videoUrl);
+            if (item.videoId) otherVideoUrls.push(item.videoId);
+          });
+        }
       }
     });
 
@@ -61,6 +67,9 @@ export async function POST(
         title: targetMod.title,
         objective: targetMod.objective,
         moduleNumber: targetMod.moduleNumber || modIndex + 1,
+        primaryPlaylist: targetMod.primaryPlaylist,
+        subtopics: targetMod.subtopics,
+        existingLessons: targetMod.lessons || targetMod.resources || [],
       },
       otherVideoUrls
     );
@@ -72,6 +81,9 @@ export async function POST(
       totalResources: regenerated.lessons.length,
       checkpointQuestions: regenerated.checkpointQuestions,
       flashcards: regenerated.flashcards,
+      primaryPlaylist: targetMod.primaryPlaylist,
+      subtopics: targetMod.subtopics,
+      syllabusMatrix: targetMod.syllabusMatrix,
     };
 
     const updatedModules = [...modules];

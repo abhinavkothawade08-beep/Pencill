@@ -618,14 +618,40 @@ class StorageAdapter {
     await this.idbPut('appState', { key, value });
   }
 
+  async getSidebarCollapsed(): Promise<boolean> {
+    const key = 'sidebar_collapsed';
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem(`pencill_sidebar_${this.activeUserScope}`);
+        if (local !== null) return local === 'true';
+      } catch (e) {
+        // localStorage not available or quota error
+      }
+    }
+    const state = await this.getAppState<boolean>(key);
+    return state === true;
+  }
+
+  async saveSidebarCollapsed(collapsed: boolean): Promise<void> {
+    const key = 'sidebar_collapsed';
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`pencill_sidebar_${this.activeUserScope}`, String(collapsed));
+      } catch (e) {
+        // localStorage not available or quota error
+      }
+    }
+    await this.saveAppState(key, collapsed);
+  }
+
   // --------------------------------------------------------------------------
   // Generated Reading Materials (Offline / In-Memory Fallback)
   // --------------------------------------------------------------------------
   async saveReadingMaterial(material: any): Promise<void> {
     if (!material?.id) return;
-    this.memoryStore.set(`reading:${material.id}`, material);
+    this.memoryStore.set(`${this.activeUserScope}:reading:${material.id}`, material);
     if (material.lessonId) {
-      this.memoryStore.set(`reading:lesson:${material.lessonId}`, material);
+      this.memoryStore.set(`${this.activeUserScope}:reading:lesson:${material.lessonId}`, material);
     }
     await this.idbPut('appState', { key: `reading_${material.id}`, value: material });
     if (material.lessonId) {
@@ -635,7 +661,7 @@ class StorageAdapter {
 
   async getReadingMaterialById(id: string): Promise<any | null> {
     if (!id) return null;
-    const mem = this.memoryStore.get(`reading:${id}`);
+    const mem = this.memoryStore.get(`${this.activeUserScope}:reading:${id}`);
     if (mem) return mem;
     const wrapped = await this.idbGet<{ key: string; value: any }>('appState', `reading_${id}`);
     return wrapped ? wrapped.value : null;
@@ -643,7 +669,7 @@ class StorageAdapter {
 
   async getReadingMaterialByLesson(lessonId: string): Promise<any | null> {
     if (!lessonId) return null;
-    const mem = this.memoryStore.get(`reading:lesson:${lessonId}`);
+    const mem = this.memoryStore.get(`${this.activeUserScope}:reading:lesson:${lessonId}`);
     if (mem) return mem;
     const wrapped = await this.idbGet<{ key: string; value: any }>('appState', `reading_lesson_${lessonId}`);
     return wrapped ? wrapped.value : null;

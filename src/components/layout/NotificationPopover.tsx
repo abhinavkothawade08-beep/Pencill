@@ -27,10 +27,11 @@ export default function NotificationPopover({
   }, [onUnreadChange]);
 
   useEffect(() => {
+    if (!isOpen) return;
     reloadNotifications();
     const interval = setInterval(reloadNotifications, 5000);
     return () => clearInterval(interval);
-  }, [reloadNotifications]);
+  }, [isOpen, reloadNotifications]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

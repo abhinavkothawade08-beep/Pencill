@@ -102,6 +102,45 @@ export async function persistEngineCourse(
       });
     }
 
+    // 1.5 Primary Curated Playlist Lesson (if verified series exists)
+    if (assign.primaryPlaylist) {
+      lessonOrderIndex++;
+      totalLessonsCounter++;
+      const lesId = `les-${modId}-playlist`;
+
+      lessonsForModule.push({
+        id: lesId,
+        title: `Curated Lecture Series: ${assign.primaryPlaylist.title}`,
+        type: 'video',
+        durationMinutes: assign.primaryPlaylist.totalDurationMinutes || 120,
+        sourceName: assign.primaryPlaylist.channelName,
+        sourceUrl: assign.primaryPlaylist.playlistUrl,
+        orderIndex: lessonOrderIndex,
+        summaryPoints: [
+          `Complete ${assign.primaryPlaylist.itemCount}-video educational series covering ${assign.primaryPlaylist.topicsCovered.join(', ')}.`,
+        ],
+        thumbnailUrl: assign.primaryPlaylist.thumbnailUrl,
+        discoverySource: 'verified_channel',
+        verificationStatus: assign.primaryPlaylist.coverageStatus === 'VERIFIED_COMPLETE' ? 'VERIFIED' : 'OPEN_DISCOVERY',
+        selectionExplanation: `Recommended as primary learning sequence with ${assign.primaryPlaylist.itemCount} verified lectures.`,
+        isPlaylist: true,
+        playlistItemCount: assign.primaryPlaylist.itemCount,
+      });
+
+      discoveredResourcesToPersist.push({
+        id: assign.primaryPlaylist.id,
+        title: assign.primaryPlaylist.title,
+        type: 'video',
+        sourceName: assign.primaryPlaylist.channelName,
+        sourceUrl: assign.primaryPlaylist.playlistUrl,
+        durationMinutes: assign.primaryPlaylist.totalDurationMinutes || 120,
+        description: `Curated ${assign.primaryPlaylist.itemCount}-lecture course playlist.`,
+        externalId: assign.primaryPlaylist.id,
+        qualityScore: assign.primaryPlaylist.relevanceScore || 95,
+        discoverySource: 'verified_channel',
+      });
+    }
+
     // 2. Video Lessons
     for (const v of assign.videos) {
       lessonOrderIndex++;
@@ -244,8 +283,19 @@ export async function persistEngineCourse(
       objective: assign.moduleTitle,
       checkpointQuestions: moduleQuizQuestions,
       lessons: lessonsForModule,
+      primaryPlaylist: assign.primaryPlaylist,
+      syllabusMatrix: assign.syllabusMatrix,
+      coverageStatus: assign.syllabusMatrix ? (assign.syllabusMatrix.overallCoveragePercent >= 75 ? 'Fully Covered' : 'Partially Covered') : 'Verified',
+      unmetObjectives: assign.unmetObjectives,
     });
   }
+
+  let totalCalculatedMinutes = 0;
+  for (const m of modulesForPath) {
+    const modMinutes = m.lessons?.reduce((acc, l) => acc + (l.durationMinutes || 15), 0) || 0;
+    totalCalculatedMinutes += modMinutes;
+  }
+  const reconciledDurationHours = Math.max(1, Math.round(totalCalculatedMinutes / 60));
 
   const fullPathInput: CreateFullLearningPathInput = {
     id: courseId,
@@ -253,7 +303,7 @@ export async function persistEngineCourse(
     description: plan.description,
     domain: plan.domain,
     level: plan.level,
-    durationHours: plan.totalEstimatedHours,
+    durationHours: reconciledDurationHours,
     moduleCount: modulesForPath.length,
     tags: [plan.domain, input.topic, plan.level],
     syllabusNote: plan.pedagogicalRationale,

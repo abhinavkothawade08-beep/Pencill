@@ -34,10 +34,20 @@ export async function runStage3Synthesis(
     !primaryTopicLower.includes("quantum") &&
     !primaryTopicLower.includes("statistical");
 
+  const isNarrow =
+    primaryTopicLower.includes("binary search") ||
+    primaryTopicLower.includes("decorator") ||
+    primaryTopicLower.includes("generator") ||
+    primaryTopicLower.includes("list comprehension") ||
+    primaryTopicLower.includes("regex") ||
+    primaryTopicLower.includes("git rebase") ||
+    primaryTopicLower.includes("recursion");
+
   const isPython =
-    primaryTopicLower.includes("python") ||
-    primaryTopicLower.includes("py") ||
-    primaryTopicLower.includes("loop");
+    !isNarrow &&
+    (primaryTopicLower.includes("python") ||
+      primaryTopicLower.includes("py") ||
+      primaryTopicLower.includes("loop"));
 
   const isDifferentialEquations =
     primaryTopicLower.includes("differential equation") ||

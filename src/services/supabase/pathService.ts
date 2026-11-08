@@ -7,6 +7,7 @@ import {
   recordDeletedItem,
 } from "./deletionRegistry";
 import { unenrollUserFromCourse } from "./enrollmentService";
+import { sanitizeModuleLessonsAgainstPlaylist } from "@/lib/resource-engine/playlist-deduplication";
 function extractYouTubeVideoId(url?: string | null): string | null {
   if (!url) return null;
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/i);
@@ -50,6 +51,10 @@ export interface CreateFullLearningPathInput {
     objective?: string;
     checkpointQuestions?: import('@/types').QuizQuestion[] | any[];
     flashcards?: any[];
+    primaryPlaylist?: any;
+    syllabusMatrix?: any;
+    coverageStatus?: string;
+    unmetObjectives?: string[];
     lessons: Array<{
       id?: string;
       title: string;
@@ -84,6 +89,8 @@ export interface CreateFullLearningPathInput {
       verificationStatus?: string;
       selectionExplanation?: string;
       coverageAssessment?: string;
+    isPlaylist?: boolean;
+    playlistItemCount?: number;
     }>;
   }>;
 }
@@ -204,11 +211,23 @@ export async function getLearningPaths(options?: {
 export const inMemoryPathCache = new Map<string, LearningPath>();
 
 /**
+ * Saves a learning path into in-memory cache and storage adapter.
+ */
+export async function saveLearningPath(path: LearningPath): Promise<LearningPath> {
+  inMemoryPathCache.set(path.id, path);
+  try {
+    const { storageAdapter } = await import("@/lib/storage/storageAdapter");
+    await storageAdapter.savePath(path);
+  } catch {}
+  return path;
+}
+
+/**
  * Detects and repairs duplicate video recommendations across modules in existing courses.
  * Preserves enrollments, progress, lesson IDs, and user notes completely intact.
  */
 export function repairCourseVideoDuplicates(course: LearningPath): { path: LearningPath; repaired: boolean } {
-  if (!course || !course.modules || course.modules.length <= 1) {
+  if (!course || !course.modules || course.modules.length === 0) {
     return { path: course, repaired: false };
   }
 
@@ -218,6 +237,29 @@ export function repairCourseVideoDuplicates(course: LearningPath): { path: Learn
 
   for (let mIdx = 0; mIdx < course.modules.length; mIdx++) {
     const mod = course.modules[mIdx];
+
+    // 0. Sanitize redundant video lessons if module has a primary playlist
+    if ((mod as any).primaryPlaylist) {
+      const { lessons: sanitized, removedCount } = sanitizeModuleLessonsAgainstPlaylist(mod);
+      if (removedCount > 0) {
+        mod.lessons = sanitized;
+        repaired = true;
+      }
+
+      const plItems = (mod as any).primaryPlaylist.items || [];
+      for (const item of plItems) {
+        const vId = extractYouTubeVideoId(item.videoUrl || item.videoId);
+        if (vId && !seenVideos.has(vId)) {
+          seenVideos.set(vId, {
+            moduleIdx: mIdx,
+            lessonIdx: -1,
+            sourceUrl: item.videoUrl || `https://www.youtube.com/watch?v=${vId}`,
+            startSeconds: null,
+          });
+        }
+      }
+    }
+
     if (!mod.lessons) continue;
 
     for (let lIdx = 0; lIdx < mod.lessons.length; lIdx++) {
@@ -371,6 +413,11 @@ export async function getLearningPathById(id: string): Promise<LearningPath | nu
       status: m.status as Module["status"],
       totalResources: m.total_resources,
       completedResources: 0,
+      primaryPlaylist: (m as any).primaryPlaylist || (m as any).primary_playlist,
+      syllabusMatrix: (m as any).syllabusMatrix || (m as any).syllabus_matrix,
+      coverageStatus: (m as any).coverageStatus || (m as any).coverage_status,
+      unmetObjectives: (m as any).unmetObjectives || (m as any).unmet_objectives,
+      subtopics: (m as any).subtopics,
       lessons: (m.lessons || [])
         .sort((la, lb) => la.order_index - lb.order_index)
         .map((l) => ({
@@ -535,6 +582,11 @@ export async function createFullLearningPath(
       objective: m.objective,
       checkpointQuestions: m.checkpointQuestions || [],
       flashcards: m.flashcards || [],
+      primaryPlaylist: (m as any).primaryPlaylist,
+      syllabusMatrix: (m as any).syllabusMatrix,
+      coverageStatus: (m as any).coverageStatus,
+      unmetObjectives: (m as any).unmetObjectives,
+      subtopics: (m as any).subtopics,
       lessons: m.lessons.map((l, lIdx) => ({
         id: l.id || `les-${m.id || `mod-${pathId}-${mIdx + 1}`}-${lIdx + 1}`,
         moduleId: m.id || `mod-${pathId}-${mIdx + 1}`,
@@ -1234,4 +1286,257 @@ export async function batchDeleteLearningPaths(
     };
   }
 }
+
+export interface UpdateFullLearningPathOptions {
+  userId?: string | null;
+  accessToken?: string;
+  isAdmin?: boolean;
+}
+
+export type UpdateFullLearningPathResult =
+  | {
+      success: true;
+      course: LearningPath;
+      status: 200;
+    }
+  | {
+      success: false;
+      error: string;
+      status: number;
+      course?: never;
+    };
+
+/**
+ * Updates an existing learning path, reconciling course metadata, modules, and lessons.
+ * Preserves completed lesson progress, bookmarks, quizzes, and enrollments intact.
+ */
+export async function updateFullLearningPath(
+  courseId: string,
+  updates: import("@/lib/api-schemas").UpdateCourseInput,
+  options?: UpdateFullLearningPathOptions
+): Promise<UpdateFullLearningPathResult> {
+  if (!courseId) {
+    return { success: false, error: "Course ID is required.", status: 400 };
+  }
+
+  // 1. Fetch current course
+  const currentCourse = await getLearningPathById(courseId);
+  if (!currentCourse) {
+    return {
+      success: false,
+      error: `Course "${courseId}" not found in catalog or storage.`,
+      status: 404,
+    };
+  }
+
+  // 2. Authorization check
+  const isAuthor = Boolean(
+    currentCourse.authorUserId &&
+      options?.userId &&
+      currentCourse.authorUserId === options.userId
+  );
+  const isAdmin = Boolean(options?.isAdmin);
+  const isSystemCurated = !currentCourse.authorUserId;
+
+  // Personal course: caller must be author, admin, or in local dev/offline
+  if (!isSystemCurated && !isAuthor && !isAdmin && options?.userId) {
+    return {
+      success: false,
+      error: "Forbidden: You do not have permission to modify this course. Only the author or a system administrator can edit it.",
+      status: 403,
+    };
+  }
+
+  // 3. Build reconciled course object
+  const updatedModules: Module[] = (updates.modules
+    ? updates.modules.map((m, mIdx) => {
+        const modId = m.id || `mod-${courseId}-${Date.now().toString(36)}-${mIdx + 1}`;
+        const lessons: Lesson[] = (m.lessons || []).map((l, lIdx) => ({
+          id: l.id || `les-${modId}-${Date.now().toString(36)}-${lIdx + 1}`,
+          moduleId: modId,
+          title: l.title,
+          type: (l.type as any) || "video",
+          durationMinutes: l.durationMinutes || 15,
+          sourceName: l.sourceName || "Curated Academic Source",
+          sourceUrl: l.sourceUrl || undefined,
+          orderIndex: l.orderIndex ?? lIdx,
+          summaryPoints: l.summaryPoints || [],
+          conceptId: l.conceptId || undefined,
+          prerequisitesNote: l.prerequisitesNote || undefined,
+          studyNotes: l.studyNotes || [],
+          verificationStatus: l.verificationStatus || "verified",
+          selectionExplanation: l.selectionExplanation || undefined,
+          isPlaylist: l.isPlaylist,
+          playlistItemCount: l.playlistItemCount,
+        }));
+
+        return {
+          id: modId,
+          pathId: courseId,
+          title: m.title,
+          moduleNumber: m.moduleNumber ?? mIdx + 1,
+          orderIndex: m.orderIndex ?? mIdx,
+          status: (m.status as any) || (mIdx === 0 ? "in_progress" : "locked"),
+          totalResources: lessons.length,
+          completedResources: 0,
+          lessons,
+          objective: m.objective || undefined,
+          checkpointQuestions: m.checkpointQuestions || [],
+          flashcards: m.flashcards || [],
+          primaryPlaylist: m.primaryPlaylist || undefined,
+          syllabusMatrix: m.syllabusMatrix || undefined,
+          coverageStatus: m.coverageStatus || undefined,
+          unmetObjectives: m.unmetObjectives || undefined,
+        };
+      })
+    : currentCourse.modules || []
+  );
+
+  // Compute duration in hours
+  let totalMinutes = 0;
+  for (const mod of updatedModules) {
+    for (const les of mod.lessons || []) {
+      totalMinutes += les.durationMinutes || 15;
+    }
+  }
+  const computedDurationHours = updates.durationHours ?? (totalMinutes > 0 ? Math.max(1, Math.round(totalMinutes / 60)) : currentCourse.durationHours);
+
+  const updatedCourse: LearningPath = {
+    ...currentCourse,
+    title: updates.title ?? currentCourse.title,
+    description: updates.description ?? currentCourse.description,
+    domain: updates.domain ?? currentCourse.domain,
+    level: (updates.level as any) ?? currentCourse.level,
+    durationHours: computedDurationHours,
+    moduleCount: updatedModules.length,
+    tags: updates.tags ?? currentCourse.tags ?? [],
+    syllabusNote: updates.syllabusNote !== undefined ? (updates.syllabusNote || undefined) : currentCourse.syllabusNote,
+    weeklyCheckpoint: updates.weeklyCheckpoint ? (updates.weeklyCheckpoint as any) : currentCourse.weeklyCheckpoint,
+    modules: updatedModules,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // 4. Update memory cache and local storage immediately
+  inMemoryPathCache.set(courseId, updatedCourse);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(`pencill_path_${courseId}`, JSON.stringify(updatedCourse));
+    } catch (e) {
+      console.warn("[updateFullLearningPath] Could not write to localStorage:", e);
+    }
+  }
+
+  try {
+    const { storageAdapter } = await import("@/lib/storage/storageAdapter");
+    await storageAdapter.savePath(updatedCourse);
+  } catch (adapterErr) {
+    console.warn("[updateFullLearningPath] StorageAdapter save notice:", adapterErr);
+  }
+
+  // 5. Update Supabase PostgreSQL database if configured
+  if (isSupabaseConfigured) {
+    const dbClient = options?.accessToken
+      ? getAuthenticatedSupabaseClient(options.accessToken)
+      : supabase;
+
+    try {
+      // a. Update learning_paths record
+      const lpPayload = {
+        title: updatedCourse.title,
+        description: updatedCourse.description,
+        domain: updatedCourse.domain,
+        level: updatedCourse.level,
+        duration_hours: updatedCourse.durationHours,
+        module_count: updatedCourse.moduleCount,
+        tags: updatedCourse.tags || [],
+        syllabus_note: updatedCourse.syllabusNote || null,
+        updated_at: updatedCourse.updatedAt,
+      };
+
+      const { error: lpError } = await dbClient
+        .from("learning_paths")
+        .update(lpPayload as any)
+        .eq("id", courseId);
+
+      if (lpError) {
+        console.warn("[updateFullLearningPath] Supabase learning_paths update notice:", lpError.message);
+      }
+
+      // b. Reconcile modules in Supabase if modules were updated
+      if (updates.modules) {
+        const { data: existingModules } = await dbClient
+          .from("modules")
+          .select("id")
+          .eq("path_id", courseId);
+
+        const existingModIds = new Set((existingModules || []).map((m) => m.id));
+        const updatedModIds = new Set(updatedModules.map((m) => m.id));
+
+        // Identify removed modules
+        const removedModIds = [...existingModIds].filter((id) => !updatedModIds.has(id));
+        if (removedModIds.length > 0) {
+          await dbClient.from("lessons").delete().in("module_id", removedModIds);
+          await dbClient.from("modules").delete().in("id", removedModIds);
+        }
+
+        // Upsert updated/new modules
+        for (const mod of updatedModules) {
+          await dbClient.from("modules").upsert({
+            id: mod.id,
+            path_id: courseId,
+            title: mod.title,
+            module_number: mod.moduleNumber,
+            order_index: mod.orderIndex,
+            status: mod.status,
+            total_resources: mod.lessons.length,
+            updated_at: new Date().toISOString(),
+          });
+
+          // Reconcile lessons for this module
+          const { data: existingLessons } = await dbClient
+            .from("lessons")
+            .select("id")
+            .eq("module_id", mod.id);
+
+          const existingLessonIds = new Set((existingLessons || []).map((l) => l.id));
+          const updatedLessonIds = new Set(mod.lessons.map((l) => l.id));
+
+          // Removed lessons in this module
+          const removedLessonIds = [...existingLessonIds].filter((id) => !updatedLessonIds.has(id));
+          if (removedLessonIds.length > 0) {
+            await dbClient.from("lessons").delete().in("id", removedLessonIds);
+          }
+
+          // Upsert updated/new lessons
+          for (const les of mod.lessons) {
+            await dbClient.from("lessons").upsert({
+              id: les.id,
+              module_id: mod.id,
+              title: les.title,
+              type: les.type,
+              duration_minutes: les.durationMinutes || 15,
+              source_name: les.sourceName || "Curated Academic Source",
+              source_url: les.sourceUrl || null,
+              order_index: les.orderIndex,
+              summary_points: les.summaryPoints || [],
+              study_notes: (les.studyNotes as any) || [],
+              concept_id: les.conceptId || null,
+              prerequisites_note: les.prerequisitesNote || null,
+              updated_at: new Date().toISOString(),
+            });
+          }
+        }
+      }
+    } catch (dbErr: any) {
+      console.warn("[updateFullLearningPath] Supabase mutation error, falling back to local persistence:", dbErr.message);
+    }
+  }
+
+  return {
+    success: true,
+    course: updatedCourse,
+    status: 200,
+  };
+}
+
 

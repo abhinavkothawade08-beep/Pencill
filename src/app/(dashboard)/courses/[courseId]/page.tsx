@@ -23,6 +23,13 @@ import Toast from "@/components/ui/Toast";
 import { useAuth } from "@/context/AuthContext";
 import StudyScheduleModal from "@/components/schedule/StudyScheduleModal";
 import PersonalAITutor from "@/components/tutor/PersonalAITutor";
+import PlaylistCard from "@/components/cards/PlaylistCard";
+import SyllabusCoverageView from "@/components/course/SyllabusCoverageView";
+import { sanitizeModuleLessonsAgainstPlaylist } from "@/lib/resource-engine/playlist-deduplication";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import EditStudyNotesModal from "@/components/course/EditStudyNotesModal";
+import AddResourceModal from "@/components/course/AddResourceModal";
+import { Lesson } from "@/types";
 
 export default function CourseDetailsPage() {
   const params = useParams();
@@ -63,6 +70,7 @@ export default function CourseDetailsPage() {
 
   // Accordion state for modules
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const [openMatrixModules, setOpenMatrixModules] = useState<Record<string, boolean>>({});
 
   // Curriculum Customization & Module Regeneration State
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -78,6 +86,72 @@ export default function CourseDetailsPage() {
   const [newTopicObjective, setNewTopicObjective] = useState("");
   const [newTopicHours, setNewTopicHours] = useState(3);
   const [autoSynthesizeTopic, setAutoSynthesizeTopic] = useState(true);
+
+  // Dedicated Course Editing System States
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [initialCourseSnapshot, setInitialCourseSnapshot] = useState<any | null>(null);
+
+  // Specialized Sub-Modals for Lesson & Resource Editing
+  const [activeNotesLesson, setActiveNotesLesson] = useState<Lesson | null>(null);
+  const [activeAddResourceModule, setActiveAddResourceModule] = useState<{ id: string; title: string } | null>(null);
+
+  // Accessible Confirmation Barrier Dialog
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    variant?: "danger" | "warning" | "info";
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
+  // Warn user about unsaved changes before leaving / reloading
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes in your course syllabus. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // Handle repair module success callback
+  const handleModuleRepairSuccess = (moduleId: string, updatedMatrix: any, addedLessons: any[]) => {
+    if (!course?.modules) return;
+    const newModules = course.modules.map((m: any) => {
+      if (m.id === moduleId) {
+        const mergedLessons = [...(m.lessons || m.resources || []), ...(addedLessons || [])];
+        return {
+          ...m,
+          lessons: mergedLessons,
+          resources: mergedLessons,
+          totalResources: mergedLessons.length,
+          syllabusMatrix: updatedMatrix,
+          coverageStatus: updatedMatrix.overallCoveragePercent >= 75 ? "Fully Covered" : "Partially Covered",
+        };
+      }
+      return m;
+    });
+
+    const updatedCourse = { ...course, modules: newModules };
+    setCourse(updatedCourse);
+    try {
+      storageAdapter.savePath(updatedCourse);
+    } catch {}
+    setToastIcon("check_circle");
+    setToastMessage("Syllabus gaps repaired with fresh verified academic resources!");
+    setIsToastOpen(true);
+  };
 
   // Regenerate an individual module
   const handleRegenerateModule = async (moduleId: string) => {
@@ -246,6 +320,417 @@ export default function CourseDetailsPage() {
     }
   };
 
+  // --------------------------------------------------------------------------
+  // Course Editing System Handlers
+  // --------------------------------------------------------------------------
+  const handleToggleEditMode = () => {
+    if (isEditMode) {
+      handleCancelEditMode();
+    } else {
+      setIsEditMode(true);
+      // Open all modules automatically in edit mode for ease of curation
+      if (course?.modules) {
+        const allOpen: Record<string, boolean> = {};
+        course.modules.forEach((m: any) => {
+          allOpen[m.id] = true;
+        });
+        setOpenModules(allOpen);
+      }
+    }
+  };
+
+  const handleCancelEditMode = () => {
+    if (isDirty) {
+      setConfirmDialog({
+        isOpen: true,
+        title: "Discard Unsaved Edits?",
+        message: "You have unsaved changes in this course syllabus. If you cancel, your changes will be discarded.",
+        confirmLabel: "Discard Edits",
+        variant: "warning",
+        onConfirm: () => {
+          if (initialCourseSnapshot) {
+            setCourse(JSON.parse(JSON.stringify(initialCourseSnapshot)));
+          }
+          setIsDirty(false);
+          setIsEditMode(false);
+          setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
+    } else {
+      setIsEditMode(false);
+    }
+  };
+
+  const handleRestoreOriginal = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Restore Original Syllabus?",
+      message: "This will revert all current customizations back to the initial syllabus draft.",
+      confirmLabel: "Restore Original",
+      variant: "warning",
+      onConfirm: () => {
+        if (initialCourseSnapshot) {
+          setCourse(JSON.parse(JSON.stringify(initialCourseSnapshot)));
+          setIsDirty(true);
+        }
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        setToastIcon("history");
+        setToastMessage("Reverted to original course draft.");
+        setIsToastOpen(true);
+      },
+    });
+  };
+
+  const handleUpdateCourseField = (field: string, value: any) => {
+    if (!course) return;
+    setCourse({ ...course, [field]: value });
+    setIsDirty(true);
+  };
+
+  const handleAddTag = (newTag: string) => {
+    if (!course || !newTag.trim()) return;
+    const currentTags = course.tags || [];
+    if (currentTags.includes(newTag.trim())) return;
+    setCourse({ ...course, tags: [...currentTags, newTag.trim()] });
+    setIsDirty(true);
+  };
+
+  const handleRemoveTag = (indexToRemove: number) => {
+    if (!course || !course.tags) return;
+    setCourse({
+      ...course,
+      tags: course.tags.filter((_: string, idx: number) => idx !== indexToRemove),
+    });
+    setIsDirty(true);
+  };
+
+  const handleUpdateModule = (moduleId: string, field: string, value: any) => {
+    if (!course?.modules) return;
+    const updated = course.modules.map((m: any) =>
+      m.id === moduleId ? { ...m, [field]: value } : m
+    );
+    setCourse({ ...course, modules: updated });
+    setIsDirty(true);
+  };
+
+  const handleConfirmDeleteModule = (moduleId: string, title: string) => {
+    if (!course?.modules || course.modules.length <= 1) {
+      setToastIcon("warning");
+      setToastMessage("Curriculum must retain at least one module pillar.");
+      setIsToastOpen(true);
+      return;
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      title: `Delete Module: ${title}?`,
+      message: "This will remove this module and all of its associated lessons from your curriculum draft.",
+      confirmLabel: "Delete Module",
+      variant: "danger",
+      onConfirm: () => {
+        const remaining = (course.modules || [])
+          .filter((m: any) => m.id !== moduleId)
+          .map((m: any, idx: number) => ({
+            ...m,
+            moduleNumber: idx + 1,
+            orderIndex: idx,
+          }));
+        setCourse({
+          ...course,
+          modules: remaining,
+          moduleCount: remaining.length,
+        });
+        setIsDirty(true);
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        setToastIcon("delete");
+        setToastMessage(`Module "${title}" removed.`);
+        setIsToastOpen(true);
+      },
+    });
+  };
+
+  const handleAddNewModule = () => {
+    if (!course) return;
+    const currentModules = course.modules || [];
+    const nextNum = currentModules.length + 1;
+    const newModId = `mod-${course.id}-${Date.now().toString(36)}-${nextNum}`;
+    const newModule = {
+      id: newModId,
+      pathId: course.id,
+      title: `Module ${nextNum}: New Syllabus Pillar`,
+      moduleNumber: nextNum,
+      orderIndex: currentModules.length,
+      status: "locked",
+      objective: "Define core competencies and learning goals for this unit.",
+      totalResources: 1,
+      completedResources: 0,
+      lessons: [
+        {
+          id: `les-${newModId}-1`,
+          moduleId: newModId,
+          title: "Introduction and Overview",
+          type: "video",
+          durationMinutes: 15,
+          sourceName: "Academic Lecture",
+          orderIndex: 0,
+          summaryPoints: ["Foundational overview of module concepts."],
+          verificationStatus: "user_added",
+          isUserCreated: true,
+        },
+      ],
+    };
+
+    const updated = {
+      ...course,
+      modules: [...currentModules, newModule],
+      moduleCount: currentModules.length + 1,
+    };
+    setCourse(updated);
+    setOpenModules((prev) => ({ ...prev, [newModId]: true }));
+    setIsDirty(true);
+    setToastIcon("add_circle");
+    setToastMessage(`Added Module ${nextNum}. Click 'Save Changes' when finished.`);
+    setIsToastOpen(true);
+  };
+
+  const handleUpdateLesson = (moduleId: string, lessonId: string, field: string, value: any) => {
+    if (!course?.modules) return;
+    const updated = course.modules.map((m: any) => {
+      if (m.id === moduleId) {
+        const lessons = (m.lessons || m.resources || []).map((l: any) =>
+          l.id === lessonId ? { ...l, [field]: value } : l
+        );
+        return {
+          ...m,
+          lessons,
+          resources: lessons,
+        };
+      }
+      return m;
+    });
+    setCourse({ ...course, modules: updated });
+    setIsDirty(true);
+  };
+
+  const handleReorderLesson = (moduleId: string, index: number, direction: "up" | "down") => {
+    if (!course?.modules) return;
+    const targetIdx = direction === "up" ? index - 1 : index + 1;
+
+    const updatedModules = course.modules.map((m: any) => {
+      if (m.id === moduleId) {
+        const rawLessons = [...(m.lessons || m.resources || [])];
+        if (targetIdx < 0 || targetIdx >= rawLessons.length) return m;
+        const temp = rawLessons[index];
+        rawLessons[index] = rawLessons[targetIdx];
+        rawLessons[targetIdx] = temp;
+        const reindexed = rawLessons.map((l, i) => ({ ...l, orderIndex: i }));
+        return {
+          ...m,
+          lessons: reindexed,
+          resources: reindexed,
+        };
+      }
+      return m;
+    });
+
+    setCourse({ ...course, modules: updatedModules });
+    setIsDirty(true);
+  };
+
+  const handleConfirmDeleteLesson = (moduleId: string, lessonId: string, title: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: `Remove Lesson: ${title}?`,
+      message: "Are you sure you want to remove this learning resource from the module?",
+      confirmLabel: "Remove Lesson",
+      variant: "danger",
+      onConfirm: () => {
+        const updatedModules = (course.modules || []).map((m: any) => {
+          if (m.id === moduleId) {
+            const rawLessons = m.lessons || m.resources || [];
+            const filtered = rawLessons
+              .filter((l: any) => l.id !== lessonId)
+              .map((l: any, idx: number) => ({ ...l, orderIndex: idx }));
+            return {
+              ...m,
+              lessons: filtered,
+              resources: filtered,
+              totalResources: filtered.length,
+            };
+          }
+          return m;
+        });
+
+        setCourse({
+          ...course,
+          modules: updatedModules,
+        });
+        setIsDirty(true);
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        setToastIcon("delete");
+        setToastMessage(`Resource "${title}" removed.`);
+        setIsToastOpen(true);
+      },
+    });
+  };
+
+  const handleSaveStudyNotes = (updatedLesson: Lesson) => {
+    if (!course?.modules) return;
+    const updatedModules = course.modules.map((m: any) => {
+      if (m.id === updatedLesson.moduleId) {
+        const curLessons = m.lessons || m.resources || [];
+        const nextLessons = curLessons.map((l: any) =>
+          l.id === updatedLesson.id ? updatedLesson : l
+        );
+        return {
+          ...m,
+          lessons: nextLessons,
+          resources: nextLessons,
+        };
+      }
+      return m;
+    });
+
+    setCourse({ ...course, modules: updatedModules });
+    setIsDirty(true);
+    setActiveNotesLesson(null);
+    setToastIcon("check_circle");
+    setToastMessage(`Study notes for "${updatedLesson.title}" updated.`);
+    setIsToastOpen(true);
+  };
+
+  const handleAddResource = (newLesson: Lesson, targetModuleId: string) => {
+    if (!course?.modules) return;
+    const updatedModules = course.modules.map((m: any) => {
+      if (m.id === targetModuleId) {
+        const curLessons = m.lessons || m.resources || [];
+        const nextLessons = [
+          ...curLessons,
+          { ...newLesson, orderIndex: curLessons.length },
+        ];
+        return {
+          ...m,
+          lessons: nextLessons,
+          resources: nextLessons,
+          totalResources: nextLessons.length,
+        };
+      }
+      return m;
+    });
+
+    setCourse({ ...course, modules: updatedModules });
+    setIsDirty(true);
+    setActiveAddResourceModule(null);
+    setToastIcon("add_circle");
+    setToastMessage(`Resource added to module.`);
+    setIsToastOpen(true);
+  };
+
+  const handleSaveChanges = async () => {
+    if (!course || isSaving) return;
+    setIsSaving(true);
+
+    try {
+      // Recompute total duration
+      let totalMins = 0;
+      for (const m of course.modules || []) {
+        for (const l of m.lessons || m.resources || []) {
+          totalMins += l.durationMinutes || 15;
+        }
+      }
+      const recomputedHours = Math.max(1, Math.round(totalMins / 60));
+
+      const payload = {
+        title: course.title,
+        description: course.description,
+        domain: course.domain,
+        level: course.level,
+        durationHours: course.durationHours || recomputedHours,
+        tags: course.tags || [],
+        syllabusNote: course.syllabusNote || null,
+        weeklyCheckpoint: course.weeklyCheckpoint || {},
+        modules: (course.modules || []).map((m: any, mIdx: number) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          moduleNumber: mIdx + 1,
+          orderIndex: mIdx,
+          status: m.status,
+          objective: m.objective,
+          checkpointQuestions: m.checkpointQuestions || [],
+          flashcards: m.flashcards || [],
+          primaryPlaylist: m.primaryPlaylist || null,
+          syllabusMatrix: m.syllabusMatrix || null,
+          coverageStatus: m.coverageStatus,
+          unmetObjectives: m.unmetObjectives,
+          lessons: (m.lessons || m.resources || []).map((l: any, lIdx: number) => ({
+            id: l.id,
+            title: l.title,
+            type: l.type,
+            durationMinutes: l.durationMinutes || 15,
+            sourceName: l.sourceName || "Curated Academic Source",
+            sourceUrl: l.sourceUrl || undefined,
+            orderIndex: lIdx,
+            summaryPoints: l.summaryPoints || [],
+            conceptId: l.conceptId,
+            prerequisitesNote: l.prerequisitesNote,
+            studyNotes: l.studyNotes || [],
+            verificationStatus: l.verificationStatus || "verified",
+            selectionExplanation: l.selectionExplanation,
+            isPlaylist: l.isPlaylist,
+            playlistItemCount: l.playlistItemCount,
+          })),
+        })),
+      };
+
+      // 1. Try server PATCH API
+      const res = await fetch(`/api/courses/${course.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success && data.course) {
+        setCourse(data.course);
+        setInitialCourseSnapshot(JSON.parse(JSON.stringify(data.course)));
+        await storageAdapter.savePath(data.course);
+      } else {
+        // Offline / local fallback
+        const localCourse = {
+          ...course,
+          durationHours: course.durationHours || recomputedHours,
+          updatedAt: new Date().toISOString(),
+        };
+        setCourse(localCourse);
+        setInitialCourseSnapshot(JSON.parse(JSON.stringify(localCourse)));
+        await storageAdapter.savePath(localCourse);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(`pencill_path_${course.id}`, JSON.stringify(localCourse));
+        }
+      }
+
+      setIsDirty(false);
+      setToastIcon("check_circle");
+      setToastMessage("All curriculum customizations saved successfully!");
+      setIsToastOpen(true);
+    } catch (saveErr: any) {
+      console.warn("[CourseDetails] Save error, saving locally:", saveErr);
+      await storageAdapter.savePath(course);
+      setInitialCourseSnapshot(JSON.parse(JSON.stringify(course)));
+      setIsDirty(false);
+      setToastIcon("check_circle");
+      setToastMessage("Course saved to local storage.");
+      setIsToastOpen(true);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // 1. Load course from Supabase or storageAdapter fallback
   const loadCourseData = useCallback(async () => {
     if (!courseId) return;
@@ -270,6 +755,7 @@ export default function CourseDetailsPage() {
       }
 
       setCourse(data);
+      setInitialCourseSnapshot(JSON.parse(JSON.stringify(data)));
 
       // Initialize accordion
       if (data?.modules && data.modules.length > 0) {
@@ -519,6 +1005,7 @@ export default function CourseDetailsPage() {
       (user?.app_metadata as Record<string, unknown> | undefined)?.role === "admin"
   );
   const canDelete = isOwner || isAdmin || !course?.authorUserId;
+  const canEdit = isOwner || isAdmin || !course?.authorUserId;
 
   const handleDeleteConfirm = async () => {
     if (!course) return;
@@ -648,6 +1135,80 @@ export default function CourseDetailsPage() {
 
   return (
     <div className="flex flex-col gap-space-xl pb-space-xl max-w-5xl mx-auto print:max-w-none print:p-0">
+      {/* Course Editing Mode Sticky Toolbar */}
+      {isEditMode && (
+        <aside
+          role="region"
+          aria-label="Course Editing Toolbar"
+          className="sticky top-4 z-40 bg-surface-container-lowest/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border-2 border-primary/30 flex flex-wrap items-center justify-between gap-4 animate-in fade-in duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-xl">edit_document</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-primary text-sm">Course Syllabus Editor</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 ${
+                    isDirty
+                      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isDirty ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
+                  <span>{isDirty ? "Unsaved Changes" : "All Changes Saved"}</span>
+                </span>
+              </div>
+              <p className="text-xs text-on-surface-variant">
+                Customize titles, objectives, module ordering, lessons, and reading monographs.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleRestoreOriginal}
+              disabled={isSaving}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low border border-surface-container-high/60 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              title="Restore to original draft before edits"
+            >
+              <span className="material-symbols-outlined text-sm">history</span>
+              <span>Restore Original</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCancelEditMode}
+              disabled={isSaving}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low border border-surface-container-high/60 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <span>Cancel</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSaveChanges}
+              disabled={isSaving || !isDirty}
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary text-on-primary hover:bg-primary-container active:scale-95 transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {isSaving ? (
+                <>
+                  <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                  <span>Saving Changes...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-sm">save</span>
+                  <span>Save Changes</span>
+                </>
+              )}
+            </button>
+          </div>
+        </aside>
+      )}
+
       {/* 1. Course Header Section */}
       <section className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm border border-surface-container-high/60 print:border-none print:shadow-none print:p-0 relative overflow-hidden">
         {/* Breadcrumb */}
@@ -663,20 +1224,155 @@ export default function CourseDetailsPage() {
           </span>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-space-sm">
-          <div>
-            <h1 className="font-display-lg text-display-lg text-primary tracking-tight font-serif">
-              {course.title}
-            </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1 leading-relaxed max-w-3xl">
-              {course.level || "Class 11"} · {course.language || "English Medium"} · {course.description || "Rigorous academic pathway curated from verified open access repositories."}
-            </p>
+        {isEditMode ? (
+          <div className="space-y-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-1">
+                Course Title
+              </label>
+              <input
+                type="text"
+                value={course.title || ""}
+                onChange={(e) => handleUpdateCourseField("title", e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-surface-container-low border-2 border-primary/40 text-primary font-display-md text-xl font-serif focus:outline-hidden focus:border-primary shadow-xs"
+                placeholder="Course Title"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                Course Description
+              </label>
+              <textarea
+                rows={2}
+                value={course.description || ""}
+                onChange={(e) => handleUpdateCourseField("description", e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-sm focus:outline-hidden focus:border-primary leading-relaxed"
+                placeholder="Course overview and scope"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                  Academic Domain
+                </label>
+                <input
+                  type="text"
+                  value={course.domain || ""}
+                  onChange={(e) => handleUpdateCourseField("domain", e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-sm focus:outline-hidden focus:border-primary"
+                  placeholder="e.g. Computer Science, Mathematics"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                  Academic Level
+                </label>
+                <select
+                  value={course.level || "Class 11"}
+                  onChange={(e) => handleUpdateCourseField("level", e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-sm focus:outline-hidden focus:border-primary"
+                >
+                  <option value="Foundation">Foundation</option>
+                  <option value="Class 11">Class 11</option>
+                  <option value="Class 12">Class 12</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Undergraduate">Undergraduate</option>
+                  <option value="Competitive">Competitive Exam</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                  Estimated Duration (Hours)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={course.durationHours || 20}
+                  onChange={(e) => handleUpdateCourseField("durationHours", parseInt(e.target.value, 10) || 1)}
+                  className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-sm focus:outline-hidden focus:border-primary"
+                />
+              </div>
+            </div>
+
+            {/* Tags Editor */}
+            <div>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                Course Tags
+              </label>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {(course.tags || []).map((tag: string, tIdx: number) => (
+                  <span
+                    key={tIdx}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-container text-primary border border-surface-container-high/60"
+                  >
+                    <span>{tag}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tIdx)}
+                      className="hover:text-error transition-colors"
+                      title="Remove tag"
+                    >
+                      <span className="material-symbols-outlined text-xs">close</span>
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Add a tag and press Enter..."
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        handleAddTag(val);
+                        (e.target as HTMLInputElement).value = "";
+                      }
+                    }
+                  }}
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-xs focus:outline-hidden focus:border-primary"
+                />
+              </div>
+            </div>
+
+            {/* Curator / Syllabus Note */}
+            <div>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
+                Curator&apos;s Syllabus Note
+              </label>
+              <textarea
+                rows={2}
+                value={course.syllabusNote || ""}
+                onChange={(e) => handleUpdateCourseField("syllabusNote", e.target.value)}
+                placeholder="Pedagogical rationale or study advice"
+                className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-surface-container-high/60 text-on-surface text-sm focus:outline-hidden focus:border-primary leading-relaxed"
+              />
+            </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold self-start md:self-auto shrink-0 print:hidden">
-            <span className="w-2 h-2 rounded-full bg-secondary"></span>
-            Advanced Syllabus
-          </span>
-        </div>
+        ) : (
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-space-sm">
+            <div>
+              <h1 className="font-display-lg text-display-lg text-primary tracking-tight font-serif">
+                {course.title}
+              </h1>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-1 leading-relaxed max-w-3xl">
+                {course.level || "Class 11"} · {course.language || "English Medium"} · {course.description || "Rigorous academic pathway curated from verified open access repositories."}
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold self-start md:self-auto shrink-0 print:hidden">
+              <span className="w-2 h-2 rounded-full bg-secondary"></span>
+              Advanced Syllabus
+            </span>
+          </div>
+        )}
 
         {/* Academic Metadata Array */}
         <div className="flex flex-wrap items-center gap-space-sm mt-space-md pt-space-md border-t border-surface-container-low print:hidden">
@@ -787,6 +1483,24 @@ export default function CourseDetailsPage() {
               </span>
             </button>
 
+            {canEdit && (
+              <button
+                type="button"
+                onClick={handleToggleEditMode}
+                className={`px-3 py-2 rounded-lg font-label-md text-label-md font-semibold transition-all flex items-center gap-1.5 border shadow-xs ${
+                  isEditMode
+                    ? "bg-amber-600 text-white border-amber-600 hover:bg-amber-700"
+                    : "bg-surface-container-low text-primary hover:bg-surface-container border-surface-container-high/60"
+                }`}
+                title={isEditMode ? "Exit Edit Mode" : "Edit Course Syllabus"}
+              >
+                <span className="material-symbols-outlined text-base">
+                  {isEditMode ? "close" : "edit"}
+                </span>
+                <span>{isEditMode ? "Exit Edit Mode" : "Edit Course"}</span>
+              </button>
+            )}
+
             {canDelete && (
               <button
                 type="button"
@@ -882,278 +1596,612 @@ export default function CourseDetailsPage() {
         <div className="space-y-space-sm">
           {course.modules?.map((module: any, mIdx: number) => {
             const isOpen = !!openModules[module.id];
-            const resources = module.lessons || module.resources || [];
+            const rawResources = module.lessons || module.resources || [];
+            const { lessons: resources } = module.primaryPlaylist
+              ? sanitizeModuleLessonsAgainstPlaylist(module)
+              : { lessons: rawResources };
             const moduleCompleted =
               resources.length > 0 &&
               resources.every((r: any) => completedLessonIds.includes(r.id));
+
+            const displayResources = isEditMode ? rawResources : resources;
 
             return (
               <div
                 key={module.id || mIdx}
                 className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-surface-container-high/60 transition-all print:border-b print:shadow-none"
               >
-                {/* Module Accordion Header */}
-                <button
-                  type="button"
-                  onClick={() => toggleModule(module.id)}
-                  className="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors"
-                >
-                  <div className="flex items-center gap-space-md min-w-0">
-                    <div
-                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                        moduleCompleted
-                          ? "bg-surface-container text-primary"
-                          : "bg-primary-container text-on-primary"
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-xl">
-                        {moduleCompleted ? "check_circle" : "menu_book"}
-                      </span>
+                {/* Module Header: Edit Mode vs View Mode */}
+                {isEditMode ? (
+                  <div className="w-full p-space-md flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-surface-container-high/40 bg-surface-container-low/50">
+                    <div className="flex items-start md:items-center gap-3 min-w-0 flex-1">
+                      {/* Reorder Buttons */}
+                      <div className="flex flex-col sm:flex-row items-center bg-surface-container rounded-lg p-0.5 border border-surface-container-high/40 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleReorderModule(mIdx, "up")}
+                          disabled={mIdx === 0}
+                          aria-label="Move module up"
+                          className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-high disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          title="Move module up"
+                        >
+                          <span className="material-symbols-outlined text-sm">arrow_upward</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReorderModule(mIdx, "down")}
+                          disabled={mIdx === (course.modules?.length || 0) - 1}
+                          aria-label="Move module down"
+                          className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-high disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          title="Move module down"
+                        >
+                          <span className="material-symbols-outlined text-sm">arrow_downward</span>
+                        </button>
+                      </div>
+
+                      <div className="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-xl">view_module</span>
+                      </div>
+
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">
+                            Module {(mIdx + 1).toString().padStart(2, "0")}
+                          </span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase">
+                            Editing
+                          </span>
+                          <span className="text-xs text-on-surface-variant">
+                            ({displayResources.length} Lessons)
+                          </span>
+                        </div>
+
+                        <input
+                          type="text"
+                          value={module.title}
+                          onChange={(e) => handleUpdateModule(module.id, "title", e.target.value)}
+                          placeholder="Module Pillar Title"
+                          className="w-full px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high text-sm font-bold text-primary font-serif focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+
+                        <input
+                          type="text"
+                          value={module.objective || ""}
+                          onChange={(e) => handleUpdateModule(module.id, "objective", e.target.value)}
+                          placeholder="Module learning objective / pedagogical target..."
+                          className="w-full px-3 py-1 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                          Module {(mIdx + 1).toString().padStart(2, "0")}
+
+                    <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                      <button
+                        type="button"
+                        onClick={() => setActiveAddResourceModule({ id: module.id, title: module.title })}
+                        className="px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold flex items-center gap-1.5 border border-primary/20 transition-colors shadow-2xs"
+                        title="Add resource or lecture to this module"
+                      >
+                        <span className="material-symbols-outlined text-sm">add_circle</span>
+                        <span>Add Resource</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmDeleteModule(module.id, module.title)}
+                        aria-label="Delete module"
+                        className="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-colors"
+                        title="Delete this module pillar"
+                      >
+                        <span className="material-symbols-outlined text-base">delete</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleModule(module.id)}
+                        aria-label={isOpen ? "Collapse module" : "Expand module"}
+                        className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors"
+                        title={isOpen ? "Collapse module" : "Expand module"}
+                      >
+                        <span className={`material-symbols-outlined text-lg transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+                          expand_more
                         </span>
-                        {module.checkpointQuestions?.length > 0 && (
-                          <span className="px-2 py-0.5 rounded font-label-sm text-xs font-semibold bg-secondary-container/40 text-on-secondary-container">
-                            Quiz Ready
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => toggleModule(module.id)}
+                    className="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors"
+                  >
+                    <div className="flex items-center gap-space-md min-w-0">
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                          moduleCompleted
+                            ? "bg-surface-container text-primary"
+                            : "bg-primary-container text-on-primary"
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xl">
+                          {moduleCompleted ? "check_circle" : "menu_book"}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                            Module {(mIdx + 1).toString().padStart(2, "0")}
                           </span>
-                        )}
-                        {module.flashcards?.length > 0 && (
-                          <span className="px-2 py-0.5 rounded font-label-sm text-xs font-semibold bg-primary/10 text-primary">
-                            Formula Deck
-                          </span>
+                          {module.checkpointQuestions?.length > 0 && (
+                            <span className="px-2 py-0.5 rounded font-label-sm text-xs font-semibold bg-secondary-container/40 text-on-secondary-container">
+                              Quiz Ready
+                            </span>
+                          )}
+                          {module.flashcards?.length > 0 && (
+                            <span className="px-2 py-0.5 rounded font-label-sm text-xs font-semibold bg-primary/10 text-primary">
+                              Formula Deck
+                            </span>
+                          )}
+                          {module.syllabusMatrix && (
+                            <span className="px-2 py-0.5 rounded font-mono text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                              {module.syllabusMatrix.overallCoveragePercent}% Covered
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-headline-sm text-headline-sm text-primary truncate mt-0.5 font-sans">
+                          {module.title}
+                        </h4>
+                        {module.objective && (
+                          <p className="text-xs text-on-surface-variant line-clamp-1 mt-0.5">
+                            {module.objective}
+                          </p>
                         )}
                       </div>
-                      <h4 className="font-headline-sm text-headline-sm text-primary truncate mt-0.5 font-sans">
-                        {module.title}
-                      </h4>
-                      {module.objective && (
-                        <p className="text-xs text-on-surface-variant line-clamp-1 mt-0.5">
-                          {module.objective}
-                        </p>
-                      )}
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-space-md shrink-0">
-                    <span className="hidden sm:inline font-label-md text-label-md text-on-surface-variant">
-                      {resources.length} Resources
-                    </span>
-                    <span
-                      className={`material-symbols-outlined text-on-surface-variant transition-transform duration-200 print:hidden ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    >
-                      expand_more
-                    </span>
-                  </div>
-                </button>
+                    <div className="flex items-center gap-space-md shrink-0">
+                      <span className="hidden sm:inline font-label-md text-label-md text-on-surface-variant">
+                        {displayResources.length} Resources
+                      </span>
+                      <span
+                        className={`material-symbols-outlined text-on-surface-variant transition-transform duration-200 print:hidden ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      >
+                        expand_more
+                      </span>
+                    </div>
+                  </button>
+                )}
 
                 {/* Collapsible Content */}
                 {(isOpen || typeof window === "undefined") && (
                   <div className="px-space-md pb-space-md pt-space-xs space-y-2 border-t border-surface-container-high/40">
-                    {/* Module Interactive Runners Strip */}
-                    <div className="flex flex-wrap items-center gap-2 py-1 mb-2 print:hidden">
-                      {module.checkpointQuestions?.length > 0 && (
+                    {/* Module Interactive Runners Strip (Hidden in Edit Mode for clean curation) */}
+                    {!isEditMode && (
+                      <div className="flex flex-wrap items-center gap-2 py-1 mb-2 print:hidden">
+                        {module.checkpointQuestions?.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveQuizModule(module);
+                              setActiveQuestionIdx(0);
+                              setQuizAnswers({});
+                              setQuizSubmitted(false);
+                              setQuizScore(null);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-secondary text-on-secondary hover:bg-secondary-container text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                          >
+                            <span className="material-symbols-outlined text-sm">quiz</span>
+                            <span>Take Checkpoint Quiz ({module.checkpointQuestions.length} Qs)</span>
+                          </button>
+                        )}
+
+                        {module.flashcards?.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveFlashcardModule(module);
+                              setActiveFlashcardIdx(0);
+                              setIsFlashcardFlipped(false);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5"
+                          >
+                            <span className="material-symbols-outlined text-sm">style</span>
+                            <span>Review Flashcards ({module.flashcards.length} Cards)</span>
+                          </button>
+                        )}
+
+                        {/* Regenerate Individual Module */}
                         <button
                           type="button"
-                          onClick={() => {
-                            setActiveQuizModule(module);
-                            setActiveQuestionIdx(0);
-                            setQuizAnswers({});
-                            setQuizSubmitted(false);
-                            setQuizScore(null);
-                          }}
-                          className="px-3 py-1.5 rounded-lg bg-secondary text-on-secondary hover:bg-secondary-container text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                          onClick={() => handleRegenerateModule(module.id)}
+                          disabled={regeneratingModuleId === module.id}
+                          className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5 disabled:opacity-50"
+                          title="Regenerate this individual module without modifying the rest of the course"
                         >
-                          <span className="material-symbols-outlined text-sm">quiz</span>
-                          <span>Take Checkpoint Quiz ({module.checkpointQuestions.length} Qs)</span>
+                          <span className={`material-symbols-outlined text-sm ${regeneratingModuleId === module.id ? "animate-spin" : ""}`}>
+                            {regeneratingModuleId === module.id ? "progress_activity" : "refresh"}
+                          </span>
+                          <span>{regeneratingModuleId === module.id ? "Regenerating..." : "Regenerate Module"}</span>
                         </button>
-                      )}
 
-                      {module.flashcards?.length > 0 && (
+                        {/* Add Personal Resource */}
                         <button
                           type="button"
-                          onClick={() => {
-                            setActiveFlashcardModule(module);
-                            setActiveFlashcardIdx(0);
-                            setIsFlashcardFlipped(false);
-                          }}
-                          className="px-3 py-1.5 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5"
+                          onClick={() => setAddResourceModuleId(module.id)}
+                          className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5"
+                          title="Add personal study link or note to this module"
                         >
-                          <span className="material-symbols-outlined text-sm">style</span>
-                          <span>Review Flashcards ({module.flashcards.length} Cards)</span>
+                          <span className="material-symbols-outlined text-sm">add</span>
+                          <span>Add Resource</span>
                         </button>
-                      )}
 
-                      {/* Regenerate Individual Module */}
-                      <button
-                        type="button"
-                        onClick={() => handleRegenerateModule(module.id)}
-                        disabled={regeneratingModuleId === module.id}
-                        className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5 disabled:opacity-50"
-                        title="Regenerate this individual module without modifying the rest of the course"
-                      >
-                        <span className={`material-symbols-outlined text-sm ${regeneratingModuleId === module.id ? "animate-spin" : ""}`}>
-                          {regeneratingModuleId === module.id ? "progress_activity" : "refresh"}
-                        </span>
-                        <span>{regeneratingModuleId === module.id ? "Regenerating..." : "Regenerate Module"}</span>
-                      </button>
+                        {/* Move Up / Move Down */}
+                        {mIdx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleReorderModule(mIdx, "up")}
+                            className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+                            title="Move module up"
+                          >
+                            <span className="material-symbols-outlined text-base">arrow_upward</span>
+                          </button>
+                        )}
+                        {mIdx < (course.modules?.length || 0) - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleReorderModule(mIdx, "down")}
+                            className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
+                            title="Move module down"
+                          >
+                            <span className="material-symbols-outlined text-base">arrow_downward</span>
+                          </button>
+                        )}
 
-                      {/* Add Personal Resource */}
-                      <button
-                        type="button"
-                        onClick={() => setAddResourceModuleId(module.id)}
-                        className="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high text-xs font-semibold border border-surface-container-high/60 flex items-center gap-1.5"
-                        title="Add personal study link or note to this module"
-                      >
-                        <span className="material-symbols-outlined text-sm">add</span>
-                        <span>Add Resource</span>
-                      </button>
+                        {/* Syllabus Matrix Toggle */}
+                        {module.syllabusMatrix && (
+                          <button
+                            type="button"
+                            onClick={() => setOpenMatrixModules((prev) => ({ ...prev, [module.id]: !prev[module.id] }))}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors ${
+                              openMatrixModules[module.id]
+                                ? "bg-primary text-on-primary border-primary"
+                                : "bg-surface-container text-primary hover:bg-surface-container-high border-surface-container-high/60"
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-sm">checklist</span>
+                            <span>{openMatrixModules[module.id] ? "Hide Syllabus Matrix" : "Syllabus Matrix"}</span>
+                          </button>
+                        )}
 
-                      {/* Move Up / Move Down */}
-                      {mIdx > 0 && (
+                        {/* Remove Module */}
                         <button
                           type="button"
-                          onClick={() => handleReorderModule(mIdx, "up")}
-                          className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
-                          title="Move module up"
+                          onClick={() => handleRemoveModule(module.id)}
+                          className="p-1 rounded-lg hover:bg-error-container hover:text-error text-on-surface-variant ml-auto"
+                          title="Remove module"
                         >
-                          <span className="material-symbols-outlined text-base">arrow_upward</span>
+                          <span className="material-symbols-outlined text-base">delete</span>
                         </button>
-                      )}
-                      {mIdx < (course.modules?.length || 0) - 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleReorderModule(mIdx, "down")}
-                          className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant"
-                          title="Move module down"
-                        >
-                          <span className="material-symbols-outlined text-base">arrow_downward</span>
-                        </button>
-                      )}
+                      </div>
+                    )}
 
-                      {/* Remove Module */}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveModule(module.id)}
-                        className="p-1 rounded-lg hover:bg-error-container hover:text-error text-on-surface-variant ml-auto"
-                        title="Remove module"
-                      >
-                        <span className="material-symbols-outlined text-base">delete</span>
-                      </button>
-                    </div>
+                    {/* Primary Playlist Card if present (view mode only) */}
+                    {!isEditMode && module.primaryPlaylist && (
+                      <PlaylistCard playlist={module.primaryPlaylist} moduleTitle={module.title} />
+                    )}
 
-                    {/* Resources list */}
-                    {resources.map((item: any, idx: number) => {
-                      const isDone = completedLessonIds.includes(item.id);
-                      const status = item.verificationStatus || item.status || "verified";
+                    {/* Syllabus Coverage View if toggled */}
+                    {!isEditMode && module.syllabusMatrix && openMatrixModules[module.id] && (
+                      <SyllabusCoverageView
+                        courseId={course.id}
+                        moduleId={module.id}
+                        moduleTitle={module.title}
+                        matrix={module.syllabusMatrix}
+                        onRepairCompleted={(updatedMatrix, newLessons) =>
+                          handleModuleRepairSuccess(module.id, updatedMatrix, newLessons)
+                        }
+                      />
+                    )}
 
-                      return (
-                        <div
-                          key={item.id || idx}
-                          className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                            isDone
-                              ? "bg-surface-container-low/60 border border-surface-container-high/30 opacity-75"
-                              : "bg-surface-container-low hover:bg-surface-container border border-surface-container-high/40"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            {/* Complete Checkbox */}
-                            <button
-                              type="button"
-                              onClick={() => handleToggleLessonComplete(item.id)}
-                              className="text-on-surface-variant hover:text-primary shrink-0 transition-colors"
-                              title={isDone ? "Mark incomplete" : "Mark complete"}
+                    {/* Resources List: Edit Mode vs View Mode */}
+                    {isEditMode ? (
+                      <div className="space-y-3">
+                        {displayResources.map((item: any, idx: number) => {
+                          const isUserAdded =
+                            item.verificationStatus === "user_added" ||
+                            Boolean(item.isUserCreated);
+
+                          return (
+                            <div
+                              key={item.id || idx}
+                              className="p-3.5 rounded-xl bg-surface-container-low border border-surface-container-high/60 space-y-3"
                             >
-                              <span
-                                className={`material-symbols-outlined text-xl ${
-                                  isDone ? "text-primary font-bold" : "text-outline-variant"
-                                }`}
-                              >
-                                {isDone ? "check_circle" : "radio_button_unchecked"}
-                              </span>
-                            </button>
+                              {/* Top Row: Reordering, Index, Verification Badges, Actions */}
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5">
+                                  {/* Reorder Buttons */}
+                                  <div className="flex items-center bg-surface-container rounded-lg p-0.5 border border-surface-container-high/40">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleReorderLesson(module.id, idx, "up")}
+                                      disabled={idx === 0}
+                                      aria-label="Move lesson up"
+                                      className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-high disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                                      title="Move lesson up"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">arrow_upward</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleReorderLesson(module.id, idx, "down")}
+                                      disabled={idx === displayResources.length - 1}
+                                      aria-label="Move lesson down"
+                                      className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container-high disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                                      title="Move lesson down"
+                                    >
+                                      <span className="material-symbols-outlined text-sm">arrow_downward</span>
+                                    </button>
+                                  </div>
 
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap text-xs">
-                                <span className="font-mono font-semibold px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant">
-                                  #{idx + 1}
-                                </span>
-
-                                {/* Status Badge */}
-                                <span
-                                  className={`px-1.5 py-0.2 rounded font-semibold text-[11px] uppercase ${
-                                    status === "verified"
-                                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                      : status === "provisional"
-                                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                                      : "bg-surface-container text-on-surface-variant border border-surface-container-high"
-                                  }`}
-                                >
-                                  {status}
-                                </span>
-
-                                {/* Source Repository Tag */}
-                                <span className="font-semibold text-primary/80 bg-primary/10 px-1.5 py-0.2 rounded">
-                                  {item.sourceName || "Academic Repo"}
-                                </span>
-
-                                {/* Language tag */}
-                                {item.language && (
-                                  <span className="font-mono text-xs px-1 rounded bg-surface-container text-on-surface-variant uppercase">
-                                    {item.language}
+                                  <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-surface-container text-on-surface-variant">
+                                    #{idx + 1}
                                   </span>
-                                )}
 
-                                {item.durationMinutes && (
-                                  <span className="text-on-surface-variant">
-                                    {item.durationMinutes}m
+                                  {/* Verification Badge */}
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase ${
+                                      isUserAdded
+                                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                        : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                                    }`}
+                                  >
+                                    {isUserAdded ? "User Added" : "Verified"}
                                   </span>
-                                )}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveNotesLesson(item)}
+                                    className="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary text-xs font-semibold flex items-center gap-1.5 border border-surface-container-high/70 transition-colors shadow-2xs"
+                                    title="Edit rich-text study notes & monograph"
+                                  >
+                                    <span className="material-symbols-outlined text-xs">edit_note</span>
+                                    <span>Edit Study Notes</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleConfirmDeleteLesson(module.id, item.id, item.title)}
+                                    aria-label="Remove resource"
+                                    className="p-1 rounded-lg hover:bg-error-container hover:text-error text-on-surface-variant transition-colors"
+                                    title="Remove resource from module"
+                                  >
+                                    <span className="material-symbols-outlined text-base">delete</span>
+                                  </button>
+                                </div>
                               </div>
 
+                              {/* Title Input */}
+                              <div>
+                                <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                                  Lesson / Resource Title
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.title || ""}
+                                  onChange={(e) => handleUpdateLesson(module.id, item.id, "title", e.target.value)}
+                                  placeholder="e.g. Memory Layout & Pointer Arithmetic in C"
+                                  className="w-full px-3 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs font-medium text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                                />
+                              </div>
+
+                              {/* Modality, Duration, Source Name, URL */}
+                              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 text-xs">
+                                <div className="sm:col-span-3">
+                                  <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                                    Modality
+                                  </label>
+                                  <select
+                                    value={item.type || "video"}
+                                    onChange={(e) => handleUpdateLesson(module.id, item.id, "type", e.target.value)}
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                                  >
+                                    <option value="video">Video Lecture</option>
+                                    <option value="reading">Reading / Monograph</option>
+                                    <option value="notes">Study Notes</option>
+                                    <option value="practice">Practice / Lab</option>
+                                    <option value="quiz">Checkpoint Quiz</option>
+                                  </select>
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                  <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                                    Duration (mins)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    max={600}
+                                    value={item.durationMinutes || 15}
+                                    onChange={(e) => handleUpdateLesson(module.id, item.id, "durationMinutes", Math.max(1, Number(e.target.value)))}
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                  <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                                    Source Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={item.sourceName || ""}
+                                    onChange={(e) => handleUpdateLesson(module.id, item.id, "sourceName", e.target.value)}
+                                    placeholder="e.g. MIT OpenCourseWare"
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+
+                                <div className="sm:col-span-4">
+                                  <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                                    Resource URL
+                                  </label>
+                                  <input
+                                    type="url"
+                                    value={item.sourceUrl || item.url || ""}
+                                    onChange={(e) => {
+                                      handleUpdateLesson(module.id, item.id, "sourceUrl", e.target.value);
+                                      handleUpdateLesson(module.id, item.id, "url", e.target.value);
+                                    }}
+                                    placeholder="https://..."
+                                    className="w-full px-2.5 py-1.5 rounded-lg bg-surface-container-lowest border border-surface-container-high/70 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Add Resource to this Module Button */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveAddResourceModule({ id: module.id, title: module.title })}
+                          className="w-full py-2.5 px-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center gap-2 transition-colors mt-2"
+                        >
+                          <span className="material-symbols-outlined text-sm">add_circle</span>
+                          <span>Add Resource to {module.title}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* Standard Viewing Mode Resources list */
+                      displayResources.map((item: any, idx: number) => {
+                        const isDone = completedLessonIds.includes(item.id);
+                        const status = item.verificationStatus || item.status || "verified";
+
+                        return (
+                          <div
+                            key={item.id || idx}
+                            className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                              isDone
+                                ? "bg-surface-container-low/60 border border-surface-container-high/30 opacity-75"
+                                : "bg-surface-container-low hover:bg-surface-container border border-surface-container-high/40"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              {/* Complete Checkbox */}
+                              <button
+                                type="button"
+                                onClick={() => handleToggleLessonComplete(item.id)}
+                                className="text-on-surface-variant hover:text-primary shrink-0 transition-colors"
+                                title={isDone ? "Mark incomplete" : "Mark complete"}
+                              >
+                                <span
+                                  className={`material-symbols-outlined text-xl ${
+                                    isDone ? "text-primary font-bold" : "text-outline-variant"
+                                  }`}
+                                >
+                                  {isDone ? "check_circle" : "radio_button_unchecked"}
+                                </span>
+                              </button>
+
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap text-xs">
+                                  <span className="font-mono font-semibold px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant">
+                                    #{idx + 1}
+                                  </span>
+
+                                  {/* Status Badge */}
+                                  <span
+                                    className={`px-1.5 py-0.2 rounded font-semibold text-[11px] uppercase ${
+                                      status === "verified"
+                                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                                        : status === "provisional"
+                                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                        : "bg-surface-container text-on-surface-variant border border-surface-container-high"
+                                    }`}
+                                  >
+                                    {status}
+                                  </span>
+
+                                  {/* Source Repository Tag */}
+                                  <span className="font-semibold text-primary/80 bg-primary/10 px-1.5 py-0.2 rounded">
+                                    {item.sourceName || "Academic Repo"}
+                                  </span>
+
+                                  {/* Language tag */}
+                                  {item.language && (
+                                    <span className="font-mono text-xs px-1 rounded bg-surface-container text-on-surface-variant uppercase">
+                                      {item.language}
+                                    </span>
+                                  )}
+
+                                  {item.durationMinutes && (
+                                    <span className="text-on-surface-variant">
+                                      {item.durationMinutes}m
+                                    </span>
+                                  )}
+                                </div>
+
+                                <Link
+                                  href={`/learn/${course.id}/${item.id}`}
+                                  className={`font-label-lg text-label-lg truncate mt-0.5 block hover:underline ${
+                                    isDone ? "line-through text-on-surface-variant" : "text-primary font-medium"
+                                  }`}
+                                >
+                                  {item.title}
+                                </Link>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0 print:hidden">
                               <Link
                                 href={`/learn/${course.id}/${item.id}`}
-                                className={`font-label-lg text-label-lg truncate mt-0.5 block hover:underline ${
-                                  isDone ? "line-through text-on-surface-variant" : "text-primary font-medium"
-                                }`}
+                                className="px-3 py-1 rounded text-xs font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-1 shadow-xs"
                               >
-                                {item.title}
+                                <span>Study</span>
+                                <span className="material-symbols-outlined text-xs">arrow_forward</span>
                               </Link>
+                              {(item.url || item.sourceUrl) && (
+                                <a
+                                  href={item.url || item.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 rounded text-on-surface-variant hover:text-primary transition-colors"
+                                  title="Open Original Source Repository"
+                                >
+                                  <span className="material-symbols-outlined text-base">open_in_new</span>
+                                </a>
+                              )}
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-2 shrink-0 print:hidden">
-                            <Link
-                              href={`/learn/${course.id}/${item.id}`}
-                              className="px-3 py-1 rounded text-xs font-semibold bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-1 shadow-xs"
-                            >
-                              <span>Study</span>
-                              <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                            </Link>
-                            {(item.url || item.sourceUrl) && (
-                              <a
-                                href={item.url || item.sourceUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1 rounded text-on-surface-variant hover:text-primary transition-colors"
-                                title="Open Original Source Repository"
-                              >
-                                <span className="material-symbols-outlined text-base">open_in_new</span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 )}
               </div>
             );
           })}
+
+          {/* Add New Module Button in Edit Mode */}
+          {isEditMode && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleAddNewModule}
+                className="w-full py-4 px-6 rounded-2xl border-2 border-dashed border-primary/40 bg-surface-container-lowest hover:bg-primary/5 text-primary font-semibold flex items-center justify-center gap-3 transition-all shadow-sm hover:border-primary group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                  <span className="material-symbols-outlined text-xl">add_box</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-primary font-serif">Add New Module Pillar to Course</p>
+                  <p className="text-xs text-on-surface-variant font-normal">Append a fresh syllabus unit with customized learning objectives</p>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1569,6 +2617,38 @@ export default function CourseDetailsPage() {
           lessonTitle={course.title}
         />
       )}
+
+      {/* 8. Dedicated Course Editing Modals */}
+      {activeNotesLesson && (
+        <EditStudyNotesModal
+          isOpen={!!activeNotesLesson}
+          lesson={activeNotesLesson}
+          onSave={handleSaveStudyNotes}
+          onClose={() => setActiveNotesLesson(null)}
+        />
+      )}
+
+      {activeAddResourceModule && course && (
+        <AddResourceModal
+          isOpen={!!activeAddResourceModule}
+          moduleId={activeAddResourceModule.id}
+          moduleTitle={activeAddResourceModule.title}
+          courseTopic={course.title}
+          onAddResource={handleAddResource}
+          onClose={() => setActiveAddResourceModule(null)}
+        />
+      )}
+
+      {/* 9. Accessible Confirmation Barrier Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={confirmDialog.confirmLabel}
+        variant={confirmDialog.variant}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+      />
 
       <Toast
         isOpen={isToastOpen}

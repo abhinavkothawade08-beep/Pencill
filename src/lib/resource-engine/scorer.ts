@@ -31,10 +31,18 @@ export function scoreResource(
     }
   }
 
-  // Module-specific tokens (tokens in module title or objectives that are not generic stopwords)
+  // Module-specific tokens (tokens in module title, objectives, or search queries)
   const moduleSpecificTokens = new Set<string>();
   for (const t of moduleTitleTokens) moduleSpecificTokens.add(t);
   for (const t of objectiveTokens) moduleSpecificTokens.add(t);
+  if (modulePlan.searchQueries) {
+    for (const q of modulePlan.searchQueries.videoQueries || []) {
+      for (const t of tokenize(q)) moduleSpecificTokens.add(t);
+    }
+    for (const q of modulePlan.searchQueries.readingQueries || []) {
+      for (const t of tokenize(q)) moduleSpecificTokens.add(t);
+    }
+  }
 
   // Check how many module-specific tokens appear in the resource
   let moduleConceptMatchCount = 0;
@@ -165,42 +173,95 @@ export function scoreResource(
     }
   }
 
-  // 8. Cross-Domain Collision Penalty (CRUCIAL GATING)
+  // 8. Cross-Domain and Cross-Language Anti-Contamination Penalty (CRUCIAL GATING)
   let collisionPenalty = 0;
   let collisionReason: string | undefined;
 
   const topicLower = courseTopic.toLowerCase();
+
+  // A. Programming Language Isolation
+  const isPythonCourse = /\bpython\b/i.test(topicLower) || /\bpy\b/i.test(topicLower);
+  const isCppCourse = /\b(c\+\+|cpp)\b/i.test(topicLower);
+  const isJavaCourse = /\bjava\b/i.test(topicLower) && !/\bjavascript\b/i.test(topicLower);
+  const isJsTsCourse = /\b(javascript|typescript|react|vue|angular|node|nextjs)\b/i.test(topicLower);
+
+  // Candidate Resource Language Indicators
+  const mentionsCpp = /\b(c\+\+|cpp|cout|cin|std::)\b/i.test(resourceText);
+  const mentionsJava = /\bjava\b/i.test(resourceText) && !/\bjavascript\b/i.test(resourceText);
+  const mentionsPython = /\bpython\b/i.test(resourceText);
+  const mentionsJsTs = /\b(javascript|typescript|react|node|vue)\b/i.test(resourceText);
+  const mentionsRust = /\b(rust|cargo)\b/i.test(resourceText);
+  const mentionsCsharp = /\b(c#|csharp|\.net)\b/i.test(resourceText);
+
+  if (isPythonCourse) {
+    if ((mentionsCpp || mentionsJava || mentionsRust || mentionsCsharp) && !mentionsPython) {
+      collisionPenalty = 70;
+      collisionReason = 'Cross-language contamination: Resource targets C++/Java/Rust/C# instead of Python.';
+    }
+  } else if (isJsTsCourse) {
+    if ((mentionsCpp || mentionsJava || mentionsRust || mentionsCsharp) && !mentionsJsTs) {
+      collisionPenalty = 70;
+      collisionReason = 'Cross-language contamination: Resource targets non-JavaScript/TypeScript language.';
+    }
+  } else if (isCppCourse) {
+    if ((mentionsPython || mentionsJava || mentionsJsTs) && !mentionsCpp) {
+      collisionPenalty = 70;
+      collisionReason = 'Cross-language contamination: Resource targets Python/Java/JS instead of C++.';
+    }
+  } else if (isJavaCourse) {
+    if ((mentionsCpp || mentionsPython || mentionsJsTs || mentionsRust) && !mentionsJava) {
+      collisionPenalty = 70;
+      collisionReason = 'Cross-language contamination: Resource targets Python/C++/JS instead of Java.';
+    }
+  }
+
+  // B. Domain Contamination (Pure Mathematics vs Web Dev)
+  const isPureMathTopic =
+    (topicLower.includes('differential equation') ||
+      topicLower.includes('calculus') ||
+      topicLower.includes('linear algebra') ||
+      topicLower.includes('real analysis') ||
+      topicLower.includes('geometry') ||
+      topicLower.includes('number theory')) &&
+    !topicLower.includes('python') &&
+    !topicLower.includes('code') &&
+    !topicLower.includes('programming') &&
+    !topicLower.includes('computational');
+
+  const isWebDevResource =
+    resourceText.includes('react.js') ||
+    resourceText.includes('react native') ||
+    resourceText.includes('frontend developer') ||
+    resourceText.includes('html css') ||
+    resourceText.includes('web development') ||
+    resourceText.includes('tailwind') ||
+    resourceText.includes('css grid');
+
+  if (isPureMathTopic && isWebDevResource && collisionPenalty === 0) {
+    collisionPenalty = 70;
+    collisionReason =
+      'Cross-domain collision: Web development tutorial rejected for mathematical derivation course.';
+  }
+
+  // C. Computer Science vs High School Natural Science
   const isCSTopic =
     topicLower.includes('python') ||
     topicLower.includes('react') ||
     topicLower.includes('javascript') ||
+    topicLower.includes('algorithm') ||
+    topicLower.includes('data structure') ||
     topicLower.includes('web');
+
   const isPhysicsResource =
-    resourceText.includes('physics') ||
     resourceText.includes('kinematics') ||
     resourceText.includes('projectile motion') ||
-    resourceText.includes('newton') ||
+    resourceText.includes('newton laws of motion') ||
     resourceText.includes('ncert class 11 physics');
 
-  if (isCSTopic && isPhysicsResource) {
-    collisionPenalty = 60;
+  if (isCSTopic && isPhysicsResource && collisionPenalty === 0) {
+    collisionPenalty = 70;
     collisionReason =
       'Cross-domain collision: High school physics content rejected for programming course.';
-  }
-
-  const isMathTopic =
-    topicLower.includes('differential equation') ||
-    topicLower.includes('calculus') ||
-    topicLower.includes('linear algebra');
-  if (
-    isMathTopic &&
-    (resourceText.includes('react.js') ||
-      resourceText.includes('frontend developer') ||
-      resourceText.includes('html css'))
-  ) {
-    collisionPenalty = 60;
-    collisionReason =
-      'Cross-domain collision: Web development tutorial rejected for mathematical derivation course.';
   }
 
   // Compute Relevance Score
@@ -233,7 +294,13 @@ export function scoreResource(
     relevanceScore >= MIN_RELEVANCE_THRESHOLD && collisionPenalty === 0;
   let rejectionReason: string | undefined = collisionReason;
 
-  if (passedRelevanceGate && moduleSpecificTokens.size > 0 && moduleConceptMatchCount === 0) {
+  const hasStrongTopicAlignment = topicMatch >= 10 && (res.isVerifiedEducator || res.providerId === 'official_docs');
+  if (
+    passedRelevanceGate &&
+    moduleSpecificTokens.size > 0 &&
+    moduleConceptMatchCount === 0 &&
+    !hasStrongTopicAlignment
+  ) {
     passedRelevanceGate = false;
     rejectionReason = `Resource does not cover any specific concepts or objectives for module "${modulePlan.title}".`;
   } else if (!passedRelevanceGate && !rejectionReason) {

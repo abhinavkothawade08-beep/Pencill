@@ -1,0 +1,732 @@
+{
+  "version": "1.0.0",
+  "total_skills": 101,
+  "categories": [
+    "Core Full-Stack & Software Architecture",
+    "Automated Debugging & Root Cause Analysis",
+    "Automated Testing & Verification QA",
+    "Code Review, Audit & Quality Assurance",
+    "Frontend, UI/UX, DevTools & Performance",
+    "Database, Supabase & Data Integrity",
+    "Google Ecosystem, APIs & Mobile",
+    "DevOps, Infrastructure, Git & Observability",
+    "AI Systems, LLMs & Agentic Engineering",
+    "Technical Documentation, Product & Repository Ops",
+    "Deep System Verification, Safety & Acceptance",
+    "Metacognitive Engineering Orchestration"
+  ],
+  "entries": [
+    {
+      "path": ".agents/skills"
+    }
+  ],
+  "skills": [
+    {
+      "id": 1,
+      "name": "modern-web-guidance",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Modern Web Engineering Guidance",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 2,
+      "name": "senior-fullstack-engineer",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Senior Full-Stack Systems Engineering",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 3,
+      "name": "software-architecture",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Software Architecture & System Design",
+      "subagent": "architect"
+    },
+    {
+      "id": 4,
+      "name": "code-generation",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Production-Grade Code Generation",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 5,
+      "name": "refactoring-expert",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Behavior-Preserving Code Refactoring",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 6,
+      "name": "typescript-expert",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Advanced TypeScript Engineering & Type Safety",
+      "subagent": "architect"
+    },
+    {
+      "id": 7,
+      "name": "react-nextjs-expert",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "React 18 & Next.js App Router Mastery",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 8,
+      "name": "api-development",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "RESTful API Architecture & Contract Design",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 9,
+      "name": "documentation-research",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Technical Documentation Research & Synthesis",
+      "subagent": "research"
+    },
+    {
+      "id": 10,
+      "name": "dependency-management",
+      "category": "Core Full-Stack & Software Architecture",
+      "title": "Dependency Management & Vulnerability Auditing",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 11,
+      "name": "auto-debugging",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Autonomous Systematic Debugging",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 12,
+      "name": "auto-fix-engine",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Autonomous Self-Correcting Fix Engine",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 13,
+      "name": "root-cause-analysis",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Root Cause Analysis (RCA) & Failure Decomposition",
+      "subagent": "architect"
+    },
+    {
+      "id": 14,
+      "name": "runtime-error-detection",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Runtime Error Detection & Exception Handling",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 15,
+      "name": "typescript-error-fixer",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Automated TypeScript Error Resolution",
+      "subagent": "architect"
+    },
+    {
+      "id": 16,
+      "name": "build-error-recovery",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Build Graph Recovery & Compilation Repair",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 17,
+      "name": "dependency-conflict-resolver",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Dependency Collision & Peer Conflict Resolution",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 18,
+      "name": "regression-prevention",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Regression Blast Radius Mapping & Prevention",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 19,
+      "name": "self-verification",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Hermetic Automated Self-Verification",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 20,
+      "name": "log-analysis",
+      "category": "Automated Debugging & Root Cause Analysis",
+      "title": "Structured Log Analysis & Stack Symbolication",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 21,
+      "name": "automated-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Automated Testing Strategy & Test Pyramid Calibration",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 22,
+      "name": "playwright-browser-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Playwright Headless Browser Testing & Automation",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 23,
+      "name": "unit-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Isolated Unit Testing & Boundary Analysis",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 24,
+      "name": "integration-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Multi-Module Integration Testing & Boundary Contracts",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 25,
+      "name": "e2e-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "End-to-End User Journey Verification",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 26,
+      "name": "visual-regression-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Visual Regression & Layout Shift Testing",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 27,
+      "name": "accessibility-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Web Accessibility (a11y) & WCAG Compliance Auditing",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 28,
+      "name": "performance-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Performance Testing & Latency Profiling",
+      "subagent": "performance-eng"
+    },
+    {
+      "id": 29,
+      "name": "api-testing",
+      "category": "Automated Testing & Verification QA",
+      "title": "Automated REST API & Contract Testing",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 30,
+      "name": "test-coverage-analysis",
+      "category": "Automated Testing & Verification QA",
+      "title": "Test Coverage Analysis & Gap Identification",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 31,
+      "name": "coderabbit-code-review",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "AI-Augmented Code Review & PR Summary",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 32,
+      "name": "senior-code-reviewer",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "Senior Architectural Code Review & Clean Code Enforcement",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 33,
+      "name": "security-code-review",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "Security Code Review & Vulnerability Audit",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 34,
+      "name": "performance-code-review",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "Performance Code Review & Complexity Audit",
+      "subagent": "performance-eng"
+    },
+    {
+      "id": 35,
+      "name": "pull-request-review",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "Pull Request Verification & Merge Gatekeeper",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 36,
+      "name": "code-quality-auditor",
+      "category": "Code Review, Audit & Quality Assurance",
+      "title": "Automated Code Quality & Static Analysis Auditing",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 37,
+      "name": "chrome-devtools",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Chrome DevTools Protocol (CDP) & Browser Inspection",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 38,
+      "name": "browser-automation",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Scripted Browser Automation & Interaction Workflows",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 39,
+      "name": "frontend-debugging",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Frontend State, DOM & Hydration Debugging",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 40,
+      "name": "ui-ux-design-expert",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Academic UI/UX Design & Human-Interface Guidelines",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 41,
+      "name": "responsive-design",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Mobile-First Responsive Layout Engineering",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 42,
+      "name": "design-system-engineer",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Atomic Design System Engineering & Design Tokens",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 43,
+      "name": "web-performance-optimizer",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Core Web Vitals & Web Performance Optimization",
+      "subagent": "performance-eng"
+    },
+    {
+      "id": 44,
+      "name": "seo-auditor",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Search Engine Optimization (SEO) & Metadata Auditing",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 45,
+      "name": "a11y-debugging",
+      "category": "Frontend, UI/UX, DevTools & Performance",
+      "title": "Accessibility Tree Inspection & Screen Reader Debugging",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 46,
+      "name": "database-architecture",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Relational Database Architecture & Schema Design",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 47,
+      "name": "supabase-expert",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Supabase Platform Engineering & Realtime Integration",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 48,
+      "name": "sql-query-optimization",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "SQL Query Optimization & Execution Plan Analysis",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 49,
+      "name": "database-migration-safety",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Zero-Downtime Database Migration Safety",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 50,
+      "name": "data-integrity-guardian",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Data Integrity & Transactional ACID Guardianship",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 51,
+      "name": "accidental-data-loss-prevention",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Accidental Data Loss Prevention & Soft Deletion",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 52,
+      "name": "backup-recovery",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Disaster Recovery, Point-in-Time Restore & Backup Management",
+      "subagent": "database-eng"
+    },
+    {
+      "id": 53,
+      "name": "multi-tenant-data-isolation",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Multi-Tenant Data Partitioning & Isolation Enforcement",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 54,
+      "name": "authentication-security",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "Authentication Security, JWT Verification & Session Lifecycle",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 55,
+      "name": "rls-security-auditor",
+      "category": "Database, Supabase & Data Integrity",
+      "title": "PostgreSQL Row Level Security (RLS) Auditing",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 56,
+      "name": "google-developer-knowledge",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Google Developer Ecosystem & Documentation Synthesis",
+      "subagent": "research"
+    },
+    {
+      "id": 57,
+      "name": "android-development",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Android Mobile Engineering & Cross-Platform Architecture",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 58,
+      "name": "android-cli",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Android CLI, ADB Diagnostics & Emulator Automation",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 59,
+      "name": "firebase-expert",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Firebase Cloud Services & Realtime Infrastructure",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 60,
+      "name": "google-cloud-expert",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Google Cloud Platform (GCP) Architecture & Services",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 61,
+      "name": "youtube-api-expert",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "YouTube Data API v3 & Educational Video Integration",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 62,
+      "name": "gemini-api-expert",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "Google Gemini AI SDK Engineering & Structured Generation",
+      "subagent": "ai-engineer"
+    },
+    {
+      "id": 63,
+      "name": "oauth-integration",
+      "category": "Google Ecosystem, APIs & Mobile",
+      "title": "OAuth 2.0 / OIDC Authentication Flow Architecture",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 64,
+      "name": "git-expert",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Advanced Git Workflows & Repository Mastery",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 65,
+      "name": "github-expert",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "GitHub Platform Operations & Automation",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 66,
+      "name": "ci-cd-engineer",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "CI/CD Pipeline Engineering & Automated Build Systems",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 67,
+      "name": "deployment-engineer",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Production Deployment Engineering & Zero-Downtime Rollouts",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 68,
+      "name": "environment-variable-security",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Environment Variable Security & Secrets Management",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 69,
+      "name": "docker-expert",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Docker Containerization & Image Optimization",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 70,
+      "name": "production-readiness-audit",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Production Readiness Review & Launch Gatekeeper",
+      "subagent": "architect"
+    },
+    {
+      "id": 71,
+      "name": "monitoring-observability",
+      "category": "DevOps, Infrastructure, Git & Observability",
+      "title": "Application Monitoring, Metrics & Observability",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 72,
+      "name": "ai-engineering",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "AI Systems Engineering & Model Architecture",
+      "subagent": "ai-engineer"
+    },
+    {
+      "id": 73,
+      "name": "llm-integration",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "LLM API Integration, Streaming & Resilient Retries",
+      "subagent": "ai-engineer"
+    },
+    {
+      "id": 74,
+      "name": "prompt-engineering",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Production Prompt Engineering & Grounding",
+      "subagent": "ai-engineer"
+    },
+    {
+      "id": 75,
+      "name": "rag-engineering",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Retrieval-Augmented Generation (RAG) & Vector Search",
+      "subagent": "ai-engineer"
+    },
+    {
+      "id": 76,
+      "name": "agentic-workflow-engineering",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Agentic Workflow Engineering & ReAct Reasoning Loops",
+      "subagent": "architect"
+    },
+    {
+      "id": 77,
+      "name": "multi-agent-orchestration",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Multi-Agent System Orchestration & Consensus Protocols",
+      "subagent": "architect"
+    },
+    {
+      "id": 78,
+      "name": "agent-skill-creator",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Agent Skill Creation & Packaging Mastery",
+      "subagent": "architect"
+    },
+    {
+      "id": 79,
+      "name": "workflow-creator",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Automated Workflow Creation & Background Schedulers",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 80,
+      "name": "context-management",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Agent Context Management & Token Window Optimization",
+      "subagent": "architect"
+    },
+    {
+      "id": 81,
+      "name": "technical-research-agent",
+      "category": "AI Systems, LLMs & Agentic Engineering",
+      "title": "Deep Technical Research & Architecture Spikes",
+      "subagent": "research"
+    },
+    {
+      "id": 82,
+      "name": "agent-md-creator",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Agent Operating System & AGENTS.md Governance",
+      "subagent": "architect"
+    },
+    {
+      "id": 83,
+      "name": "project-documentation",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Project Documentation & Architecture Decision Records",
+      "subagent": "architect"
+    },
+    {
+      "id": 84,
+      "name": "prd-architecture-generator",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "PRD & Technical Architecture Synthesis",
+      "subagent": "architect"
+    },
+    {
+      "id": 85,
+      "name": "task-planning",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Systematic Task Planning & Work Breakdown Structure",
+      "subagent": "architect"
+    },
+    {
+      "id": 86,
+      "name": "technical-debt-manager",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Technical Debt Tracking & Refactoring Roadmaps",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 87,
+      "name": "project-cleanup",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Repository Hygiene, Dead Code Elimination & Cleanup",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 88,
+      "name": "repository-auditor",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Comprehensive Repository Health & Compliance Audit",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 89,
+      "name": "subagent-task-delegation",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Subagent Task Prompting & Boundary Delegation",
+      "subagent": "architect"
+    },
+    {
+      "id": 90,
+      "name": "implementation-verification",
+      "category": "Technical Documentation, Product & Repository Ops",
+      "title": "Implementation-to-Spec Verification & Acceptance Sign-Off",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 91,
+      "name": "change-impact-analysis",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Static Dependency Tracing & Change Impact Analysis",
+      "subagent": "architect"
+    },
+    {
+      "id": 92,
+      "name": "safe-refactoring",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Safe Multi-File Refactoring & Symbol Renaming",
+      "subagent": "code-reviewer"
+    },
+    {
+      "id": 93,
+      "name": "api-contract-validation",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "API Contract Validation & Schema Backward Compatibility",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 94,
+      "name": "authentication-flow-testing",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "End-to-End Authentication & Authorization Flow Testing",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 95,
+      "name": "state-management-debugging",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Client State Management & Cache Synchronization Debugging",
+      "subagent": "frontend-eng"
+    },
+    {
+      "id": 96,
+      "name": "race-condition-detection",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Async Concurrency & Race Condition Detection",
+      "subagent": "backend-eng"
+    },
+    {
+      "id": 97,
+      "name": "accessibility-automation",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Automated Accessibility (a11y) CI Pipeline Gates",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 98,
+      "name": "cost-optimization",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Cloud Infrastructure & AI Cost Optimization",
+      "subagent": "performance-eng"
+    },
+    {
+      "id": 99,
+      "name": "secrets-detection",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Automated Secret Scanning & Credential Exposure Prevention",
+      "subagent": "security-eng"
+    },
+    {
+      "id": 100,
+      "name": "feature-acceptance-testing",
+      "category": "Deep System Verification, Safety & Acceptance",
+      "title": "Behavior-Driven Feature Acceptance Testing (BDD)",
+      "subagent": "qa-eng"
+    },
+    {
+      "id": 101,
+      "name": "engineering-orchestrator",
+      "category": "Metacognitive Engineering Orchestration",
+      "title": "Metacognitive Engineering Orchestrator & Autonomous Dispatcher",
+      "subagent": "architect"
+    }
+  ]
+}

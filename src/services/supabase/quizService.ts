@@ -534,8 +534,8 @@ export async function getAllQuizzes(
     }
   });
 
-  // 3. Include local guest quizzes
-  if (typeof window !== "undefined") {
+  // 3. Include local guest quizzes strictly when unauthenticated
+  if (typeof window !== "undefined" && !userId) {
     const guestQuizzes = getStoredGuestQuizzes();
     guestQuizzes.forEach((quiz) => {
       if (

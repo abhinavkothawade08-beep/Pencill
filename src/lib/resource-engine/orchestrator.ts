@@ -18,9 +18,19 @@ import { validateResource, deduplicateResources } from './validator';
 import { scoreResource } from './scorer';
 import { generateModuleStudyNotes } from './study-notes-generator';
 import { generateModuleQuiz } from './quiz-generator';
-import { distributeAndSequenceModuleResources } from './distributor';
+import { distributeAndSequenceModuleResources, calculateDynamicResourceLimits } from './distributor';
+import { playlistIntelligence } from './playlist-intelligence';
+import { syllabusCoverageEngine } from './syllabus-coverage-engine';
+import { PlaylistResource, SyllabusSubtopic, SyllabusCoverageMatrix } from './types';
 import { validateCurriculumCoverage } from './coverage-validator';
 import { persistEngineCourse } from './persistence';
+import {
+  selectBestPlaylist,
+  extractCanonicalVideoId,
+  canonicalizeWatchUrl,
+  isExactVideoInPlaylist,
+  buildPlaylistCoverageMap,
+} from './playlist-deduplication';
 
 export interface OrchestratorListeners {
   onStageChange?: (stage: EngineTelemetryStage) => void;
@@ -140,6 +150,11 @@ export class ResourceEngineOrchestrator {
         5
       );
       telemetry.counts.verifiedEducatorMatches = matchedEducators.length;
+      const moduleSubtopicsMap = new Map<string, SyllabusSubtopic[]>();
+      for (const mod of plan.modules) {
+        const sub = syllabusCoverageEngine.decomposeSubtopics(mod, analyzed.detectedDomain, validatedInput.topic);
+        moduleSubtopicsMap.set(mod.id, sub);
+      }
       emitStage(
         2,
         'completed',
@@ -238,6 +253,55 @@ export class ResourceEngineOrchestrator {
       for (const mod of plan.modules) {
         this.checkAbort();
 
+        // 0. Playlist Discovery & Intelligence Matching
+        let primaryPlaylist: PlaylistResource | undefined;
+        try {
+          const plResults = await playlistIntelligence.discoverPlaylists(mod.title, {
+            topic: validatedInput.topic,
+            modulePlan: mod,
+            domain: analyzed.detectedDomain,
+            matchedEducators,
+            maxResults: 3,
+          });
+          if (plResults.length > 0) {
+            const candidatePlaylists = plResults
+              .filter((r) => r.score >= 50)
+              .map((r) => r.playlist);
+            if (candidatePlaylists.length > 0) {
+              // Rule E: Select the single best playlist across candidates
+              primaryPlaylist = selectBestPlaylist(
+                candidatePlaylists,
+                mod,
+                analyzed.detectedDomain,
+                validatedInput.topic
+              );
+            }
+          }
+        } catch (e) {
+          console.warn('[Orchestrator] Playlist discovery notice:', (e as Error).message);
+        }
+
+        // Register verified playlist items into globalAssignedVideoKeys so other modules don't duplicate
+        if (primaryPlaylist?.items && primaryPlaylist.items.length > 0) {
+          for (const item of primaryPlaylist.items) {
+            const canonId = extractCanonicalVideoId(item.videoId || item.videoUrl);
+            if (canonId) {
+              globalAssignedVideoKeys.add(canonId.toLowerCase());
+              globalAssignedVideoKeys.add(`https://www.youtube.com/watch?v=${canonId}`.toLowerCase());
+            }
+            if (item.videoUrl) {
+              globalAssignedVideoKeys.add(item.videoUrl.toLowerCase());
+            }
+          }
+        }
+
+        // Dynamic resource bounds
+        const { maxVideos, maxReadings } = calculateDynamicResourceLimits(
+          mod,
+          validatedInput.level,
+          Boolean(primaryPlaylist)
+        );
+
         const getVideoUrl = (v: any) => (v?.canonicalUrl || v?.url || '').toLowerCase();
         const getReadingUrl = (r: any) => (r?.canonicalUrl || r?.url || '').toLowerCase();
 
@@ -248,7 +312,7 @@ export class ResourceEngineOrchestrator {
             Boolean(v) &&
             v.targetModuleId === mod.id &&
             v.passedRelevanceGate &&
-            (!v.externalId || !globalAssignedVideoKeys.has(v.externalId)) &&
+            (!v.externalId || !globalAssignedVideoKeys.has(v.externalId.toLowerCase())) &&
             (!getVideoUrl(v) || !globalAssignedVideoKeys.has(getVideoUrl(v)))
         );
 
@@ -257,7 +321,7 @@ export class ResourceEngineOrchestrator {
           eligibleVideos = uniqueVideos.filter(
             (v) =>
               Boolean(v) &&
-              (!v.externalId || !globalAssignedVideoKeys.has(v.externalId)) &&
+              (!v.externalId || !globalAssignedVideoKeys.has(v.externalId.toLowerCase())) &&
               (!getVideoUrl(v) || !globalAssignedVideoKeys.has(getVideoUrl(v))) &&
               v.passedRelevanceGate
           );
@@ -273,15 +337,18 @@ export class ResourceEngineOrchestrator {
 
         for (const v of dedupedEligibleVideos) {
           const vUrl = getVideoUrl(v);
+          const vId = extractCanonicalVideoId(v.externalId || v.url || v.canonicalUrl);
           if (
-            (!v.externalId || !globalAssignedVideoKeys.has(v.externalId)) &&
-            (!vUrl || !globalAssignedVideoKeys.has(vUrl))
+            (!v.externalId || !globalAssignedVideoKeys.has(v.externalId.toLowerCase())) &&
+            (!vUrl || !globalAssignedVideoKeys.has(vUrl)) &&
+            (!vId || !globalAssignedVideoKeys.has(vId.toLowerCase()))
           ) {
             finalModVideos.push(v);
-            if (v.externalId) globalAssignedVideoKeys.add(v.externalId);
+            if (v.externalId) globalAssignedVideoKeys.add(v.externalId.toLowerCase());
             if (vUrl) globalAssignedVideoKeys.add(vUrl);
+            if (vId) globalAssignedVideoKeys.add(vId.toLowerCase());
           }
-          if (finalModVideos.length >= 2) break;
+          if (finalModVideos.length >= maxVideos) break;
         }
 
         // 2. Module-Specific Reading Selection
@@ -322,7 +389,7 @@ export class ResourceEngineOrchestrator {
             if (r.externalId) globalAssignedReadingKeys.add(r.externalId);
             if (rUrl) globalAssignedReadingKeys.add(rUrl);
           }
-          if (finalModReadings.length >= 2) break;
+          if (finalModReadings.length >= maxReadings) break;
         }
 
         // 7. Study Notes Generation
@@ -349,7 +416,10 @@ export class ResourceEngineOrchestrator {
           finalModVideos,
           finalModReadings,
           studyNotes,
-          quiz
+          quiz,
+          primaryPlaylist,
+          moduleSubtopicsMap.get(mod.id),
+          validatedInput.level
         );
 
         telemetry.counts.resourcesAssigned +=
@@ -438,6 +508,9 @@ export class ResourceEngineOrchestrator {
       title: string;
       objective?: string;
       moduleNumber: number;
+      primaryPlaylist?: PlaylistResource;
+      subtopics?: SyllabusSubtopic[];
+      existingLessons?: any[];
     },
     excludedVideoUrls: string[] = []
   ): Promise<{
@@ -485,14 +558,23 @@ export class ResourceEngineOrchestrator {
       rawReadings.push(...r);
     }
 
-    // 2. Normalize and exclude already assigned video URLs
+    // 2. Normalize and exclude already assigned video URLs or playlist items
     const excludedSet = new Set(excludedVideoUrls.map((u) => u.toLowerCase()));
+    if (targetModule.primaryPlaylist?.items) {
+      for (const item of targetModule.primaryPlaylist.items) {
+        const cId = extractCanonicalVideoId(item.videoId || item.videoUrl);
+        if (cId) excludedSet.add(cId.toLowerCase());
+        if (item.videoUrl) excludedSet.add(item.videoUrl.toLowerCase());
+      }
+    }
+
     const scoredVideos: ScoredResource[] = [];
     for (const raw of rawVideos) {
       const normalized = normalizeCandidateResource(raw);
+      const canonId = extractCanonicalVideoId(normalized.externalId || normalized.url || normalized.canonicalUrl);
       if (
-        normalized.canonicalUrl &&
-        excludedSet.has(normalized.canonicalUrl.toLowerCase())
+        (normalized.canonicalUrl && excludedSet.has(normalized.canonicalUrl.toLowerCase())) ||
+        (canonId && excludedSet.has(canonId.toLowerCase()))
       ) {
         continue;
       }
@@ -531,8 +613,17 @@ export class ResourceEngineOrchestrator {
       courseTopic
     );
 
-    // 4. Distribute
-    const assignment = distributeAndSequenceModuleResources(modPlan, scoredVideos, scoredReadings, notes, quiz);
+    // 4. Distribute with playlist-aware deduplication
+    const assignment = distributeAndSequenceModuleResources(
+      modPlan,
+      scoredVideos,
+      scoredReadings,
+      notes,
+      quiz,
+      targetModule.primaryPlaylist,
+      targetModule.subtopics,
+      level
+    );
 
     // 5. Build lessons
     const lessons: any[] = [];
@@ -558,6 +649,16 @@ export class ResourceEngineOrchestrator {
       });
     });
 
+    // Unconditionally preserve user-created / custom lessons (Rule: User Content Protection)
+    const userLessons = (targetModule.existingLessons || []).filter(
+      (l: any) => l.isUserCreated || l.isCustom
+    );
+    for (const ul of userLessons) {
+      if (!lessons.some((l) => l.id === ul.id || (ul.sourceUrl && l.sourceUrl === ul.sourceUrl))) {
+        lessons.push(ul);
+      }
+    }
+
     const checkpointQuestions = (quiz?.questions || []).map((q, idx) => ({
       id: `qq-${targetModule.id}-${idx + 1}`,
       questionNumber: idx + 1,
@@ -582,6 +683,191 @@ export class ResourceEngineOrchestrator {
     }));
 
     return { lessons, checkpointQuestions, flashcards };
+  }
+
+
+  /**
+   * Intelligently detects and repairs resource gaps for a specific module
+   * without destroying previously approved lessons or regenerating the full course.
+   */
+  public async repairModuleGaps(
+    courseTopic: string,
+    domain: string,
+    level: string,
+    targetModule: {
+      id: string;
+      title: string;
+      objective?: string;
+      moduleNumber: number;
+      lessons: any[];
+      primaryPlaylist?: PlaylistResource;
+      subtopics?: SyllabusSubtopic[];
+      syllabusMatrix?: SyllabusCoverageMatrix;
+    }
+  ): Promise<{
+    addedLessons: any[];
+    updatedLessons: any[];
+    updatedMatrix: SyllabusCoverageMatrix;
+    repairedCount: number;
+  }> {
+    const existingLessons = [...(targetModule.lessons || [])];
+    const existingUrls = new Set(existingLessons.map((l: any) => (l.sourceUrl || l.url || '').toLowerCase()));
+
+    // Populate existing video IDs and canonical URLs from module primary playlist
+    const playlistVideoIds = new Set<string>();
+    if (targetModule.primaryPlaylist?.items) {
+      for (const item of targetModule.primaryPlaylist.items) {
+        const cId = extractCanonicalVideoId(item.videoId || item.videoUrl);
+        if (cId) {
+          playlistVideoIds.add(cId.toLowerCase());
+          existingUrls.add(cId.toLowerCase());
+          existingUrls.add(`https://www.youtube.com/watch?v=${cId}`.toLowerCase());
+        }
+        if (item.videoUrl) existingUrls.add(item.videoUrl.toLowerCase());
+      }
+    }
+
+    // 1. Determine subtopics that are missing resources
+    const modPlan: import('./types').ModulePlan = {
+      id: targetModule.id,
+      moduleNumber: targetModule.moduleNumber || 1,
+      title: targetModule.title,
+      description: `Study unit on ${targetModule.title}`,
+      learningObjectives: [
+        {
+          id: `obj-${targetModule.id}-1`,
+          statement: targetModule.objective || `Master ${targetModule.title}`,
+          keyTerms: [targetModule.title],
+        },
+      ],
+      prerequisites: [],
+      estimatedHours: 4,
+      expectedOutcomes: [`Master ${targetModule.title}`],
+      searchQueries: {
+        videoQueries: [targetModule.title, `${courseTopic} ${targetModule.title}`],
+        readingQueries: [targetModule.title, `${courseTopic} notes`],
+      },
+    };
+
+    const activeSubtopics = targetModule.subtopics && targetModule.subtopics.length > 0
+      ? targetModule.subtopics
+      : syllabusCoverageEngine.decomposeSubtopics(modPlan, domain as any, courseTopic);
+
+    const currentMatrix = targetModule.syllabusMatrix || syllabusCoverageEngine.buildCoverageMatrix(
+      modPlan,
+      activeSubtopics,
+      [],
+      [],
+      []
+    );
+
+    const missingSubtopics = syllabusCoverageEngine.detectMissingSubtopics(currentMatrix);
+    const addedLessons: any[] = [];
+    let nextOrder = existingLessons.length + 1;
+
+    for (const sub of missingSubtopics) {
+      // 2. Targeted search for the missing subtopic
+      const query = `${courseTopic} ${sub.title}`;
+
+      // A. Try video search
+      try {
+        const videos = await this.youtubeProvider.search(query, {
+          maxResults: 2,
+          domain: domain as any,
+        });
+
+        for (const raw of videos) {
+          const norm = normalizeCandidateResource(raw);
+          const vUrl = (norm.canonicalUrl || '').toLowerCase();
+          const vId = extractCanonicalVideoId(norm.externalId || norm.url || norm.canonicalUrl);
+          const isDup =
+            (vUrl && existingUrls.has(vUrl)) ||
+            (vId && (existingUrls.has(vId.toLowerCase()) || playlistVideoIds.has(vId.toLowerCase())));
+          if (!isDup) {
+            if (vUrl) existingUrls.add(vUrl);
+            if (vId) existingUrls.add(vId.toLowerCase());
+            const newLesson = {
+              id: `les-${targetModule.id}-rep-vid-${Date.now().toString(36)}-${addedLessons.length + 1}`,
+              title: norm.title,
+              type: 'video',
+              durationMinutes: norm.durationMinutes || 15,
+              sourceUrl: norm.canonicalUrl,
+              sourceName: norm.authorOrChannel || 'Curated Academic Video',
+              orderIndex: nextOrder++,
+              summaryPoints: [norm.description.slice(0, 200)],
+              verificationStatus: norm.isVerifiedEducator ? 'VERIFIED' : 'OPEN_DISCOVERY',
+              selectionExplanation: `Targeted repair resource covering missing subtopic: ${sub.title}`,
+            };
+            addedLessons.push(newLesson);
+            sub.matchedVideoUrl = norm.canonicalUrl;
+            sub.coverageStatus = 'Fully Covered';
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn('[RepairModule] Video search notice:', e);
+      }
+
+      // B. Try reading search
+      try {
+        const readings = await this.readingProvider.search(query, {
+          maxResults: 2,
+          domain: domain as any,
+        });
+
+        for (const raw of readings) {
+          const norm = normalizeCandidateResource(raw);
+          const rUrl = (norm.canonicalUrl || '').toLowerCase();
+          if (rUrl && !existingUrls.has(rUrl)) {
+            existingUrls.add(rUrl);
+            const newLesson = {
+              id: `les-${targetModule.id}-rep-read-${Date.now().toString(36)}-${addedLessons.length + 1}`,
+              title: norm.title,
+              type: norm.modality === 'practice' ? 'practice' : 'monograph',
+              durationMinutes: norm.durationMinutes || 20,
+              sourceUrl: norm.canonicalUrl,
+              sourceName: norm.authorOrChannel || 'Verified Academic Source',
+              orderIndex: nextOrder++,
+              summaryPoints: [norm.description.slice(0, 200)],
+              verificationStatus: 'VERIFIED',
+              selectionExplanation: `Targeted repair resource covering missing subtopic: ${sub.title}`,
+            };
+            addedLessons.push(newLesson);
+            sub.matchedReadingUrl = norm.canonicalUrl;
+            if (sub.coverageStatus === 'Needs Verification' || sub.coverageStatus === 'Missing Resources') {
+              sub.coverageStatus = 'Partially Covered';
+            }
+            break;
+          }
+        }
+      } catch (e) {
+        console.warn('[RepairModule] Reading search notice:', e);
+      }
+    }
+
+    const updatedLessons = [...existingLessons, ...addedLessons];
+
+    // Recompute syllabus matrix
+    const coveredCount = activeSubtopics.filter((s) => s.coverageStatus === 'Fully Covered').length;
+    const partialCount = activeSubtopics.filter((s) => s.coverageStatus === 'Partially Covered').length;
+    const totalSub = activeSubtopics.length || 1;
+    const updatedCoveragePercent = Math.min(100, Math.round(((coveredCount * 1.0 + partialCount * 0.5) / totalSub) * 100));
+
+    const updatedMatrix: SyllabusCoverageMatrix = {
+      moduleId: targetModule.id,
+      moduleTitle: targetModule.title,
+      subtopics: activeSubtopics,
+      overallCoveragePercent: updatedCoveragePercent,
+      coverageSummary: `${coveredCount}/${totalSub} subtopics fully covered after repair.`,
+      missingObjectiveCount: activeSubtopics.filter((s) => s.coverageStatus === 'Missing Resources').length,
+    };
+
+    return {
+      addedLessons,
+      updatedLessons,
+      updatedMatrix,
+      repairedCount: addedLessons.length,
+    };
   }
 
   private checkAbort() {
