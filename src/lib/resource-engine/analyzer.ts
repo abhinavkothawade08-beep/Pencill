@@ -5,6 +5,11 @@ import {
   AcademicLevel,
   LearningStyle,
 } from './types';
+import {
+  sanitizeInputObjectives,
+  sanitizeInputSubtopics,
+  sanitizeInputPrerequisites,
+} from '@/lib/curriculum-intelligence/topic-consistency-validator';
 
 export function analyzeLearningGoal(input: Partial<LearnerGoalInput> & { topic: string }): AnalyzedObjective {
   const topic = input.topic.trim();
@@ -32,11 +37,15 @@ export function analyzeLearningGoal(input: Partial<LearnerGoalInput> & { topic: 
   // 5. Extract Core Concepts & Prerequisites
   const { coreConcepts: baseConcepts, prerequisites: basePrereqs } = extractConceptsAndPrerequisites(topicLower, detectedDomain);
 
-  // Merge user-specified prerequisites if provided
-  const prerequisites = Array.from(new Set([...(input.prerequisites || []), ...basePrereqs]));
+  // Sanitize user inputs to prevent cross-course leakage and collision
+  const validObjectives = sanitizeInputObjectives(input.learningObjectives, topic);
+  const validPrereqs = sanitizeInputPrerequisites(input.prerequisites, topic);
 
-  // Merge concepts from learning objectives if provided
-  const objectiveWords = (input.learningObjectives || [])
+  // Merge validated prerequisites
+  const prerequisites = Array.from(new Set([...validPrereqs, ...basePrereqs]));
+
+  // Merge concepts from validated learning objectives
+  const objectiveWords = validObjectives
     .map((o) => o.text.toLowerCase().split(/\s+/))
     .flat()
     .filter((w) => w.length > 3 && !['about', 'using', 'master', 'learn', 'understand', 'explain', 'apply'].includes(w));
@@ -55,18 +64,18 @@ export function analyzeLearningGoal(input: Partial<LearnerGoalInput> & { topic: 
 }
 
 function detectDomain(topicLower: string, userSpecifiedDomain?: string): EducationalDomain {
-  if (userSpecifiedDomain) {
-    const d = userSpecifiedDomain.toLowerCase();
-    if (d.includes('computer') || d.includes('programming') || d.includes('software')) return 'computer_science';
-    if (d.includes('math')) return 'mathematics';
-    if (d.includes('ai') || d.includes('data') || d.includes('machine learning')) return 'ai_and_data';
-    if (d.includes('physic') || d.includes('chem') || d.includes('bio') || d.includes('science')) return 'natural_sciences';
-    if (d.includes('engineer')) return 'engineering';
-    if (d.includes('business') || d.includes('econ') || d.includes('finance')) return 'business_and_economics';
-    if (d.includes('med') || d.includes('health') || d.includes('nurs')) return 'medicine_and_health';
+  // 1. Topic keyword detection takes precedence
+  if (
+    topicLower.includes('public speaking') ||
+    topicLower.includes('presentation') ||
+    topicLower.includes('speech') ||
+    topicLower.includes('communication') ||
+    topicLower.includes('rhetoric') ||
+    topicLower.includes('debate')
+  ) {
+    return 'general';
   }
 
-  // Keywords heuristics
   if (
     topicLower.includes('python') ||
     topicLower.includes('javascript') ||
@@ -130,6 +139,17 @@ function detectDomain(topicLower: string, userSpecifiedDomain?: string): Educati
     topicLower.includes('kinematics')
   ) {
     return 'natural_sciences';
+  }
+
+  if (userSpecifiedDomain) {
+    const d = userSpecifiedDomain.toLowerCase();
+    if (d.includes('computer') || d.includes('programming') || d.includes('software')) return 'computer_science';
+    if (d.includes('math')) return 'mathematics';
+    if (d.includes('ai') || d.includes('data') || d.includes('machine learning')) return 'ai_and_data';
+    if (d.includes('physic') || d.includes('chem') || d.includes('bio')) return 'natural_sciences';
+    if (d.includes('engineer')) return 'engineering';
+    if (d.includes('business') || d.includes('econ') || d.includes('finance')) return 'business_and_economics';
+    if (d.includes('med') || d.includes('health') || d.includes('nurs')) return 'medicine_and_health';
   }
 
   if (

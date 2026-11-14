@@ -1,5 +1,6 @@
 import { LearnerGoalInput, EducationalDomain, AcademicLevel } from '../resource-engine/types';
 import { ObjectiveAnalysis, TopicComplexity } from './types';
+import { sanitizeInputObjectives, sanitizeInputSubtopics } from './topic-consistency-validator';
 
 /**
  * Curated list of narrow, focused skills or single concepts that must NOT
@@ -196,14 +197,12 @@ export function evaluateTopicComplexity(topic: string, totalHours: number): Topi
 }
 
 /**
- * Determines domain from topic or explicit input.
+ * Determines domain from topic or explicit input with semantic priority.
  */
 export function detectEducationalDomain(topic: string, explicitDomain?: string): EducationalDomain {
-  if (explicitDomain && explicitDomain !== 'general') {
-    return explicitDomain as EducationalDomain;
-  }
-
   const t = topic.toLowerCase();
+
+  // Specific domain signatures take precedence over generic/mismatched container IDs
   if (/python|javascript|typescript|react|next\.?js|html|css|c\+\+|java|docker|kubernetes|git|sql|algorithm|data structure|web dev|operating system|os internals|kernel|computer network|networking|distributed system|dbms/i.test(t)) {
     return 'computer_science';
   }
@@ -225,6 +224,14 @@ export function detectEducationalDomain(topic: string, explicitDomain?: string):
   if (/finance|accounting|economics|financial reporting|ca final|ind as|investment|macroeconomics/i.test(t)) {
     return 'business_and_economics';
   }
+  if (/public speaking|presentation|speech|rhetoric|debate|communication|oratory|storytelling|toastmaster|vocal/i.test(t)) {
+    return 'general';
+  }
+
+  if (explicitDomain && explicitDomain !== 'general' && explicitDomain !== 'school-education') {
+    return explicitDomain as EducationalDomain;
+  }
+
   return 'general';
 }
 
@@ -323,8 +330,12 @@ export function calculateRecommendedModuleCount(
  * determines domain and prerequisite foundation.
  */
 export function analyzeCurriculumObjective(input: LearnerGoalInput): ObjectiveAnalysis {
+  const sanitizedTopic = input.topic.trim();
+  const sanitizedObjectives = sanitizeInputObjectives(input.learningObjectives, sanitizedTopic);
+  const sanitizedTopics = sanitizeInputSubtopics(input.topics, sanitizedTopic);
+
   const totalTargetHours = (input.weeklyStudyHours || 10) * (input.targetWeeks || 4);
-  const detectedDomain = detectEducationalDomain(input.topic, input.domain);
+  const detectedDomain = detectEducationalDomain(sanitizedTopic, input.domain);
   const normalizedLevel: AcademicLevel =
     input.level ||
     (input.depth === 'introductory'
@@ -333,30 +344,30 @@ export function analyzeCurriculumObjective(input: LearnerGoalInput): ObjectiveAn
       ? 'advanced'
       : 'intermediate');
 
-  const complexity = evaluateTopicComplexity(input.topic, totalTargetHours);
+  const complexity = evaluateTopicComplexity(sanitizedTopic, totalTargetHours);
   const recommendedModuleCount = calculateRecommendedModuleCount(
-    input.topic,
+    sanitizedTopic,
     normalizedLevel,
     totalTargetHours,
-    input.topics
+    sanitizedTopics
   );
 
   // Inferred prerequisites based on domain and topic
   const prerequisites: string[] = [];
   if (normalizedLevel === 'intermediate' || normalizedLevel === 'advanced') {
-    prerequisites.push(`Foundational principles of ${input.topic}`);
+    prerequisites.push(`Foundational principles of ${sanitizedTopic}`);
   } else {
     prerequisites.push('Basic literacy in the discipline and general problem-solving ability');
   }
 
-  const coreConcepts = input.topics && input.topics.length > 0
-    ? [...input.topics]
-    : [input.topic];
+  const coreConcepts = sanitizedTopics.length > 0
+    ? [...sanitizedTopics]
+    : [sanitizedTopic];
 
-  const targetAudienceSummary = `${normalizedLevel.toUpperCase()} learner focusing on ${input.topic} within ${detectedDomain}.`;
+  const targetAudienceSummary = `${normalizedLevel.toUpperCase()} learner focusing on ${sanitizedTopic} within ${detectedDomain}.`;
 
   return {
-    topic: input.topic.trim(),
+    topic: sanitizedTopic,
     detectedDomain,
     normalizedLevel,
     complexity,

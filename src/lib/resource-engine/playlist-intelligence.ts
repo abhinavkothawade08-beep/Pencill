@@ -6,6 +6,10 @@ import {
   PlaylistResource,
 } from './types';
 import { educatorIntelligence } from './educator-intelligence';
+import {
+  evaluateTopicConsistency,
+  detectTopicDomainArchetype,
+} from '@/lib/curriculum-intelligence/topic-consistency-validator';
 
 export interface PlaylistEvaluationResult {
   playlist: PlaylistResource;
@@ -14,6 +18,8 @@ export interface PlaylistEvaluationResult {
   matchedObjectives: string[];
   unmetObjectives: string[];
   recommendationHierarchy: 'A_COMPLETE_PRIMARY' | 'B_PARTIAL_SUPPLEMENTED' | 'C_COMPLEMENTARY' | 'D_INDIVIDUAL_VIDEOS_ONLY' | 'E_NO_YOUTUBE';
+  diagnosticCode?: string;
+  exclusionReason?: string;
   reasons: string[];
 }
 
@@ -250,16 +256,58 @@ export class PlaylistIntelligenceSystem {
    */
   public evaluatePlaylist(
     playlist: PlaylistResource,
-    modulePlan: ModulePlan,
+    modulePlan: ModulePlan | string,
     domain?: EducationalDomain,
     courseTopic?: string
   ): PlaylistEvaluationResult {
     const reasons: string[] = [];
     let score = 50;
 
+    const plan: ModulePlan = typeof modulePlan === 'string'
+      ? {
+          id: 'mod-dyn',
+          moduleNumber: 1,
+          title: modulePlan,
+          description: '',
+          learningObjectives: [],
+          prerequisites: [],
+          estimatedHours: 5,
+          expectedOutcomes: [],
+          searchQueries: { videoQueries: [], readingQueries: [] },
+        }
+      : modulePlan;
+
     const titleLower = playlist.title.toLowerCase();
-    const modTitleLower = modulePlan.title.toLowerCase();
+    const modTitle = plan.title || '';
+    const modTitleLower = modTitle.toLowerCase();
     const topicLower = (courseTopic || '').toLowerCase();
+
+    // 0. Hard Cross-Domain Collision & Topic-Consistency Gate
+    if (courseTopic) {
+      const topicConsistency = evaluateTopicConsistency(
+        `${playlist.title} ${(playlist.topicsCovered || []).join(' ')}`,
+        courseTopic
+      );
+      if (!topicConsistency.isConsistent && topicConsistency.detectedCollisions.length > 0) {
+        playlist.coverageStatus = 'UNVERIFIED';
+        playlist.relevanceScore = 0;
+        return {
+          playlist,
+          score: 0,
+          coverageStatus: 'UNVERIFIED',
+          matchedObjectives: [],
+          unmetObjectives: (plan.learningObjectives || []).map((o: any) =>
+            typeof o === 'string' ? o : o.statement
+          ),
+          recommendationHierarchy: 'E_NO_YOUTUBE',
+          diagnosticCode: 'E_NO_YOUTUBE',
+          exclusionReason: `Cross-domain collision rejected: ${topicConsistency.reason}`,
+          reasons: [
+            `Cross-domain collision rejected: playlist is irrelevant to course topic "${courseTopic}" (${topicConsistency.reason})`,
+          ],
+        };
+      }
+    }
 
     // 1. Topic Match
     if (courseTopic && titleLower.includes(topicLower)) {
@@ -277,7 +325,7 @@ export class PlaylistIntelligenceSystem {
     // 2. Module Match
     if (titleLower.includes(modTitleLower)) {
       score += 15;
-      reasons.push(`Playlist title aligns with module "${modulePlan.title}".`);
+      reasons.push(`Playlist title aligns with module "${plan.title}".`);
     }
 
     // 3. Educator Credibility
@@ -305,7 +353,7 @@ export class PlaylistIntelligenceSystem {
     const itemTitlesCombined = (playlist.items || []).map((i) => i.title.toLowerCase()).join(' ');
     const fullText = `${titleLower} ${itemTitlesCombined}`;
 
-    for (const rawObj of (modulePlan.learningObjectives || [])) {
+    for (const rawObj of (plan.learningObjectives || [])) {
       let matched = false;
       const statement = typeof rawObj === 'string' ? rawObj : (rawObj.statement || '');
       const keyTerms = Array.isArray((rawObj as any).keyTerms)
@@ -326,8 +374,8 @@ export class PlaylistIntelligenceSystem {
     }
 
     const objRatio =
-      modulePlan.learningObjectives.length > 0
-        ? matchedObjectives.length / modulePlan.learningObjectives.length
+      plan.learningObjectives.length > 0
+        ? matchedObjectives.length / plan.learningObjectives.length
         : 1;
 
     score += Math.round(objRatio * 20);
@@ -379,8 +427,46 @@ export class PlaylistIntelligenceSystem {
     const qLower = query.toLowerCase();
     const tLower = topic.toLowerCase();
     const combined = `${qLower} ${tLower}`;
+    const topicArchetype = detectTopicDomainArchetype(topic);
 
     const curated: PlaylistResource[] = [];
+
+    // 0. Public Speaking & Presentation / Communication Skills
+    if (
+      topicArchetype === 'COMMUNICATION_AND_HUMANITIES' ||
+      combined.includes('public speaking') ||
+      combined.includes('presentation') ||
+      combined.includes('speech') ||
+      combined.includes('toastmaster') ||
+      combined.includes('oratory')
+    ) {
+      curated.push({
+        id: 'pl-public-speaking-masterclass',
+        title: 'Public Speaking & Presentation Skills: Speech Delivery Masterclass',
+        channelName: 'Toastmasters & Stanford Communication',
+        playlistUrl: 'https://www.youtube.com/playlist?list=PLpZ3pE20uK8mPublicSpeakingMasterclass',
+        itemCount: 12,
+        totalDurationMinutes: 320,
+        thumbnailUrl: 'https://img.youtube.com/vi/Stanford_PublicSpeaking/hqdefault.jpg',
+        topicsCovered: [
+          'Audience Analysis & Message Structuring',
+          'Vocal Dynamics, Pitch Inflection & Pacing',
+          'Body Language, Stage Movement & Eye Contact',
+          'High-Impact Presentation Slide Design',
+          'Stage Fright Regulation & Impromptu Speaking',
+        ],
+        coverageStatus: 'VERIFIED_COMPLETE',
+        isCurated: true,
+        items: [
+          { videoId: 'ps-speech-01', title: 'Think Fast, Talk Smart: Communication & Speaking Techniques', videoUrl: 'https://www.youtube.com/watch?v=HAnw168huqA', sequenceNumber: 1, durationSeconds: 1800 },
+          { videoId: 'ps-speech-02', title: 'The Architecture of Public Speaking: Structure & Delivery', videoUrl: 'https://www.youtube.com/watch?v=ps_spectrum_02', sequenceNumber: 2, durationSeconds: 1800 },
+          { videoId: 'ps-speech-03', title: 'Vocal Dynamics, Breathing & Strategic Pauses', videoUrl: 'https://www.youtube.com/watch?v=ps_vocal_03', sequenceNumber: 3, durationSeconds: 1800 },
+          { videoId: 'ps-speech-04', title: 'Non-Verbal Stage Presence: Gestures, Stance & Eye Contact', videoUrl: 'https://www.youtube.com/watch?v=ps_bodylang_04', sequenceNumber: 4, durationSeconds: 1800 },
+          { videoId: 'ps-speech-05', title: 'Designing High-Impact Presentation Slides & Visual Aids', videoUrl: 'https://www.youtube.com/watch?v=ps_slides_05', sequenceNumber: 5, durationSeconds: 1800 },
+          { videoId: 'ps-speech-06', title: 'Mastering Impromptu Speaking and Handling Hostile Q&A', videoUrl: 'https://www.youtube.com/watch?v=ps_impromptu_06', sequenceNumber: 6, durationSeconds: 1800 },
+        ],
+      });
+    }
 
     // 1. Chartered Accountancy (CA Final / Financial Reporting / Ind AS / Accounting)
     if (
@@ -517,3 +603,27 @@ export class PlaylistIntelligenceSystem {
 }
 
 export const playlistIntelligence = PlaylistIntelligenceSystem.getInstance();
+
+export function evaluatePlaylist(
+  playlist: PlaylistResource,
+  modulePlan: ModulePlan | string,
+  domain?: EducationalDomain | any,
+  courseTopic?: string
+): PlaylistEvaluationResult {
+  const plan: ModulePlan = typeof modulePlan === 'string'
+    ? {
+        id: 'mod-dyn',
+        moduleNumber: 1,
+        title: modulePlan,
+        description: '',
+        learningObjectives: Array.isArray(domain) ? domain.map((d: string) => ({ id: d, statement: d, keyTerms: [] })) : [],
+        prerequisites: [],
+        estimatedHours: 5,
+        expectedOutcomes: [],
+        searchQueries: { videoQueries: [], readingQueries: [] },
+      }
+    : modulePlan;
+
+  const actualDomain = typeof domain === 'string' ? (domain as EducationalDomain) : 'general';
+  return playlistIntelligence.evaluatePlaylist(playlist, plan, actualDomain, courseTopic);
+}

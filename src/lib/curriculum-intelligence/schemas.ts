@@ -64,6 +64,7 @@ export const CurriculumValidationIssueSchema = z.object({
     'EMPTY_MODULE_CONCEPTS',
     'UNREALISTIC_PACING',
     'INSUFFICIENT_SEARCH_QUERIES',
+    'TOPIC_CONSISTENCY_COLLISION',
   ]),
   severity: z.enum(['error', 'warning', 'info']),
   message: z.string().min(3),

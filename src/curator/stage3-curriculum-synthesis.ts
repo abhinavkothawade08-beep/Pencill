@@ -24,13 +24,31 @@ export async function runStage3Synthesis(
   const primaryTopicLower = primaryTopic.toLowerCase();
 
   // 1. Topic Domain Checks
+  const isPublicSpeaking =
+    primaryTopicLower.includes("public speaking") ||
+    primaryTopicLower.includes("presentation") ||
+    primaryTopicLower.includes("speech") ||
+    primaryTopicLower.includes("oratory") ||
+    primaryTopicLower.includes("toastmaster") ||
+    primaryTopicLower.includes("rhetoric") ||
+    primaryTopicLower.includes("communication skill");
+
   const isSchoolPhysics =
-    (config.domainId.includes("physics") ||
-      primaryTopicLower.includes("physics") ||
-      (config.domainId.includes("school") && primaryTopicLower.includes("physic")) ||
-      primaryTopicLower === "mechanics" ||
-      primaryTopicLower.includes("classical mechanics") ||
-      primaryTopicLower.includes("kinematics")) &&
+    !isPublicSpeaking &&
+    (primaryTopicLower.includes("physics") ||
+      primaryTopicLower.includes("mechanics") ||
+      primaryTopicLower.includes("rotational") ||
+      primaryTopicLower.includes("kinematics") ||
+      primaryTopicLower.includes("thermodynamics") ||
+      primaryTopicLower.includes("electromagnetism") ||
+      primaryTopicLower.includes("optics") ||
+      ((config.domainId?.includes("physics") || config.subjectId?.includes("physics")) &&
+        (primaryTopicLower.includes("force") ||
+          primaryTopicLower.includes("motion") ||
+          primaryTopicLower.includes("gravity") ||
+          primaryTopicLower.includes("energy") ||
+          primaryTopicLower.includes("momentum") ||
+          primaryTopicLower.includes("physic")))) &&
     !primaryTopicLower.includes("quantum") &&
     !primaryTopicLower.includes("statistical");
 
@@ -45,13 +63,13 @@ export async function runStage3Synthesis(
 
   const isPython =
     !isNarrow &&
-    (primaryTopicLower.includes("python") ||
-      primaryTopicLower.includes("py") ||
-      primaryTopicLower.includes("loop"));
+    (/\bpython\b/i.test(primaryTopicLower) ||
+      /\bpy\b/i.test(primaryTopicLower) ||
+      /\bloops?\b/i.test(primaryTopicLower));
 
   const isDifferentialEquations =
     primaryTopicLower.includes("differential equation") ||
-    primaryTopicLower.includes("ode") ||
+    /\bodes?\b/i.test(primaryTopicLower) ||
     primaryTopicLower.includes("calculus");
 
   const isReact =
@@ -231,6 +249,49 @@ export async function runStage3Synthesis(
           "Implement client-side page routing and dynamic route parameters",
           "Fetch and render asynchronous remote REST API data with loading and error boundaries",
           "Deploy an integrated, responsive React single-page application",
+        ],
+        hours: 6,
+      },
+    ];
+  } else if (isPublicSpeaking) {
+    moduleTemplates = [
+      {
+        title: "Speech Architecture, Rhetoric & Audience Analysis",
+        desc: "Core rhetorical structures, Aristotle's appeals (ethos, pathos, logos), audience analysis, and clear central messaging.",
+        objectives: [
+          "Structure speeches with a compelling hook, cohesive argument progression, and memorable conclusion",
+          "Analyze audience demographics and calibrate speech tone, complexity, and rhetorical appeals",
+          "Craft concise core messages and eliminate cognitive overload in verbal communication",
+        ],
+        hours: 5,
+      },
+      {
+        title: "Vocal Dynamics, Body Language & Non-Verbal Presence",
+        desc: "Diaphragmatic breathing, vocal projection, strategic pauses, eye contact, and purposeful stage movement.",
+        objectives: [
+          "Master pitch modulation, articulation, and deliberate pause control to emphasize key points",
+          "Apply diaphragmatic breathing techniques to control speech pacing and eliminate filler words",
+          "Demonstrate confident non-verbal stage presence through intentional posture and open gestures",
+        ],
+        hours: 6,
+      },
+      {
+        title: "Visual Slide Design, Storytelling & Narrative Arcs",
+        desc: "Narrative frameworks (the Hero's Journey, Sparklines), visual minimalism, slide design, and emotional connection.",
+        objectives: [
+          "Construct persuasive story arcs that bridge learner tension and practical resolution",
+          "Design minimalist visual slides following the assertion-evidence model and cognitive load principles",
+          "Integrate case studies, metaphors, and data-driven anecdotes to reinforce persuasive arguments",
+        ],
+        hours: 6,
+      },
+      {
+        title: "Stage Command, Impromptu Speaking & Q&A Mastery",
+        desc: "Overcoming stage anxiety, PREP and STAR frameworks for impromptu speaking, handling challenging questions, and keynote delivery.",
+        objectives: [
+          "Execute the PREP (Point, Reason, Example, Point) framework to deliver fluent impromptu answers",
+          "Navigate adversarial questions and redirect audience objections with diplomatic poise",
+          "Deliver a polished, timed presentation demonstrating end-to-end rhetorical mastery",
         ],
         hours: 6,
       },

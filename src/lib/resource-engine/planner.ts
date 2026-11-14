@@ -12,6 +12,10 @@ import {
   EducationalDomain,
   AcademicLevel,
 } from './types';
+import {
+  sanitizeInputSubtopics,
+  evaluateTopicConsistency,
+} from '@/lib/curriculum-intelligence/topic-consistency-validator';
 
 export { isNarrowFocusedTopic, isComprehensiveSubject };
 
@@ -38,8 +42,12 @@ export function clusterTopicsIntoCoherentModules(
     return [];
   }
 
-  const cleanTopics = Array.from(new Set(topics.map((t) => t.trim()).filter(Boolean)));
-  if (cleanTopics.length === 0) return [];
+  const rawClean = Array.from(new Set(topics.map((t) => t.trim()).filter(Boolean)));
+  if (rawClean.length === 0) return [];
+
+  // Filter out cross-domain collision topics that leaked from other courses
+  const filtered = rawClean.filter((t) => evaluateTopicConsistency(t, courseTopic).isConsistent);
+  const cleanTopics = filtered.length > 0 ? filtered : [courseTopic];
 
   // If 1 or 2 concepts provided, combine into 1 module
   if (cleanTopics.length <= 2) {
@@ -195,8 +203,9 @@ export function generateAdaptiveFallbackPlan(
   const hoursPerModule = Math.max(3, Math.round(totalHours / moduleCount));
 
   // 1. Topic Clustering: If user provided a list of topics, synthesize directly from semantic clusters!
-  if (input.topics && input.topics.length > 0) {
-    const clusters = clusterTopicsIntoCoherentModules(input.topics, analyzed.detectedDomain, topic);
+  const validTopics = sanitizeInputSubtopics(input.topics, topic);
+  if (validTopics.length > 0) {
+    const clusters = clusterTopicsIntoCoherentModules(validTopics, analyzed.detectedDomain, topic);
     if (clusters.length > 0) {
       const clusteredModules: ModulePlan[] = clusters.map((cl, idx) => ({
         id: `mod-clustered-${idx + 1}`,
@@ -219,7 +228,7 @@ export function generateAdaptiveFallbackPlan(
 
       return {
         courseTitle: `${topic}: Modular Learning Pathway`,
-        description: `Cohesive structured curriculum covering ${input.topics.join(', ')} grouped into ${clusteredModules.length} comprehensive units.`,
+        description: `Cohesive structured curriculum covering ${(input.topics || [topic]).join(', ')} grouped into ${clusteredModules.length} comprehensive units.`,
         domain: analyzed.detectedDomain,
         level: analyzed.normalizedLevel,
         totalEstimatedHours: totalHours,

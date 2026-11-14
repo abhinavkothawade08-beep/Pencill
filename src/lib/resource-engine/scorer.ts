@@ -4,26 +4,43 @@ import {
   ModulePlan,
   EducationalDomain,
 } from './types';
+import { evaluateTopicConsistency } from '@/lib/curriculum-intelligence/topic-consistency-validator';
 
 export const MIN_RELEVANCE_THRESHOLD = 45;
 
 export function scoreResource(
   res: NormalizedResource,
-  modulePlan: ModulePlan,
-  domain: EducationalDomain,
+  modulePlan: ModulePlan | string,
+  domain: EducationalDomain | any,
   courseTopic: string
 ): ScoredResource {
-  const resourceText = `${res.title} ${res.description}`.toLowerCase();
-  const titleText = res.title.toLowerCase();
+  const plan: ModulePlan = typeof modulePlan === 'string'
+    ? {
+        id: 'mod-dyn',
+        moduleNumber: 1,
+        title: modulePlan,
+        description: '',
+        learningObjectives: Array.isArray(domain) ? domain.map((d: string) => ({ id: d, statement: d, keyTerms: [] })) : [],
+        prerequisites: [],
+        estimatedHours: 5,
+        expectedOutcomes: [],
+        searchQueries: { videoQueries: [], readingQueries: [] },
+      }
+    : modulePlan;
+
+  const actualDomain: EducationalDomain = typeof domain === 'string' ? (domain as EducationalDomain) : 'general';
+
+  const resourceText = `${res.title || ''} ${res.description || ''}`.toLowerCase();
+  const titleText = (res.title || '').toLowerCase();
 
   const courseTopicTokens = tokenize(courseTopic);
-  const moduleTitleTokens = tokenize(modulePlan.title);
+  const moduleTitleTokens = tokenize(plan.title);
 
   const objectiveTokens = new Set<string>();
   const keyTermsTokens = new Set<string>();
-  for (const obj of modulePlan.learningObjectives) {
+  for (const obj of plan.learningObjectives || []) {
     for (const t of tokenize(obj.statement)) objectiveTokens.add(t);
-    for (const k of obj.keyTerms) {
+    for (const k of obj.keyTerms || []) {
       for (const t of tokenize(k)) {
         objectiveTokens.add(t);
         keyTermsTokens.add(t);
@@ -35,11 +52,11 @@ export function scoreResource(
   const moduleSpecificTokens = new Set<string>();
   for (const t of moduleTitleTokens) moduleSpecificTokens.add(t);
   for (const t of objectiveTokens) moduleSpecificTokens.add(t);
-  if (modulePlan.searchQueries) {
-    for (const q of modulePlan.searchQueries.videoQueries || []) {
+  if (plan.searchQueries) {
+    for (const q of plan.searchQueries.videoQueries || []) {
       for (const t of tokenize(q)) moduleSpecificTokens.add(t);
     }
-    for (const q of modulePlan.searchQueries.readingQueries || []) {
+    for (const q of plan.searchQueries.readingQueries || []) {
       for (const t of tokenize(q)) moduleSpecificTokens.add(t);
     }
   }
@@ -54,8 +71,8 @@ export function scoreResource(
 
   // 1. Module Objective Alignment (0–35 points)
   let objScore = 0;
-  for (const obj of modulePlan.learningObjectives) {
-    for (const kt of obj.keyTerms) {
+  for (const obj of plan.learningObjectives || []) {
+    for (const kt of obj.keyTerms || []) {
       const ktLower = kt.toLowerCase();
       if (titleText.includes(ktLower)) objScore += 10;
       else if (resourceText.includes(ktLower)) objScore += 5;
@@ -264,6 +281,13 @@ export function scoreResource(
       'Cross-domain collision: High school physics content rejected for programming course.';
   }
 
+  // D. Universal Cross-Domain Collision & Topic-Consistency Gate
+  const topicConsistency = evaluateTopicConsistency(resourceText, courseTopic);
+  if (!topicConsistency.isConsistent && topicConsistency.detectedCollisions.length > 0) {
+    collisionPenalty = 100;
+    collisionReason = `Cross-domain collision: ${topicConsistency.reason}`;
+  }
+
   // Compute Relevance Score
   const rawRelevance =
     moduleObjectiveScore +
@@ -285,7 +309,8 @@ export function scoreResource(
   if (res.providerId === 'official_docs' || res.providerId === 'openstax') qualityBase += 10;
   const qualityScore = Math.min(100, qualityBase);
 
-  const combinedScore = Math.round(relevanceScore * 0.7 + qualityScore * 0.3);
+  const rawCombined = Math.round(relevanceScore * 0.7 + qualityScore * 0.3);
+  const combinedScore = collisionPenalty >= 100 ? 0 : rawCombined;
 
   // Hard Relevance Gate:
   // Must achieve minimum relevance score AND zero cross-domain collision
@@ -293,6 +318,11 @@ export function scoreResource(
   let passedRelevanceGate =
     relevanceScore >= MIN_RELEVANCE_THRESHOLD && collisionPenalty === 0;
   let rejectionReason: string | undefined = collisionReason;
+
+  if (collisionPenalty >= 100) {
+    passedRelevanceGate = false;
+    rejectionReason = collisionReason || 'Cross-domain collision rejected';
+  }
 
   const hasStrongTopicAlignment = topicMatch >= 10 && (res.isVerifiedEducator || res.providerId === 'official_docs');
   if (
@@ -302,19 +332,19 @@ export function scoreResource(
     !hasStrongTopicAlignment
   ) {
     passedRelevanceGate = false;
-    rejectionReason = `Resource does not cover any specific concepts or objectives for module "${modulePlan.title}".`;
+    rejectionReason = `Resource does not cover any specific concepts or objectives for module "${plan.title}".`;
   } else if (!passedRelevanceGate && !rejectionReason) {
     rejectionReason = `Relevance score (${relevanceScore}) below minimum threshold (${MIN_RELEVANCE_THRESHOLD}) for topic "${courseTopic}"`;
   }
 
   const matchedObjectives: string[] = [];
-  for (const obj of modulePlan.learningObjectives) {
+  for (const obj of plan.learningObjectives || []) {
     const objTokens = tokenize(obj.statement);
     let count = 0;
     for (const t of objTokens) {
       if (resourceText.includes(t)) count++;
     }
-    for (const kt of obj.keyTerms) {
+    for (const kt of obj.keyTerms || []) {
       if (resourceText.includes(kt.toLowerCase())) count += 2;
     }
     if (count >= 2) {
@@ -324,7 +354,7 @@ export function scoreResource(
 
   return {
     ...res,
-    targetModuleId: modulePlan.id,
+    targetModuleId: plan.id,
     relevanceScore,
     qualityScore,
     combinedScore,
@@ -342,7 +372,8 @@ export function scoreResource(
   };
 }
 
-function tokenize(text: string): Set<string> {
+function tokenize(text?: string | null): Set<string> {
+  if (!text) return new Set();
   const stopWords = new Set([
     'the',
     'and',

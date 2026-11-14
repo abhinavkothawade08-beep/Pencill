@@ -6,6 +6,7 @@ import {
 } from './types';
 import { analyzePrerequisites } from './prerequisite-analyzer';
 import { detectCurriculumRedundancy } from './redundancy-detector';
+import { evaluateTopicConsistency } from './topic-consistency-validator';
 
 export interface CurriculumValidationGateOptions {
   readonly complexity: TopicComplexity;
@@ -42,8 +43,20 @@ export function validateCurriculumProposal(
     });
   }
 
-  // 2. Individual Module Sanity Checks
+  // 2. Individual Module Sanity & Topic Consistency Checks
   proposal.modules.forEach((mod, idx) => {
+    // Topic Consistency Check
+    const evalRes = evaluateTopicConsistency(mod.title, proposal.courseTitle);
+    if (!evalRes.isConsistent) {
+      issues.push({
+        code: 'TOPIC_CONSISTENCY_COLLISION',
+        severity: 'error',
+        message: `Module ${idx + 1} ("${mod.title}") is irrelevant or collides with course topic "${proposal.courseTitle}".`,
+        moduleIndex: idx,
+        remediation: 'Regenerate module with strictly topic-consistent curriculum.',
+      });
+    }
+
     if (!mod.concepts || mod.concepts.length === 0) {
       issues.push({
         code: 'EMPTY_MODULE_CONCEPTS',

@@ -13,6 +13,11 @@ import {
   DifficultyPreferenceType,
 } from "../types/builderConfig";
 import { storageAdapter } from "../storage/storageAdapter";
+import {
+  sanitizeInputObjectives,
+  sanitizeInputSubtopics,
+  sanitizeInputPrerequisites,
+} from "../curriculum-intelligence/topic-consistency-validator";
 
 interface BuilderStoreContextType {
   config: BuilderConfig;
@@ -167,7 +172,26 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const setTitle = useCallback((title: string) => {
-    updateConfig({ title });
+    updateConfig((prev) => {
+      const cleanTitle = title.trim();
+      if (!cleanTitle) return { ...prev, title };
+
+      const sanitizedObjectives = sanitizeInputObjectives(prev.learningObjectives || [], cleanTitle);
+      const sanitizedSubtopics = sanitizeInputSubtopics(prev.subtopics || [], cleanTitle);
+      const sanitizedPrereqs = sanitizeInputPrerequisites(prev.prerequisites || [], cleanTitle);
+      const sanitizedKnown = sanitizeInputPrerequisites(prev.knownConcepts || [], cleanTitle);
+      const sanitizedDifficult = sanitizeInputSubtopics(prev.difficultConcepts || [], cleanTitle);
+
+      return {
+        ...prev,
+        title,
+        learningObjectives: sanitizedObjectives,
+        subtopics: sanitizedSubtopics,
+        prerequisites: sanitizedPrereqs,
+        knownConcepts: sanitizedKnown,
+        difficultConcepts: sanitizedDifficult,
+      };
+    });
   }, [updateConfig]);
 
   // Topic management
@@ -199,10 +223,31 @@ export function BuilderStoreProvider({ children }: { children: React.ReactNode }
       prereqs: topic.prereqs || [],
     };
 
-    setConfig((prev) => ({
-      ...prev,
-      selectedTopics: [...prev.selectedTopics, newTopic],
-    }));
+    setConfig((prev) => {
+      const isDefaultPhysics =
+        prev.selectedTopics.length === 1 &&
+        prev.selectedTopics[0].label.toLowerCase().includes('class 11 mechanics');
+
+      const baseTopics = isDefaultPhysics ? [] : prev.selectedTopics;
+      const nextTopics = [...baseTopics, newTopic];
+      const primaryTopic = nextTopics[0]?.label || cleanLabel;
+
+      const sanitizedObjectives = sanitizeInputObjectives(prev.learningObjectives || [], primaryTopic);
+      const sanitizedSubtopics = sanitizeInputSubtopics(prev.subtopics || [], primaryTopic);
+      const sanitizedPrereqs = sanitizeInputPrerequisites(prev.prerequisites || [], primaryTopic);
+      const sanitizedKnown = sanitizeInputPrerequisites(prev.knownConcepts || [], primaryTopic);
+      const sanitizedDifficult = sanitizeInputSubtopics(prev.difficultConcepts || [], primaryTopic);
+
+      return {
+        ...prev,
+        selectedTopics: nextTopics,
+        learningObjectives: sanitizedObjectives,
+        subtopics: sanitizedSubtopics,
+        prerequisites: sanitizedPrereqs,
+        knownConcepts: sanitizedKnown,
+        difficultConcepts: sanitizedDifficult,
+      };
+    });
     setIsDirty(true);
 
     storageAdapter.addRecent({

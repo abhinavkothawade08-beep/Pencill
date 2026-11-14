@@ -4,6 +4,7 @@ import {
   CurriculumCoverageAudit,
   CourseQualityGates,
 } from './types';
+import { evaluateTopicConsistency } from '../curriculum-intelligence/topic-consistency-validator';
 
 export function validateCurriculumCoverage(
   plan: CurriculumPlan,
@@ -22,14 +23,21 @@ export function validateCurriculumCoverage(
     const hasStudyNotes = mod.studyNotes.length > 0;
     const hasQuiz = Boolean(mod.quiz && mod.quiz.questions.length > 0);
 
+    const moduleConsistency = evaluateTopicConsistency(plan.courseTitle, mod.moduleTitle);
+    const hasCollision = !moduleConsistency.isConsistent && moduleConsistency.detectedCollisions.length > 0;
     const coverageGaps: string[] = [];
+    if (hasCollision) {
+      coverageGaps.push(`Topic collision: ${moduleConsistency.reason}`);
+    }
     if (!hasVideo) coverageGaps.push('No video lecture assigned');
     if (!hasReading) coverageGaps.push('No reading material assigned');
     if (!hasStudyNotes) coverageGaps.push('No study notes assigned');
     if (!hasQuiz) coverageGaps.push('No formative checkpoint quiz assigned');
 
     let objectiveCoveragePercent = mod.coverageScore;
-    if (!hasVideo && !hasReading) {
+    if (hasCollision) {
+      objectiveCoveragePercent = 0;
+    } else if (!hasVideo && !hasReading) {
       objectiveCoveragePercent = Math.max(50, objectiveCoveragePercent - 30);
     }
 
@@ -69,16 +77,49 @@ export function validateCurriculumCoverage(
   }
   const curriculumPassed = curriculumDetails.length === 0;
 
-  // --- Quality Gate 2: Topic Coverage Gate ---
+  // --- Quality Gate 2: Topic Coverage Gate & Topic Consistency ---
   const topicDetails: string[] = [];
+  let topicConsistencyCollisions = 0;
   let totalUnmet = 0;
+
   for (const m of assignments) {
+    const modConsistency = evaluateTopicConsistency(m.moduleTitle, plan.courseTitle);
+    if (!modConsistency.isConsistent && modConsistency.detectedCollisions.length > 0) {
+      topicConsistencyCollisions++;
+      topicDetails.push(
+        `Module "${m.moduleTitle}" failed topic consistency: ${modConsistency.reason}`
+      );
+    }
+
+    // Check resources for cross-topic contamination
+    for (const v of m.videos || []) {
+      const vText = `${v.title || ''} ${v.description || ''}`;
+      const vConsistency = evaluateTopicConsistency(vText, plan.courseTitle);
+      if (!vConsistency.isConsistent && vConsistency.detectedCollisions.length > 0) {
+        topicConsistencyCollisions++;
+        topicDetails.push(
+          `Video "${v.title}" in Module "${m.moduleTitle}" conflicts with course topic: ${vConsistency.reason}`
+        );
+      }
+    }
+
+    if (m.primaryPlaylist) {
+      const plText = `${m.primaryPlaylist.title || ''} ${m.primaryPlaylist.description || ''}`;
+      const plConsistency = evaluateTopicConsistency(plText, plan.courseTitle);
+      if (!plConsistency.isConsistent && plConsistency.detectedCollisions.length > 0) {
+        topicConsistencyCollisions++;
+        topicDetails.push(
+          `Playlist "${m.primaryPlaylist.title}" in Module "${m.moduleTitle}" conflicts with course topic: ${plConsistency.reason}`
+        );
+      }
+    }
+
     if (m.unmetObjectives.length > 0) {
       totalUnmet += m.unmetObjectives.length;
       topicDetails.push(`Module "${m.moduleTitle}" has ${m.unmetObjectives.length} unmet objectives.`);
     }
   }
-  const topicCoveragePassed = avgModuleCoverage >= 60;
+  const topicCoveragePassed = avgModuleCoverage >= 60 && topicConsistencyCollisions === 0;
 
   // --- Quality Gate 3: Resource Validity Gate (Zero Duplicate Videos Across Modules) ---
   const seenVideoUrls = new Map<string, string>(); // url -> moduleId
@@ -153,7 +194,7 @@ export function validateCurriculumCoverage(
     },
     topicCoverage: {
       gate: 'Topic Coverage Gate',
-      status: topicCoveragePassed ? 'PASSED' : 'WARNING',
+      status: topicConsistencyCollisions > 0 ? 'FAILED' : (topicCoveragePassed ? 'PASSED' : 'WARNING'),
       description: 'Systematic alignment between learner objective, subtopics, and verified resources.',
       details: topicDetails,
     },
@@ -186,9 +227,15 @@ export function validateCurriculumCoverage(
   const isComplete =
     totalModules >= 2 &&
     totalNotes >= totalModules &&
-    totalQuizzes >= totalModules;
+    totalQuizzes >= totalModules &&
+    topicConsistencyCollisions === 0;
 
   const finalDiagnostics = [...diagnostics];
+  if (topicConsistencyCollisions > 0) {
+    finalDiagnostics.push(
+      `Critical: Detected ${topicConsistencyCollisions} topic consistency collision(s) with course topic "${plan.courseTitle}".`
+    );
+  }
   if (totalVideos === 0) {
     finalDiagnostics.push(
       'Notice: No video resources discovered for this path. Theoretical and reading modalities active.'

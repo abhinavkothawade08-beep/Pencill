@@ -11,6 +11,12 @@ import {
   BuilderStoreProvider,
   useBuilderStore,
 } from "@/lib/store/builderStore";
+import {
+  sanitizeInputObjectives,
+  sanitizeInputSubtopics,
+  sanitizeInputPrerequisites,
+  evaluateTopicConsistency,
+} from "@/lib/curriculum-intelligence/topic-consistency-validator";
 import StepProgressIndicator from "@/components/builder/StepProgressIndicator";
 import Step1GoalDefinition from "@/components/builder/Step1GoalDefinition";
 import Step2Personalize from "@/components/builder/Step2Personalize";
@@ -35,6 +41,8 @@ function NewGoalPageContent() {
     lastSavedTime,
     hasDraft,
     canUndoReset,
+    updateConfig,
+    setTitle,
     addTopic,
     saveDraft,
     restoreDraft,
@@ -62,12 +70,30 @@ function NewGoalPageContent() {
     const qTopic = searchParams.get("topic") || searchParams.get("goal");
     if (qTopic && qTopic.trim()) {
       const clean = qTopic.trim();
-      const exists = config.selectedTopics.some((t) => t.label.toLowerCase() === clean.toLowerCase());
-      if (!exists) {
-        addTopic({ label: clean, source: "popular", complexity: 3 });
+      const isDefaultPhysics =
+        config.selectedTopics.length === 1 &&
+        config.selectedTopics[0].label.toLowerCase().includes("class 11 mechanics");
+
+      if (isDefaultPhysics || config.selectedTopics.length === 0) {
+        setTitle(clean);
+        updateConfig((prev) => ({
+          ...prev,
+          title: clean,
+          selectedTopics: [{ id: "topic-init", label: clean, source: "popular", complexity: 3 }],
+          subtopics: [],
+          learningObjectives: [],
+          prerequisites: [],
+          knownConcepts: [],
+          difficultConcepts: [],
+        }));
+      } else {
+        const exists = config.selectedTopics.some((t) => t.label.toLowerCase() === clean.toLowerCase());
+        if (!exists) {
+          addTopic({ label: clean, source: "popular", complexity: 3 });
+        }
       }
     }
-  }, [searchParams, addTopic, config.selectedTopics]);
+  }, [searchParams, addTopic, updateConfig, setTitle, config.selectedTopics]);
 
   // Handle Draft Restoration Action
   const handleRestoreDraftClick = async () => {
@@ -111,17 +137,33 @@ function NewGoalPageContent() {
     setActiveStageStep(1);
     setStagesTelemetry([]);
 
+    const targetTopic = primaryTopic.trim();
+    const sanitizedObjectives = sanitizeInputObjectives(config.learningObjectives || [], targetTopic);
+    const sanitizedSubtopics = sanitizeInputSubtopics(config.subtopics || [], targetTopic);
+    const sanitizedPrereqs = sanitizeInputPrerequisites(config.prerequisites || [], targetTopic);
+    const sanitizedKnown = sanitizeInputPrerequisites(config.knownConcepts || [], targetTopic);
+    const sanitizedDifficult = sanitizeInputSubtopics(config.difficultConcepts || [], targetTopic);
+
+    // Sanitize domain/subject if mismatched with target topic
+    let domainId: string | undefined = config.domainId;
+    let subjectId: string | undefined = config.subjectId;
+    const consistencyWithPhysics = evaluateTopicConsistency(targetTopic, "physics mechanics");
+    if (!consistencyWithPhysics.isConsistent && (subjectId === "school-physics" || domainId === "school-education")) {
+      domainId = undefined;
+      subjectId = undefined;
+    }
+
     const payload: LearnerGoalInput = {
-      topic: primaryTopic.trim(),
-      title: config.title || primaryTopic.trim(),
-      domain: config.domainId,
-      subject: config.subjectId,
-      topics: config.selectedTopics.map((t) => t.label),
-      subtopics: config.subtopics || [],
-      learningObjectives: config.learningObjectives || [],
-      prerequisites: config.prerequisites || [],
-      knownConcepts: config.knownConcepts || [],
-      difficultConcepts: config.difficultConcepts || [],
+      topic: targetTopic,
+      title: config.title?.trim() || targetTopic,
+      domain: domainId,
+      subject: subjectId,
+      topics: [targetTopic],
+      subtopics: sanitizedSubtopics,
+      learningObjectives: sanitizedObjectives,
+      prerequisites: sanitizedPrereqs,
+      knownConcepts: sanitizedKnown,
+      difficultConcepts: sanitizedDifficult,
       excludedTopics: config.excludedTopics || [],
       level: config.depthLevelId.includes("competitive")
         ? "competitive_exam"

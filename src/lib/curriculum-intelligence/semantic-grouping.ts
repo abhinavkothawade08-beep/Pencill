@@ -1,6 +1,10 @@
 import { EducationalDomain } from '../resource-engine/types';
 import { SemanticCluster } from './types';
 import { isNarrowFocusedTopic } from './objective-analyzer';
+import {
+  detectTopicDomainArchetype,
+  evaluateTopicConsistency,
+} from './topic-consistency-validator';
 
 /**
  * Intelligent Semantic Clustering Engine
@@ -16,15 +20,123 @@ export function clusterConceptsSemantically(
     return [];
   }
 
-  const cleanConcepts = Array.from(
+  const rawClean = Array.from(
     new Set(concepts.map((c) => c.trim()).filter((c) => c.length > 0))
   );
 
-  if (cleanConcepts.length === 0) return [];
+  if (rawClean.length === 0) return [];
+
+  // Filter out cross-domain collision concepts that leaked from other courses
+  const archetype = detectTopicDomainArchetype(courseTopic);
+  const filtered = rawClean.filter((c) => {
+    const evalRes = evaluateTopicConsistency(c, courseTopic, archetype);
+    return evalRes.detectedCollisions.length === 0;
+  });
+  const cleanConcepts = filtered.length > 0 ? filtered : [courseTopic];
 
   const tLower = courseTopic.toLowerCase();
   const isNarrow = isNarrowFocusedTopic(courseTopic);
   const isPython = domain === 'computer_science' || /python/i.test(tLower);
+
+  // 0. PUBLIC SPEAKING & COMMUNICATION SPECIALIZATION
+  if (
+    /public speaking|presentation|speech|rhetoric|communication skills|oratory|debate/i.test(tLower)
+  ) {
+    return [
+      {
+        clusterId: 'cluster-ps-1',
+        clusterName: 'Foundations of Speech Architecture, Audience Psychology & Message Crafting',
+        concepts: [
+          'Audience analysis & demographic profiling',
+          'Core message formulation & the central thesis',
+          'Aristotelian rhetoric: Ethos, Pathos, and Logos',
+          'Speech structuring frameworks: Monroe Motivated Sequence & Problem-Cause-Solution',
+        ],
+        rationale: 'Foundational speech design, audience psychology, persuasive rhetorical frameworks, and structural architectures.',
+        suggestedTitle: 'Speech Architecture, Audience Psychology & Narrative Structuring',
+        priority: 1,
+        searchQueries: {
+          videoQueries: [
+            'Public speaking speech structure Monroe motivated sequence tutorial',
+            'Audience analysis ethos pathos logos persuasive speech lecture',
+          ],
+          readingQueries: [
+            'Aristotle rhetoric speech structure communication handbook',
+            'Monroe motivated sequence speech outline template reference',
+          ],
+        },
+      },
+      {
+        clusterId: 'cluster-ps-2',
+        clusterName: 'Vocal Dynamics, Articulation, Pacing & Non-Verbal Body Language',
+        concepts: [
+          'Diaphragmatic breathing & vocal resonance',
+          'Pitch modulation, inflection & tone dynamics',
+          'Pacing, cadence & strategic pause mastery',
+          'Kinesics: purposeful stage movement, gestures & eye contact matrix',
+        ],
+        rationale: 'Physiological vocal delivery mechanisms, pitch inflection, pacing control, and commanding non-verbal presence.',
+        suggestedTitle: 'Vocal Dynamics, Cadence & Non-Verbal Presence',
+        priority: 2,
+        searchQueries: {
+          videoQueries: [
+            'Vocal variety public speaking diaphragmatic breathing pitch tutorial',
+            'Body language stage movement eye contact presentation skills lecture',
+          ],
+          readingQueries: [
+            'Voice and speech training diaphragmatic breathing practical guide',
+            'Non-verbal communication body language in public speaking manual',
+          ],
+        },
+      },
+      {
+        clusterId: 'cluster-ps-3',
+        clusterName: 'Visual Presentation Architecture, Slide Design & Narrative Storytelling',
+        concepts: [
+          'Cognitive load theory in slide design',
+          'Data visualization & executive chart simplification',
+          'Narrative arc & storytelling hooks (The Hero Journey)',
+          'Eliminating text density: assertion-evidence slide model',
+        ],
+        rationale: 'High-impact slide aesthetics, visual cognitive ergonomics, executive data storytelling, and the assertion-evidence visual paradigm.',
+        suggestedTitle: 'Visual Slide Ergonomics, Data Storytelling & Narrative Arcs',
+        priority: 3,
+        searchQueries: {
+          videoQueries: [
+            'Assertion evidence slide design presentation masterclass',
+            'Storytelling techniques in business presentations lecture',
+          ],
+          readingQueries: [
+            'Assertion-evidence presentation design research guidelines',
+            'Data storytelling and cognitive load in visual presentations guide',
+          ],
+        },
+      },
+      {
+        clusterId: 'cluster-ps-4',
+        clusterName: 'Stage Mastery, Impromptu Speaking, Handling Hostile Q&A & Anxiety Control',
+        concepts: [
+          'Neurobiology of stage fright & adrenaline regulation',
+          'Impromptu speaking frameworks: PREP (Point, Reason, Example, Point) & STAR',
+          'Handling tough objections, hostile questions & audience derailment',
+          'Microphone technique, stage positioning & keynote delivery protocols',
+        ],
+        rationale: 'Psychological performance anxiety regulation, impromptu speaking frameworks, hostile Q&A navigation, and stage command.',
+        suggestedTitle: 'Stage Command, Impromptu Frameworks & High-Stakes Q&A',
+        priority: 4,
+        searchQueries: {
+          videoQueries: [
+            'Overcoming stage fright performance anxiety public speaking lecture',
+            'Handling difficult questions hostile Q&A impromptu speaking tutorial',
+          ],
+          readingQueries: [
+            'Impromptu speaking frameworks PREP model communication handbook',
+            'Performance anxiety management for public speakers clinical protocol',
+          ],
+        },
+      },
+    ];
+  }
 
   // 1. NARROW FOCUSED SINGLE CONCEPTS (binary search, single skill, etc.)
   if (isNarrow) {

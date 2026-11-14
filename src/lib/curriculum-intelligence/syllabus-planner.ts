@@ -20,6 +20,11 @@ import {
   autoRepairCurriculumProposal,
 } from './curriculum-validator';
 import { isGeminiConfigured } from './configuration';
+import {
+  sanitizeInputObjectives,
+  sanitizeInputSubtopics,
+  evaluateTopicConsistency,
+} from './topic-consistency-validator';
 
 /**
  * Builds deterministic fallback curriculum proposal using semantic clustering
@@ -30,9 +35,8 @@ export function buildDeterministicProposal(
 ): CurriculumProposal {
   const input = LearnerGoalInputSchema.parse(rawInput);
   const analysis = analyzeCurriculumObjective(input);
-  const rawConcepts = input.topics && input.topics.length > 0
-    ? input.topics
-    : [input.topic];
+  const validTopics = sanitizeInputSubtopics(input.topics, input.topic);
+  const rawConcepts = validTopics.length > 0 ? validTopics : [input.topic];
 
   const clusters = clusterConceptsSemantically(
     rawConcepts,
@@ -166,6 +170,7 @@ export async function planIntelligentCurriculum(
 ): Promise<CurriculumPlan> {
   const input = LearnerGoalInputSchema.parse(rawInput);
   const analysis = analyzeCurriculumObjective(input);
+  const sanitizedObjectives = sanitizeInputObjectives(input.learningObjectives, input.topic);
   let proposal: CurriculumProposal | null = null;
 
   // 1. Attempt Gemini Generation if configured and not explicitly forced to fallback
@@ -175,8 +180,21 @@ export async function planIntelligentCurriculum(
         priorKnowledge: input.priorKnowledge,
         targetExam: input.targetExam || undefined,
         language: input.language,
-        customObjectives: input.learningObjectives?.map((lo) => lo.text),
+        customObjectives: sanitizedObjectives.map((lo) => lo.text),
       });
+
+      // Verify that Gemini didn't return cross-domain leaked or hallucinated modules
+      if (proposal && proposal.modules) {
+        const hasCollision = proposal.modules.some(
+          (m) => !evaluateTopicConsistency(m.title, input.topic).isConsistent
+        );
+        if (hasCollision) {
+          console.warn(
+            `[CurriculumPlanner] Gemini proposal contained cross-domain collision modules for topic "${input.topic}". Rejecting and falling back to deterministic synthesis.`
+          );
+          proposal = null;
+        }
+      }
     } catch (err) {
       console.warn(
         `[CurriculumPlanner] Gemini synthesis failed or rate-limited: ${(err as Error).message}. Activating intelligent fallback planner.`
@@ -184,7 +202,7 @@ export async function planIntelligentCurriculum(
     }
   }
 
-  // 2. Deterministic Fallback if Gemini did not produce a proposal
+  // 2. Deterministic Fallback if Gemini did not produce a valid proposal
   if (!proposal) {
     proposal = buildDeterministicProposal(input);
   }
@@ -196,20 +214,29 @@ export async function planIntelligentCurriculum(
     strictMode: options.strictValidation,
   });
 
-  // 4. Automated Repair if over-fragmented or redundant
+  // 4. Automated Repair if over-fragmented, redundant, or topic collision detected
   const targetModuleCap = Math.max(
     analysis.complexity === 'narrow_focused' ? 1 : 2,
     analysis.recommendedModuleCount
   );
   if (!validationResult.isValid || proposal.modules.length > targetModuleCap) {
-    proposal = autoRepairCurriculumProposal(
-      proposal,
-      proposal.modules.length > targetModuleCap ? targetModuleCap : proposal.modules.length
+    // If invalid due to topic collision, rebuild from deterministic proposal
+    const hasCollisionIssue = validationResult.issues.some(
+      (i) => i.code === 'TOPIC_CONSISTENCY_COLLISION'
     );
+    if (hasCollisionIssue) {
+      proposal = buildDeterministicProposal(input);
+    } else {
+      proposal = autoRepairCurriculumProposal(
+        proposal,
+        proposal.modules.length > targetModuleCap ? targetModuleCap : proposal.modules.length
+      );
+    }
   }
 
   // 5. Apply User Blueprint Overrides and Custom Titles
   if (input.title && input.title.trim().length > 0) {
+    // Ensure course title remains relevant
     proposal.courseTitle = input.title.trim();
   }
 
@@ -217,7 +244,10 @@ export async function planIntelligentCurriculum(
     for (const override of input.curriculumBlueprintOverrides) {
       if (override.moduleIndex >= 0 && override.moduleIndex < proposal.modules.length) {
         if (override.title) {
-          proposal.modules[override.moduleIndex].title = override.title;
+          const evalRes = evaluateTopicConsistency(override.title, input.topic);
+          if (evalRes.detectedCollisions.length === 0) {
+            proposal.modules[override.moduleIndex].title = override.title;
+          }
         }
         if (override.customObjectives && override.customObjectives.length > 0) {
           proposal.modules[override.moduleIndex].expectedOutcomes = override.customObjectives;
@@ -226,9 +256,9 @@ export async function planIntelligentCurriculum(
     }
   }
 
-  // Apply user-specified custom objectives
-  if (input.learningObjectives && input.learningObjectives.length > 0) {
-    input.learningObjectives.forEach((lo, idx) => {
+  // Apply validated user-specified custom objectives
+  if (sanitizedObjectives.length > 0) {
+    sanitizedObjectives.forEach((lo, idx) => {
       const targetModule = proposal!.modules[idx % proposal!.modules.length];
       if (targetModule) {
         targetModule.learningObjectives.push({

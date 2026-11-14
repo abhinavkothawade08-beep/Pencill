@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import taxonomyData from "@/data/taxonomy.json";
 import { useBuilderStore } from "@/lib/store/builderStore";
+import { sanitizeInputObjectives, sanitizeInputSubtopics } from "@/lib/curriculum-intelligence/topic-consistency-validator";
 
 interface Step1GoalDefinitionProps {
   onContinue: () => void;
@@ -42,17 +43,23 @@ export default function Step1GoalDefinition({ onContinue }: Step1GoalDefinitionP
         addTopic({ label: newVal.trim(), source: "custom", complexity: 3 });
       }
     } else {
-      updateConfig((prev) => ({
-        ...prev,
-        title: newVal,
-        selectedTopics: [
-          {
-            ...prev.selectedTopics[0],
-            label: newVal,
-          },
-          ...prev.selectedTopics.slice(1),
-        ],
-      }));
+      updateConfig((prev) => {
+        const sanitizedObjectives = sanitizeInputObjectives(prev.learningObjectives || [], newVal);
+        const sanitizedSubtopics = sanitizeInputSubtopics(prev.subtopics || [], newVal);
+        return {
+          ...prev,
+          title: newVal,
+          learningObjectives: sanitizedObjectives,
+          subtopics: sanitizedSubtopics,
+          selectedTopics: [
+            {
+              ...prev.selectedTopics[0],
+              label: newVal,
+            },
+            ...prev.selectedTopics.slice(1),
+          ],
+        };
+      });
     }
   };
 
@@ -61,18 +68,24 @@ export default function Step1GoalDefinition({ onContinue }: Step1GoalDefinitionP
     setTopicError(null);
     setTitle(suggestion);
 
-    updateConfig((prev) => ({
-      ...prev,
-      title: suggestion,
-      selectedTopics: [
-        {
-          id: `topic-${Date.now()}`,
-          label: suggestion,
-          source: "popular",
-          complexity: 3,
-        },
-      ],
-    }));
+    updateConfig((prev) => {
+      const sanitizedObjectives = sanitizeInputObjectives(prev.learningObjectives || [], suggestion);
+      const sanitizedSubtopics = sanitizeInputSubtopics(prev.subtopics || [], suggestion);
+      return {
+        ...prev,
+        title: suggestion,
+        learningObjectives: sanitizedObjectives,
+        subtopics: sanitizedSubtopics,
+        selectedTopics: [
+          {
+            id: `topic-${Date.now()}`,
+            label: suggestion,
+            source: "popular",
+            complexity: 3,
+          },
+        ],
+      };
+    });
   };
 
   // Handle Add Subtopic
